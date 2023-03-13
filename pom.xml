@@ -12,6 +12,7 @@
     <modules>
         <module>Common</module>
       <module>Core</module>
+      <module>Player</module>
     </modules>
 
     <properties>

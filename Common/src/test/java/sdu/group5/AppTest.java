@@ -1,4 +1,4 @@
-package org.example;
+package sdu.group5;
 
 import junit.framework.Test;
 import junit.framework.TestCase;

@@ -13,6 +13,7 @@ public class Main {
          // Set Configurations for screen
 
         // Initialize the game with those configurations
+        System.out.println("test");
 
 
     }

@@ -3,6 +3,6 @@ import gsbs.flagshipsystem.FlagshipPlugin;
 
 module Player {
     requires Common;
-    provides gsbs.common.services.IGamePluginService with FlagshipPlugin;
-    provides gsbs.common.services.IEntityProcessingService with FlagshipControlSystem;
+    provides gsbs.common.services.IPlugin with FlagshipPlugin;
+    provides gsbs.common.services.IProcess with FlagshipControlSystem;
 }

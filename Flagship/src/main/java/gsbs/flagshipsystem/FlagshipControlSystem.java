@@ -11,12 +11,9 @@ import gsbs.common.entities.Entity;
 import gsbs.common.entities.Flagship;
 import gsbs.common.math.Vector2;
 import gsbs.common.services.IProcess;
-
 import java.util.List;
 
-public class FlagshipControlSystem implements IEntityProcessingService {
-
-public class PlayerControlSystem implements IProcess {
+public class FlagshipControlSystem implements IProcess {
 
 
     @Override

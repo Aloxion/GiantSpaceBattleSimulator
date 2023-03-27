@@ -7,22 +7,16 @@ import gsbs.common.data.GameData;
 import gsbs.common.data.World;
 import gsbs.common.entities.Entity;
 import gsbs.common.entities.Flagship;
-import gsbs.common.entities.Flagship;
 import gsbs.common.services.IPlugin;
 
-public class FlagshipPlugin implements IGamePluginService {
-    private Entity Flagship;
-
-
-
-public class PlayerPlugin implements IPlugin {
-    private Entity player;
+public class FlagshipPlugin implements IPlugin {
+    private Entity flagship;
 
 
     @Override
     public void start(GameData gameData, World world) {
-        Flagship = createFlagship(gameData, world);
-        world.addEntity(Flagship);
+        flagship = createFlagship(gameData, world);
+        world.addEntity(flagship);
     }
 
     @Override

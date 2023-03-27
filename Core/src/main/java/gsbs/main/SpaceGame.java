@@ -63,11 +63,11 @@ public class SpaceGame extends com.badlogic.gdx.Game{
 
 
     private void update() {
-        for (IProcess entityProcessorService : getEntityProcessingServices()) {
+        for (IProcess entityProcessorService : getProcessingServices()) {
             entityProcessorService.process(gameData, world);
         }
 
-        for (IPostProcess postEntityProcessorService : getPostEntityProcessingServices()) {
+        for (IPostProcess postEntityProcessorService : getPostProcessingServices()) {
             postEntityProcessorService.process(gameData, world);
         }
     }
@@ -101,12 +101,12 @@ public class SpaceGame extends com.badlogic.gdx.Game{
         return serviceLoader.stream().map(ServiceLoader.Provider::get).collect(Collectors.toList());
     }
 
-    private Collection<? extends IProcess> getEntityProcessingServices() {
+    private Collection<? extends IProcess> getProcessingServices() {
         ServiceLoader<IProcess> serviceLoader = ServiceLoader.load(IProcess.class);
         return serviceLoader.stream().map(ServiceLoader.Provider::get).collect(Collectors.toList());
     }
 
-    private Collection<? extends IPostProcess> getPostEntityProcessingServices() {
+    private Collection<? extends IPostProcess> getPostProcessingServices() {
         ServiceLoader<IPostProcess> serviceLoader = ServiceLoader.load(IPostProcess.class);
         return serviceLoader.stream().map(ServiceLoader.Provider::get).collect(Collectors.toList());
     }

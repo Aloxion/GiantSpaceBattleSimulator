@@ -3,7 +3,7 @@ package gsbs.common.services;
 import gsbs.common.data.GameData;
 import gsbs.common.data.World;
 
-public interface IGamePluginService {
+public interface IPlugin {
 
     /**
      * This will be called when the plugin is initialized

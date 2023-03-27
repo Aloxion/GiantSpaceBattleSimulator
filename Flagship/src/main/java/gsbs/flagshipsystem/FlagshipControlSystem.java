@@ -1,4 +1,4 @@
-package gsbs.playersystem;
+package gsbs.flagshipsystem;
 
 
 import gsbs.common.components.Graphics;
@@ -8,17 +8,17 @@ import gsbs.common.data.GameData;
 import gsbs.common.data.GameKeys;
 import gsbs.common.data.World;
 import gsbs.common.entities.Entity;
-import gsbs.common.entities.Player;
+import gsbs.common.entities.Flagship;
 import gsbs.common.math.Vector2;
 import gsbs.common.services.IEntityProcessingService;
 
 import java.util.List;
 
-public class PlayerControlSystem implements IEntityProcessingService {
+public class FlagshipControlSystem implements IEntityProcessingService {
 
     @Override
     public void process(GameData gameData, World world) {
-        for (Entity player : world.getEntities(Player.class)) {
+        for (Entity player : world.getEntities(Flagship.class)) {
             var position = player.getComponent(Position.class);
             var movement = player.getComponent(Movement.class);
             movement.setLeft(gameData.getKeys().isDown(GameKeys.Keys.LEFT));

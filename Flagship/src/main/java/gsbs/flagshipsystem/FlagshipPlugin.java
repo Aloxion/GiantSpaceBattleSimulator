@@ -1,4 +1,4 @@
-package gsbs.playersystem;
+package gsbs.flagshipsystem;
 
 import gsbs.common.components.Graphics;
 import gsbs.common.components.Movement;
@@ -6,16 +6,16 @@ import gsbs.common.components.Position;
 import gsbs.common.data.GameData;
 import gsbs.common.data.World;
 import gsbs.common.entities.Entity;
-import gsbs.common.entities.Player;
+import gsbs.common.entities.Flagship;
 import gsbs.common.services.IGamePluginService;
 
-public class PlayerPlugin implements IGamePluginService {
-    private Entity player;
+public class FlagshipPlugin implements IGamePluginService {
+    private Entity Flagship;
 
     @Override
     public void start(GameData gameData, World world) {
-        player = createPlayerShip(gameData, world);
-        world.addEntity(player);
+        Flagship = createFlagship(gameData, world);
+        world.addEntity(Flagship);
     }
 
     @Override
@@ -24,7 +24,7 @@ public class PlayerPlugin implements IGamePluginService {
     }
 
 
-    private Entity createPlayerShip(GameData gameData, World world) {
+    private Entity createFlagship(GameData gameData, World world) {
 
         float deacceleration = 10;
         float acceleration = 200;
@@ -34,11 +34,11 @@ public class PlayerPlugin implements IGamePluginService {
         float y = gameData.getDisplayHeight() / 2.0f;
         float radians = 3.1415f / 2;
 
-        Entity playerShip = new Player();
-        playerShip.add(new Graphics());
-        playerShip.add(new Movement(deacceleration, acceleration, maxSpeed, rotationSpeed));
-        playerShip.add(new Position(x, y, radians));
+        Entity Ship = new Flagship();
+        Ship.add(new Graphics());
+        Ship.add(new Movement(deacceleration, acceleration, maxSpeed, rotationSpeed));
+        Ship.add(new Position(x, y, radians));
 
-        return playerShip;
+        return Ship;
     }
 }

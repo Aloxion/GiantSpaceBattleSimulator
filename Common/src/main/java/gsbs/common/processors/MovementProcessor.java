@@ -5,7 +5,6 @@ import gsbs.common.components.Position;
 import gsbs.common.data.GameData;
 import gsbs.common.data.World;
 import gsbs.common.entities.Entity;
-import gsbs.common.entities.Player;
 import gsbs.common.services.IEntityProcessingService;
 
 import static java.lang.Math.*;

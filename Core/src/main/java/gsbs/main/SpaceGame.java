@@ -7,13 +7,15 @@ import gsbs.common.components.Graphics;
 import gsbs.common.data.GameData;
 import gsbs.common.data.World;
 import gsbs.common.entities.Entity;
-import gsbs.common.services.IEntityProcessingService;
-import gsbs.common.services.IGamePluginService;
-import gsbs.common.services.IPostEntityProcessingService;
+import gsbs.common.services.IProcess;
+import gsbs.common.services.IPlugin;
+import gsbs.common.services.IPostProcess;
 import gsbs.common.util.SPILocator;
 import gsbs.managers.GameInputProcessor;
 
 import java.util.Collection;
+import java.util.ServiceLoader;
+import java.util.stream.Collectors;
 
 /**
  * Responsible for creating, rendering, updating and drawing.
@@ -38,8 +40,8 @@ public class SpaceGame extends com.badlogic.gdx.Game{
         );
 
         // Load all Game Plugins using ServiceLoader
-        for (IGamePluginService iGamePlugin : getPluginServices()) {
-            iGamePlugin.start(gameData, world);
+        for (IPlugin IPlugin : getPluginServices()) {
+            IPlugin.start(gameData, world);
         }
 
     }
@@ -61,11 +63,11 @@ public class SpaceGame extends com.badlogic.gdx.Game{
 
 
     private void update() {
-        for (IEntityProcessingService entityProcessorService : getEntityProcessingServices()) {
+        for (IProcess entityProcessorService : getEntityProcessingServices()) {
             entityProcessorService.process(gameData, world);
         }
 
-        for (IPostEntityProcessingService postEntityProcessorService : getPostEntityProcessingServices()) {
+        for (IPostProcess postEntityProcessorService : getPostEntityProcessingServices()) {
             postEntityProcessorService.process(gameData, world);
         }
     }
@@ -94,15 +96,18 @@ public class SpaceGame extends com.badlogic.gdx.Game{
         }
     }
 
-    private Collection<? extends IGamePluginService> getPluginServices() {
-        return SPILocator.locateAll(IGamePluginService.class);
+    private Collection<? extends IPlugin> getPluginServices() {
+        ServiceLoader<IPlugin> serviceLoader = ServiceLoader.load(IPlugin.class);
+        return serviceLoader.stream().map(ServiceLoader.Provider::get).collect(Collectors.toList());
     }
 
-    private Collection<? extends IEntityProcessingService> getEntityProcessingServices() {
-        return SPILocator.locateAll(IEntityProcessingService.class);
+    private Collection<? extends IProcess> getEntityProcessingServices() {
+        ServiceLoader<IProcess> serviceLoader = ServiceLoader.load(IProcess.class);
+        return serviceLoader.stream().map(ServiceLoader.Provider::get).collect(Collectors.toList());
     }
 
-    private Collection<? extends IPostEntityProcessingService> getPostEntityProcessingServices() {
-        return SPILocator.locateAll(IPostEntityProcessingService.class);
+    private Collection<? extends IPostProcess> getPostEntityProcessingServices() {
+        ServiceLoader<IPostProcess> serviceLoader = ServiceLoader.load(IPostProcess.class);
+        return serviceLoader.stream().map(ServiceLoader.Provider::get).collect(Collectors.toList());
     }
 }

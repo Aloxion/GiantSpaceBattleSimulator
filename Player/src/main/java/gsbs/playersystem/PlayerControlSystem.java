@@ -10,11 +10,11 @@ import gsbs.common.data.World;
 import gsbs.common.entities.Entity;
 import gsbs.common.entities.Player;
 import gsbs.common.math.Vector2;
-import gsbs.common.services.IEntityProcessingService;
+import gsbs.common.services.IProcess;
 
 import java.util.List;
 
-public class PlayerControlSystem implements IEntityProcessingService {
+public class PlayerControlSystem implements IProcess {
 
     @Override
     public void process(GameData gameData, World world) {

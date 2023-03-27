@@ -7,9 +7,9 @@ import gsbs.common.data.GameData;
 import gsbs.common.data.World;
 import gsbs.common.entities.Entity;
 import gsbs.common.entities.Player;
-import gsbs.common.services.IGamePluginService;
+import gsbs.common.services.IPlugin;
 
-public class PlayerPlugin implements IGamePluginService {
+public class PlayerPlugin implements IPlugin {
     private Entity player;
 
     @Override

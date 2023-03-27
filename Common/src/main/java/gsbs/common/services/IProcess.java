@@ -6,6 +6,6 @@ import gsbs.common.data.World;
 /**
  * This is the interface for the processor, and will be called on every frame.
  */
-public interface IEntityProcessingService {
+public interface IProcess {
     void process(GameData gameData, World world);
 }

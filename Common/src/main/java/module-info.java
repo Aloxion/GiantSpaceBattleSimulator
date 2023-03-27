@@ -7,10 +7,10 @@ module Common {
     exports gsbs.common.math;
 
     // Define all the service provider interfaces
-    uses gsbs.common.services.IGamePluginService;
-    uses gsbs.common.services.IEntityProcessingService;
-    uses gsbs.common.services.IPostEntityProcessingService;
+    uses gsbs.common.services.IPlugin;
+    uses gsbs.common.services.IProcess;
+    uses gsbs.common.services.IPostProcess;
 
     // Register built-in services
-    provides gsbs.common.services.IEntityProcessingService with gsbs.common.processors.MovementProcessor;
+    provides gsbs.common.services.IProcess with gsbs.common.processors.MovementProcessor;
 }

@@ -7,10 +7,17 @@ import gsbs.common.data.GameData;
 import gsbs.common.data.World;
 import gsbs.common.entities.Entity;
 import gsbs.common.entities.Flagship;
-import gsbs.common.services.IGamePluginService;
+import gsbs.common.entities.Flagship;
+import gsbs.common.services.IPlugin;
 
 public class FlagshipPlugin implements IGamePluginService {
     private Entity Flagship;
+
+
+
+public class PlayerPlugin implements IPlugin {
+    private Entity player;
+
 
     @Override
     public void start(GameData gameData, World world) {

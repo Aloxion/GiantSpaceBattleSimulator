@@ -8,18 +8,18 @@ import java.util.Map;
  */
 public class GameKeys {
     private static Map<Integer, Boolean> keys;
-    private static Map<Integer, Boolean> p_keys;
+    private static Map<Integer, Boolean> previous_keys;
 
     public GameKeys() {
         keys = new HashMap<>();
-        p_keys = new HashMap<>();
+        previous_keys = new HashMap<>();
     }
 
     /**
      * Needs to be called on every frame, in order to update the key states
      */
     public void update() {
-        p_keys.replaceAll((k, v) -> keys.get(k));
+        previous_keys.replaceAll((k, v) -> keys.get(k));
     }
 
     /**
@@ -37,16 +37,6 @@ public class GameKeys {
             return false;
 
         return keys.get(k);
-    }
-
-    /**
-     * Check if the key was just pressed, is only true for one frame
-     */
-    public boolean isPressed(int k) {
-        if (!keys.containsKey(k) || !p_keys.containsKey(k))
-            return false;
-
-        return keys.get(k) && !p_keys.get(k);
     }
 
     /**
@@ -77,8 +67,5 @@ public class GameKeys {
         public static final int ESCAPE = 111;
         public static final int SPACE = 62;
         public static final int SHIFT = 59;
-
-
-
     }
 }

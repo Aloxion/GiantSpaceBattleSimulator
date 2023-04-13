@@ -1,6 +1,6 @@
 module Core {
     requires Common;
-    requires Player;
+    requires Flagship;
 
     // LibGDX
     requires com.badlogic.gdx;

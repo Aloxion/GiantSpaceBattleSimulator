@@ -61,7 +61,6 @@ public class SpaceGame extends com.badlogic.gdx.Game{
         gameData.getKeys().update();
     }
 
-
     private void update() {
         for (IProcess entityProcessorService : getProcessingServices()) {
             entityProcessorService.process(gameData, world);

@@ -15,8 +15,8 @@ public class FlagshipPlugin implements IPlugin {
 
     @Override
     public void start(GameData gameData, World world) {
-        flagship = createFlagship(gameData, world);
-        world.addEntity(flagship);
+//        flagship = createFlagship(gameData, world);
+//        world.addEntity(flagship);
     }
 
     @Override

@@ -1,6 +1,7 @@
 module Core {
     requires Common;
     requires Flagship;
+    requires Asteroid;
 
     // LibGDX
     requires com.badlogic.gdx;

@@ -34,4 +34,12 @@ public class EventManager {
             }
         }
     }
+
+    public Queue<Event> getEventQueue() {
+        return eventQueue;
+    }
+
+    public List<IEventListener> getListeners() {
+        return listeners;
+    }
 }

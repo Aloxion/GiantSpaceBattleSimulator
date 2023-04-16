@@ -3,6 +3,7 @@ package gsbs.managers;
 import com.badlogic.gdx.InputAdapter;
 import gsbs.common.data.GameData;
 import gsbs.common.events.EventManager;
+import gsbs.common.events.MouseClickEvent;
 import gsbs.common.events.PlayerControlEvent;
 
 
@@ -22,6 +23,11 @@ public class GameInputProcessor extends InputAdapter {
 
     public boolean keyUp(int key) {
         eventManager.addEvent(new PlayerControlEvent(null, key, false));
+        return true;
+    }
+
+    public boolean TouchDown(int screenX, int screenY, int pointer, int button) {
+        eventManager.addEvent(new MouseClickEvent(null, screenX, screenY, button));
         return true;
     }
 }

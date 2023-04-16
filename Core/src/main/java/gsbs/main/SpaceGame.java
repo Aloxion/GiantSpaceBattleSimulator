@@ -7,10 +7,11 @@ import gsbs.common.components.Graphics;
 import gsbs.common.data.GameData;
 import gsbs.common.data.World;
 import gsbs.common.entities.Entity;
+import gsbs.common.events.EventManager;
+import gsbs.common.events.IEventListener;
 import gsbs.common.services.IProcess;
 import gsbs.common.services.IPlugin;
 import gsbs.common.services.IPostProcess;
-import gsbs.common.util.SPILocator;
 import gsbs.managers.GameInputProcessor;
 
 import java.util.Collection;
@@ -24,6 +25,7 @@ public class SpaceGame extends com.badlogic.gdx.Game{
     private final GameData gameData = new GameData();
     private final World world = new World();
     private ShapeRenderer sr;
+    private EventManager eventManager;
 
     @Override
     public void create() {
@@ -33,10 +35,11 @@ public class SpaceGame extends com.badlogic.gdx.Game{
 
         // Create a vector renderer
         sr = new ShapeRenderer();
+        eventManager = new EventManager();
 
         // Setup input handling
         Gdx.input.setInputProcessor(
-                new GameInputProcessor(gameData)
+                new GameInputProcessor(gameData, eventManager)
         );
 
         // Load all Game Plugins using ServiceLoader
@@ -44,6 +47,10 @@ public class SpaceGame extends com.badlogic.gdx.Game{
             IPlugin.start(gameData, world);
         }
 
+        System.out.println(getEventListeners());
+        for (IEventListener eventListener : getEventListeners()) {
+            eventManager.addEventListener(eventListener);
+        }
     }
 
 
@@ -66,6 +73,8 @@ public class SpaceGame extends com.badlogic.gdx.Game{
         for (IProcess entityProcessorService : getProcessingServices()) {
             entityProcessorService.process(gameData, world);
         }
+
+        eventManager.dispatchEvents(gameData);
 
         for (IPostProcess postEntityProcessorService : getPostProcessingServices()) {
             postEntityProcessorService.process(gameData, world);
@@ -108,6 +117,11 @@ public class SpaceGame extends com.badlogic.gdx.Game{
 
     private Collection<? extends IPostProcess> getPostProcessingServices() {
         ServiceLoader<IPostProcess> serviceLoader = ServiceLoader.load(IPostProcess.class);
+        return serviceLoader.stream().map(ServiceLoader.Provider::get).collect(Collectors.toList());
+    }
+
+    private Collection<? extends IEventListener> getEventListeners() {
+        ServiceLoader<IEventListener> serviceLoader = ServiceLoader.load(IEventListener.class);
         return serviceLoader.stream().map(ServiceLoader.Provider::get).collect(Collectors.toList());
     }
 }

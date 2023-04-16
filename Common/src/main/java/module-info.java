@@ -5,6 +5,7 @@ module Common {
     exports gsbs.common.services;
     exports gsbs.common.util;
     exports gsbs.common.math;
+    exports gsbs.common.events;
 
     // Define all the service provider interfaces
     uses gsbs.common.services.IPlugin;

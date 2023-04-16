@@ -10,4 +10,5 @@ module Core {
     uses gsbs.common.services.IProcess;
     uses gsbs.common.services.IPlugin;
     uses gsbs.common.services.IPostProcess;
+    uses gsbs.common.events.IEventListener;
 }

@@ -8,6 +8,14 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * The EventManagerTest class contains a set of tests to validate the functionality
+ * of the EventManager and its interaction with events and event listeners.
+ * The tests cover the following scenarios:
+ *   - Adding events to the event queue.
+ *   - Adding and removing event listeners.
+ *   - Dispatching events to registered listeners.
+ */
 class EventManagerTest {
 
     private EventManager eventManager;

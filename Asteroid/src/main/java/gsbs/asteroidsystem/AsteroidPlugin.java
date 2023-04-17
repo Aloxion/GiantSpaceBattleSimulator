@@ -15,8 +15,10 @@ public class AsteroidPlugin implements IPlugin {
 
     @Override
     public void start(GameData gameData, World world) {
-        asteroid = createAsteroid(gameData, world);
-        world.addEntity(asteroid);
+        for (int i = 0; i < 3; i++) {
+            asteroid = createAsteroid(gameData, world);
+            world.addEntity(asteroid);
+        }
     }
 
     @Override
@@ -26,11 +28,11 @@ public class AsteroidPlugin implements IPlugin {
 
     private Entity createAsteroid(GameData gameData, World world) {
 
-        int min = 100; // Minimum value of range
-        int max = 400; // Max spawn value
+        int min = 200; // Minimum value of range
+        int max = 300; // Max spawn value
 
         float x = (float) (Math.floor(Math.random() * (max - min + 1) + min));
-        float y = (float) (gameData.getDisplayHeight() / (Math.random()*5));
+        float y = (float) (Math.floor(Math.random() * ((max+100) - (min-100) + 1) + (min-100)));
         float radians = (float) (3.1415f / (Math.random()*5));
 
         Entity Asteroid = new Asteroid();
@@ -47,20 +49,20 @@ public class AsteroidPlugin implements IPlugin {
         float radians = position.getRadians();
 
         var p1 = new Vector2();
-        p1.x = (float) (x + Math.cos(radians) * 8);
-        p1.y = (float) (y + Math.sin(radians) * 8);
+        p1.x = (float) (x + Math.cos(radians) * 15);
+        p1.y = (float) (y + Math.sin(radians) * 15);
 
         var p2 = new Vector2();
-        p2.x = (float) (x + Math.cos(radians - 4 * 3.1415f / 5) * 8);
-        p2.y = (float) (y + Math.sin(radians - 4 * 3.1145f / 5) * 8);
+        p2.x = (float) (x + Math.cos(radians - 4 * 3.1415f / 5) * 15);
+        p2.y = (float) (y + Math.sin(radians - 4 * 3.1145f / 5) * 15);
 
         var p3 = new Vector2();
         p3.x = (float) (x + Math.cos(radians + 3.1415f) * 15);
         p3.y = (float) (y + Math.sin(radians + 3.1415f) * 15);
 
         var p4 = new Vector2();
-        p4.x = (float) (x + Math.cos(radians + 4 * 3.1415f / 5) * 8);
-        p4.y = (float) (y + Math.sin(radians + 4 * 3.1415f / 5) * 8);
+        p4.x = (float) (x + Math.cos(radians + 4 * 3.1415f / 5) * 15);
+        p4.y = (float) (y + Math.sin(radians + 4 * 3.1415f / 5) * 15);
 
         graphics.setShape(List.of(new Vector2[]{p1, p2, p3, p4}));
     }

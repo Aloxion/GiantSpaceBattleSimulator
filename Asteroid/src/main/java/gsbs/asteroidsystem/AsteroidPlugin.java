@@ -17,12 +17,11 @@ public class AsteroidPlugin implements IPlugin {
     public void start(GameData gameData, World world) {
         asteroid = createAsteroid(gameData, world);
         world.addEntity(asteroid);
-        System.out.println(world.getEntities());
     }
 
     @Override
     public void stop(GameData gameData, World world) {
-        System.out.println("Stop player");
+
     }
 
     private Entity createAsteroid(GameData gameData, World world) {
@@ -42,7 +41,6 @@ public class AsteroidPlugin implements IPlugin {
         return Asteroid;
     }
     private void updateShape(Graphics graphics, Position position) {
-
 
         float x = position.getX();
         float y = position.getY();

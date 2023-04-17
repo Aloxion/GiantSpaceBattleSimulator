@@ -23,8 +23,9 @@ public class MovementProcessor implements IProcess {
 
             //Confirming that there is movement
             if(movement == null){
-                break;
+                continue;
             }
+
             if (movement.isLeft()) {
                 radians += movement.getRotationSpeed() * dt;
             }

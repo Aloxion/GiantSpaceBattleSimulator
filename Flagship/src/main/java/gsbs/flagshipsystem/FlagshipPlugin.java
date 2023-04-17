@@ -11,19 +11,16 @@ import gsbs.common.services.IPlugin;
 
 public class FlagshipPlugin implements IPlugin {
     private Entity flagship;
-
-
     @Override
     public void start(GameData gameData, World world) {
-//        flagship = createFlagship(gameData, world);
-//        world.addEntity(flagship);
+        flagship = createFlagship(gameData, world);
+        world.addEntity(flagship);
     }
 
     @Override
     public void stop(GameData gameData, World world) {
         System.out.println("Stop player");
     }
-
 
     private Entity createFlagship(GameData gameData, World world) {
 

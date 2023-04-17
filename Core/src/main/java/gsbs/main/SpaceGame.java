@@ -90,7 +90,6 @@ public class SpaceGame extends com.badlogic.gdx.Game{
                 sr.line(current.x, current.y, next.x, next.y);
             }
 
-
             sr.end();
         }
     }

@@ -26,17 +26,15 @@ public class AsteroidPlugin implements IPlugin {
 
     private Entity createAsteroid(GameData gameData, World world) {
 
-        float deacceleration = 10;
-        float acceleration = 50;
-        float maxSpeed = 100;
-        float rotationSpeed = 5;
-        float x = (float) (gameData.getDisplayWidth() / (Math.random()*5));
+        int min = 100; // Minimum value of range
+        int max = 400; // Max spawn value
+
+        float x = (float) (Math.floor(Math.random() * (max - min + 1) + min));
         float y = (float) (gameData.getDisplayHeight() / (Math.random()*5));
         float radians = (float) (3.1415f / (Math.random()*5));
 
         Entity Asteroid = new Asteroid();
         Asteroid.add(new Graphics());
-        Asteroid.add(new Movement(deacceleration, acceleration, maxSpeed, rotationSpeed));
         Asteroid.add(new Position(x, y, radians));
 
         return Asteroid;

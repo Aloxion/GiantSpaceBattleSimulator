@@ -14,6 +14,7 @@ import java.util.List;
 
 public class AsteroidControlSystem implements IProcess {
 
+
     @Override
     public void process(GameData gameData, World world) {
 
@@ -24,10 +25,6 @@ public class AsteroidControlSystem implements IProcess {
 
         for (Entity asteroid : world.getEntities(Asteroid.class)) {
             var position = asteroid.getComponent(Position.class);
-            var movement = asteroid.getComponent(Movement.class);
-
-            //Setup movement for some random movement? Or do we just make be still?
-            movement.setUp(true);
 
             var graphics = asteroid.getComponent(Graphics.class);
             updateShape(graphics, position);

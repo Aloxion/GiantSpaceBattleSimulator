@@ -68,7 +68,6 @@ public class SpaceGame extends com.badlogic.gdx.Game{
         gameData.getKeys().update();
     }
 
-
     private void update() {
         for (IProcess entityProcessorService : getProcessingServices()) {
             entityProcessorService.process(gameData, world);
@@ -99,7 +98,6 @@ public class SpaceGame extends com.badlogic.gdx.Game{
                 var next = graphics.shape.get(i + 1);
                 sr.line(current.x, current.y, next.x, next.y);
             }
-
 
             sr.end();
         }

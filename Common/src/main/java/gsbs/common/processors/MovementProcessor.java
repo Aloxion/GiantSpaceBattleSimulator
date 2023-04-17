@@ -21,7 +21,11 @@ public class MovementProcessor implements IProcess {
             float radians = position.getRadians();
             float dt = gameData.getDeltaTime();
 
-            // turning
+            //Confirming that there is movement
+            if(movement == null){
+                continue;
+            }
+
             if (movement.isLeft()) {
                 radians += movement.getRotationSpeed() * dt;
             }

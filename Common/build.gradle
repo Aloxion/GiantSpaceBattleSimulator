@@ -1,0 +1,11 @@
+plugins {
+    id "org.gradlex.extra-java-module-info"
+}
+
+dependencies {
+    implementation project(path: ':LibGDX', configuration: 'shadow')
+}
+
+extraJavaModuleInfo {
+    automaticModule("LibGDX-${gdxVersion}.jar", "com.badlogic.gdx")
+}

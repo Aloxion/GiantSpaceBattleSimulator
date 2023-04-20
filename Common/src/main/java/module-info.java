@@ -7,6 +7,7 @@ module Common {
     exports gsbs.common.math;
     exports gsbs.common.events;
 
+    requires com.badlogic.gdx;
     // Define all the service provider interfaces
     uses gsbs.common.services.IPlugin;
     uses gsbs.common.services.IProcess;

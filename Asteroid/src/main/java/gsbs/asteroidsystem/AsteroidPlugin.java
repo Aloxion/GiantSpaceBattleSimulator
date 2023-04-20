@@ -2,6 +2,7 @@ package gsbs.asteroidsystem;
 
 import gsbs.common.components.Graphics;
 import gsbs.common.components.Position;
+import gsbs.common.components.Sprites;
 import gsbs.common.data.GameData;
 import gsbs.common.data.World;
 import gsbs.common.entities.Entity;
@@ -38,34 +39,15 @@ public class AsteroidPlugin implements IPlugin {
         float radians = (float) (3.1415f / (Math.random()*5));
 
         Entity Asteroid = new Asteroid();
-        Asteroid.add(new Graphics());
+        Asteroid.add(new Sprites());
         Asteroid.add(new Position(x, y, radians));
-        updateShape(Asteroid.getComponent(Graphics.class), Asteroid.getComponent(Position.class));
+        updateShape(Asteroid.getComponent(Sprites.class), Asteroid.getComponent(Position.class));
 
         return Asteroid;
     }
-    private void updateShape(Graphics graphics, Position position) {
+    private void updateShape(Sprites sprite, Position position) {
 
-        float x = position.getX();
-        float y = position.getY();
-        float radians = position.getRadians();
+        sprite.setTexture("/asteroid/default-asteroid.png", 256/4, 256/4);
 
-        var p1 = new Vector2();
-        p1.x = (float) (x + Math.cos(radians) * 15);
-        p1.y = (float) (y + Math.sin(radians) * 15);
-
-        var p2 = new Vector2();
-        p2.x = (float) (x + Math.cos(radians - 4 * 3.1415f / 5) * 15);
-        p2.y = (float) (y + Math.sin(radians - 4 * 3.1145f / 5) * 15);
-
-        var p3 = new Vector2();
-        p3.x = (float) (x + Math.cos(radians + 3.1415f) * 15);
-        p3.y = (float) (y + Math.sin(radians + 3.1415f) * 15);
-
-        var p4 = new Vector2();
-        p4.x = (float) (x + Math.cos(radians + 4 * 3.1415f / 5) * 15);
-        p4.y = (float) (y + Math.sin(radians + 4 * 3.1415f / 5) * 15);
-
-        graphics.setShape(List.of(new Vector2[]{p1, p2, p3, p4}));
     }
 }

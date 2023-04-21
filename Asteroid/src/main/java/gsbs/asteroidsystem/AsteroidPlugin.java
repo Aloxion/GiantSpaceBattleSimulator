@@ -1,15 +1,12 @@
 package gsbs.asteroidsystem;
 
-import gsbs.common.components.Graphics;
 import gsbs.common.components.Position;
-import gsbs.common.components.Sprites;
+import gsbs.common.components.MySprite;
 import gsbs.common.data.GameData;
 import gsbs.common.data.World;
 import gsbs.common.entities.Entity;
 import gsbs.common.entities.Asteroid;
-import gsbs.common.math.Vector2;
 import gsbs.common.services.IPlugin;
-import java.util.List;
 
 public class AsteroidPlugin implements IPlugin {
     private Entity asteroid;
@@ -39,15 +36,15 @@ public class AsteroidPlugin implements IPlugin {
         float radians = (float) (3.1415f / (Math.random()*5));
 
         Entity Asteroid = new Asteroid();
-        Asteroid.add(new Sprites());
+        Asteroid.add(new MySprite());
         Asteroid.add(new Position(x, y, radians));
-        updateShape(Asteroid.getComponent(Sprites.class), Asteroid.getComponent(Position.class));
+        updateShape(Asteroid.getComponent(MySprite.class), Asteroid.getComponent(Position.class));
 
         return Asteroid;
     }
-    private void updateShape(Sprites sprite, Position position) {
+    private void updateShape(MySprite mySprite, Position position) {
 
-        sprite.setTexture("/asteroid/default-asteroid.png", 256/4, 256/4);
+        mySprite.setSprite("asteroid/default-asteroid.png", 256/2, 256/2, position);
 
     }
 }

@@ -1,17 +1,16 @@
 package gsbs.main;
 
 import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.ApplicationListener;
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import gsbs.common.components.Graphics;
 import gsbs.common.components.Position;
-import gsbs.common.components.Sprites;
+import gsbs.common.components.MySprite;
 import gsbs.common.data.GameData;
 import gsbs.common.data.World;
 import gsbs.common.entities.Entity;
@@ -21,9 +20,7 @@ import gsbs.common.services.IProcess;
 import gsbs.common.services.IPlugin;
 import gsbs.common.services.IPostProcess;
 import gsbs.managers.GameInputProcessor;
-import org.w3c.dom.Text;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.ServiceLoader;
 import java.util.stream.Collectors;
@@ -39,10 +36,14 @@ public class SpaceGame extends ApplicationAdapter {
     private ShapeRenderer sr;
     private EventManager eventManager;
     private SpriteBatch batch;
+    private Texture tex;
+    private Sprite sprite;
 
     @Override
     public void create() {
         batch = new SpriteBatch();
+        tex = new Texture(Gdx.files.getLocalStoragePath()+"/assets/sprites/asteroid/default-asteroid.png");
+        this.sprite = new Sprite(tex, 0,0, tex.getWidth(),tex.getHeight());
         // Capture window size
         if (gameData.getDisplayWidth() != Gdx.graphics.getWidth() || gameData.getDisplayHeight() != Gdx.graphics.getHeight()
         ) {
@@ -74,7 +75,7 @@ public class SpaceGame extends ApplicationAdapter {
 
         cam = new OrthographicCamera(gameData.getDisplayWidth(), gameData.getDisplayHeight());
         cam.setToOrtho(false, gameData.getDisplayWidth(), gameData.getDisplayHeight());
-        cam.translate((float) gameData.getDisplayWidth() / 2, (float) gameData.getDisplayHeight() / 2);
+        cam.position.set((float) gameData.getDisplayWidth(), (float) gameData.getDisplayHeight(),0);
         cam.update();
     }
 
@@ -107,7 +108,7 @@ public class SpaceGame extends ApplicationAdapter {
         for (Entity entity : world.getEntities()) {
             Position position = entity.getComponent(Position.class);
             Graphics graphics = entity.getComponent(Graphics.class);
-            Sprites sprites = entity.getComponent(Sprites.class);
+            MySprite mySprite = entity.getComponent(MySprite.class);
 
             if (graphics != null){
                 sr.setColor(1, 1, 1, 1);
@@ -123,9 +124,9 @@ public class SpaceGame extends ApplicationAdapter {
                 sr.end();
             }
 
-            if (sprites != null){
+            if (mySprite != null){
                 batch.begin();
-                    batch.draw(sprites.getTexture(), position.getX(), position.getY(), sprites.getWidth(), sprites.getHeight());
+                        mySprite.getSprite().draw(batch);
                 batch.end();
             }
         }

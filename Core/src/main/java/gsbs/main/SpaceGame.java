@@ -4,12 +4,9 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import gsbs.common.components.Graphics;
-import gsbs.common.components.Position;
 import gsbs.common.components.MySprite;
 import gsbs.common.data.GameData;
 import gsbs.common.data.World;
@@ -36,14 +33,10 @@ public class SpaceGame extends ApplicationAdapter {
     private ShapeRenderer sr;
     private EventManager eventManager;
     private SpriteBatch batch;
-    private Texture tex;
-    private Sprite sprite;
 
     @Override
     public void create() {
         batch = new SpriteBatch();
-        tex = new Texture(Gdx.files.getLocalStoragePath()+"/assets/sprites/asteroid/default-asteroid.png");
-        this.sprite = new Sprite(tex, 0,0, tex.getWidth(),tex.getHeight());
         // Capture window size
         if (gameData.getDisplayWidth() != Gdx.graphics.getWidth() || gameData.getDisplayHeight() != Gdx.graphics.getHeight()
         ) {
@@ -106,7 +99,6 @@ public class SpaceGame extends ApplicationAdapter {
 
     private void draw() {
         for (Entity entity : world.getEntities()) {
-            Position position = entity.getComponent(Position.class);
             Graphics graphics = entity.getComponent(Graphics.class);
             MySprite mySprite = entity.getComponent(MySprite.class);
 
@@ -123,7 +115,6 @@ public class SpaceGame extends ApplicationAdapter {
                 }
                 sr.end();
             }
-
             if (mySprite != null){
                 batch.begin();
                         mySprite.getSprite().draw(batch);

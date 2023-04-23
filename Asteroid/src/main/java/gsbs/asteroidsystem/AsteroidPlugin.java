@@ -8,6 +8,9 @@ import gsbs.common.entities.Entity;
 import gsbs.common.entities.Asteroid;
 import gsbs.common.services.IPlugin;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class AsteroidPlugin implements IPlugin {
     private Entity asteroid;
 
@@ -45,6 +48,5 @@ public class AsteroidPlugin implements IPlugin {
     private void updateShape(MySprite mySprite, Position position) {
 
         mySprite.setSprite("asteroid/default-asteroid.png", 256/2, 256/2, position);
-
     }
 }

@@ -22,6 +22,7 @@ public class PlayerControllerControlSystem implements IProcess {
         for (Entity player : world.getEntities(Flagship.class)) {
             var team = player.getComponent(Team.class);
             if (team.getTeamNumber() == 1){
+
                 var movement = player.getComponent(Movement.class);
                 movement.setLeft(gameData.getKeys().isDown(GameKeys.Keys.LEFT));
                 movement.setRight(gameData.getKeys().isDown(GameKeys.Keys.RIGHT));

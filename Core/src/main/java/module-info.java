@@ -1,7 +1,7 @@
 module Core {
     requires Common;
     requires Flagship;
-    requires Asteroid;
+    requires PlayerController;
 
     // LibGDX
     requires com.badlogic.gdx;

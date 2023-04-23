@@ -23,10 +23,6 @@ public class FlagshipControlSystem implements IProcess, IEventListener {
     public void process(GameData gameData, World world) {
         for (Entity player : world.getEntities(Flagship.class)) {
             var position = player.getComponent(Position.class);
-            var movement = player.getComponent(Movement.class);
-            movement.setLeft(gameData.getKeys().isDown(GameKeys.Keys.LEFT));
-            movement.setRight(gameData.getKeys().isDown(GameKeys.Keys.RIGHT));
-            movement.setUp(gameData.getKeys().isDown(GameKeys.Keys.UP));
 
             var graphics = player.getComponent(Graphics.class);
             updateShape(graphics, position);

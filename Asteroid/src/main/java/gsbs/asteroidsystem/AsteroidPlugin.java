@@ -4,6 +4,7 @@ import gsbs.common.components.Position;
 import gsbs.common.components.MySprite;
 import gsbs.common.data.GameData;
 import gsbs.common.data.World;
+import gsbs.common.data.enums.AsteroidSizes;
 import gsbs.common.entities.Entity;
 import gsbs.common.entities.Asteroid;
 import gsbs.common.services.IPlugin;
@@ -16,7 +17,7 @@ public class AsteroidPlugin implements IPlugin {
 
     @Override
     public void start(GameData gameData, World world) {
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 8; i++) {
             asteroid = createAsteroid(gameData, world);
             world.addEntity(asteroid);
         }
@@ -46,7 +47,7 @@ public class AsteroidPlugin implements IPlugin {
         return Asteroid;
     }
     private void updateShape(MySprite mySprite, Position position) {
-
-        mySprite.setSprite("asteroid/default-asteroid.png", 256/2, 256/2, position);
+        int size = AsteroidSizes.randomDirection().getSize();
+        mySprite.setSprite("asteroid/default-asteroid.png", size, size, position);
     }
 }

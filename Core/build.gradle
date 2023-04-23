@@ -8,6 +8,7 @@ dependencies {
     implementation project(path: ':LibGDX', configuration: 'shadow')
 
     implementation project(':Flagship')
+    implementation project(':PlayerController')
 }
 
 application {

@@ -1,17 +1,19 @@
 package gsbs.common.components;
 
+import gsbs.common.data.enums.Teams;
+
 public class Team extends Component{
-	private int teamNumber;
+	private Teams team;
 
-	public Team(int teamNumber) {
-		this.teamNumber = teamNumber;
+	public Team(Teams team) {
+		this.team = team;
 	}
 
-	public int getTeamNumber() {
-		return teamNumber;
+	public Teams getTeam() {
+		return team;
 	}
 
-	public void setTeamNumber(int teamNumber) {
-		this.teamNumber = teamNumber;
+	public void setTeam(Teams team) {
+		this.team = team;
 	}
 }

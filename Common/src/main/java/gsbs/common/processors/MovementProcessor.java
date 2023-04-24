@@ -16,12 +16,20 @@ public class MovementProcessor implements IProcess {
         for (Entity entity : world.getEntities()) {
             var movement = entity.getComponent(Movement.class);
             var position = entity.getComponent(Position.class);
+            if (position == null || movement == null){
+                continue;
+            }
+
             float x = position.getX();
             float y = position.getY();
             float radians = position.getRadians();
             float dt = gameData.getDeltaTime();
 
-            // turning
+            //Confirming that there is movement
+            if(movement == null){
+                continue;
+            }
+
             if (movement.isLeft()) {
                 radians += movement.getRotationSpeed() * dt;
             }

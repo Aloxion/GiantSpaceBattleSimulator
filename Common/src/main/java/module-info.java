@@ -5,7 +5,10 @@ module Common {
     exports gsbs.common.services;
     exports gsbs.common.util;
     exports gsbs.common.math;
+    exports gsbs.common.events;
+    exports gsbs.common.data.enums;
 
+    requires com.badlogic.gdx;
     // Define all the service provider interfaces
     uses gsbs.common.services.IPlugin;
     uses gsbs.common.services.IProcess;

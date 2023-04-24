@@ -16,6 +16,10 @@ public class MovementProcessor implements IProcess {
         for (Entity entity : world.getEntities()) {
             var movement = entity.getComponent(Movement.class);
             var position = entity.getComponent(Position.class);
+            if (position == null || movement == null){
+                continue;
+            }
+
             float x = position.getX();
             float y = position.getY();
             float radians = position.getRadians();

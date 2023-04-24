@@ -6,7 +6,6 @@ import gsbs.common.events.EventManager;
 import gsbs.common.events.MouseClickEvent;
 import gsbs.common.events.PlayerControlEvent;
 
-
 public class GameInputProcessor extends InputAdapter {
     private final GameData gameData;
     private final EventManager eventManager;

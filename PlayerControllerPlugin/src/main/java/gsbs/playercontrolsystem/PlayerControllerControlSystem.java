@@ -9,9 +9,13 @@ import gsbs.common.data.World;
 import gsbs.common.data.enums.Teams;
 import gsbs.common.entities.Entity;
 import gsbs.common.entities.Flagship;
+import gsbs.common.events.Event;
+import gsbs.common.events.EventType;
+import gsbs.common.events.PlayerControlEvent;
+import gsbs.common.services.IEventListener;
 import gsbs.common.services.IProcess;
 
-public class PlayerControllerControlSystem implements IProcess {
+public class PlayerControllerControlSystem implements IProcess, IEventListener {
 
 
     @Override
@@ -25,6 +29,14 @@ public class PlayerControllerControlSystem implements IProcess {
                 movement.setRight(gameData.getKeys().isDown(GameKeys.Keys.RIGHT));
                 movement.setUp(gameData.getKeys().isDown(GameKeys.Keys.UP));
             }
+        }
+    }
+
+    @Override
+    public void onEvent(Event event, GameData gameData) {
+        if (event.getEventType() == EventType.PLAYER_CONTROL) {
+            PlayerControlEvent controlEvent = (PlayerControlEvent) event;
+            gameData.getKeys().setKey(controlEvent.getKeyCode(), controlEvent.isKeyPressed());
         }
     }
 }

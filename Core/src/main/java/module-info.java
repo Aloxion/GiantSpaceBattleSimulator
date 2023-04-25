@@ -1,10 +1,11 @@
+
 module Core {
     requires Common;
 
     uses gsbs.common.services.IPlugin;
     uses gsbs.common.services.IProcess;
     uses gsbs.common.services.IPostProcess;
-    uses gsbs.common.events.IEventListener;
+    uses gsbs.common.services.IEventListener;
 
     requires imgui.lwjgl3;
     requires imgui.binding;

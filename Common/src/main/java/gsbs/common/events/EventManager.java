@@ -1,6 +1,7 @@
 package gsbs.common.events;
 
 import gsbs.common.data.GameData;
+import gsbs.common.services.IEventListener;
 
 import java.util.LinkedList;
 import java.util.List;

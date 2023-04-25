@@ -3,6 +3,7 @@ package gsbs.playercontrolsystem;
 
 import gsbs.common.components.Movement;
 import gsbs.common.components.Team;
+import gsbs.common.components.Weapon;
 import gsbs.common.data.GameData;
 import gsbs.common.data.GameKeys;
 import gsbs.common.data.World;
@@ -28,6 +29,12 @@ public class PlayerControllerControlSystem implements IProcess, IEventListener {
                 movement.setLeft(gameData.getKeys().isDown(GameKeys.Keys.LEFT));
                 movement.setRight(gameData.getKeys().isDown(GameKeys.Keys.RIGHT));
                 movement.setUp(gameData.getKeys().isDown(GameKeys.Keys.UP));
+
+                var weapon = player.getComponent(Weapon.class);
+                if (gameData.getKeys().isDown(GameKeys.Keys.SPACE)){
+                    weapon.fire();
+                }
+
             }
         }
     }

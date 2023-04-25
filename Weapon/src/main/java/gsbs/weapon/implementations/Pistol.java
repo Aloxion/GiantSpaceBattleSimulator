@@ -9,10 +9,23 @@ import gsbs.common.services.IWeapon;
 import gsbs.weapon.BulletControlSystem;
 
 public class Pistol implements IWeapon {
+    private final int reloadTime = 25;
+    private int lastFire = reloadTime; // To make sure the player can shoot as the game starts
 
     @Override
     public void fire(Entity source, GameData gameData, World world) {
+        int gameTime = gameData.getRenderCycles();
+        if(lastFire + reloadTime < gameTime){
+
+            addBullet(source, gameData, world);
+            lastFire = gameTime;
+        }
+    }
+
+    private void addBullet(Entity source, GameData gameData, World world){
         Position startPosition = source.getComponent(Position.class);
+
         world.addEntity(BulletControlSystem.createBullet(startPosition));
     }
+
 }

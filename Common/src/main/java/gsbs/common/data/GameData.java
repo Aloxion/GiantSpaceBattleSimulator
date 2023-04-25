@@ -14,6 +14,7 @@ public class GameData {
     private final GameKeys keys = new GameKeys();
     private final List<Event> events = new CopyOnWriteArrayList<>();
     private float deltaTime;
+    private int renderCycles;
     private int displayWidth;
     private int displayHeight;
 
@@ -29,6 +30,14 @@ public class GameData {
      */
     public void setDeltaTime(float deltaTime) {
         this.deltaTime = deltaTime;
+    }
+
+    public int getRenderCycles() {
+        return renderCycles;
+    }
+
+    public void setRenderCycles(int renderCycles) {
+        this.renderCycles = renderCycles;
     }
 
     /**

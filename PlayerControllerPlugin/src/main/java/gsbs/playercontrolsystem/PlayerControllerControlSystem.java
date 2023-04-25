@@ -32,7 +32,7 @@ public class PlayerControllerControlSystem implements IProcess, IEventListener {
 
                 var weapon = player.getComponent(Weapon.class);
                 if (gameData.getKeys().isDown(GameKeys.Keys.SPACE)){
-                    weapon.fire();
+                    weapon.fire(player, gameData);
                 }
 
             }

@@ -1,5 +1,7 @@
 package gsbs.common.components;
 
+import gsbs.common.data.GameData;
+import gsbs.common.entities.Entity;
 import gsbs.common.services.IWeapon;
 
 public class Weapon extends Component {
@@ -9,13 +11,9 @@ public class Weapon extends Component {
         this.weapon = weapon;
     }
 
-    public IWeapon getWeapon() {
-        return weapon;
-    }
-
-    public void fire() {
+    public void fire(Entity source, GameData gameData) {
         if (weapon != null) {
-            weapon.fire();
+            weapon.fire(source, gameData);
         } else {
             System.out.println("No weapon available");
         }

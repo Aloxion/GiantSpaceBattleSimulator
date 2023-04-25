@@ -25,7 +25,7 @@ public class BulletControlSystem implements IProcess {
     }
 
     private void updateShape(MySprite mySprite, Position position) {
-        mySprite.setSprite("default-bullet.png", 30, 30, position);
+        mySprite.setSprite("default-bullet.png", 10, 10, position);
     }
 
     public static Entity createBullet(Position position){

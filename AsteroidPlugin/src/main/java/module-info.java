@@ -1,6 +1,6 @@
 import gsbs.asteroidsystem.AsteroidPlugin;
 
-module Asteroid {
+module AsteroidPlugin {
     requires Common;
     provides gsbs.common.services.IPlugin with AsteroidPlugin;
 }

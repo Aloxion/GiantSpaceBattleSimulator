@@ -1,4 +1,6 @@
 module Common {
+    opens gsbs.common.components;
+
     exports gsbs.common.data;
     exports gsbs.common.entities;
     exports gsbs.common.components;
@@ -13,6 +15,7 @@ module Common {
     uses gsbs.common.services.IPlugin;
     uses gsbs.common.services.IProcess;
     uses gsbs.common.services.IPostProcess;
+    uses gsbs.common.events.IEventListener;
 
     // Register built-in services
     provides gsbs.common.services.IProcess with gsbs.common.processors.MovementProcessor;

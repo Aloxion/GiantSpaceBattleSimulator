@@ -1,12 +1,12 @@
 package gsbs.managers;
 
-import com.badlogic.gdx.InputAdapter;
 import gsbs.common.data.GameData;
 import gsbs.common.events.EventManager;
 import gsbs.common.events.MouseClickEvent;
 import gsbs.common.events.PlayerControlEvent;
 
-public class GameInputProcessor extends InputAdapter {
+
+public class GameInputProcessor {
     private final GameData gameData;
     private final EventManager eventManager;
 

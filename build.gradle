@@ -1,35 +1,30 @@
 plugins {
     id 'org.javamodularity.moduleplugin' version '1.8.12' apply false
-    id "org.gradlex.extra-java-module-info" version "1.3" apply false
-}
-
-// LibGDX breaks if it gets the module plugin, we patch it manually in Core.
-configure(subprojects.findAll {it.name != 'LibGDX'}) {
-    apply plugin: 'java'
-    apply plugin: "org.javamodularity.moduleplugin"
-
-    dependencies {
-        testImplementation(platform('org.junit:junit-bom:5.9.2'))
-        testImplementation('org.junit.jupiter:junit-jupiter')
-    }
-
-    test {
-        useJUnitPlatform()
-        testLogging {
-            events "passed", "skipped", "failed"
-        }
-    }
 }
 
 allprojects {
+    apply plugin: 'java'
+    apply plugin: "org.javamodularity.moduleplugin"
+
     version = "1.0"
 
     ext {
         appName = "Giant Space Battle Simulator"
-        gdxVersion = "1.11.0"
+        lwjglVersion = "3.3.1"
+        imguiVersion = "1.86.10"
+        junitVersion = "5.9.2"
     }
 
     repositories {
         mavenCentral()
+    }
+
+    dependencies {
+        testImplementation(platform("org.junit:junit-bom:$junitVersion"))
+        testImplementation("org.junit.jupiter:junit-jupiter")
+    }
+
+    test {
+        useJUnitPlatform()
     }
 }

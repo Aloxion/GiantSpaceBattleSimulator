@@ -9,6 +9,7 @@ import gsbs.weapon.BulletControlSystem;
 
 public class Shotgun implements IWeapon {
     private final int reloadTime = 100;
+    private final int duration = 50;
 
     private int lastFire = -reloadTime; // To make sure the player can shoot as the game starts
 
@@ -30,7 +31,7 @@ public class Shotgun implements IWeapon {
         for(int i = -2; i < 3; i++){
             float radians = (float) (i * Math.PI / 6);
             Position position = new Position(startPosition.getX(), startPosition.getY(), radians);
-            world.addEntity(BulletControlSystem.createBullet(position));
+            world.addEntity(BulletControlSystem.createBullet(position, duration));
         }
 
     }

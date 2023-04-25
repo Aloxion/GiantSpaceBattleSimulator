@@ -12,7 +12,7 @@ import gsbs.common.data.GameData;
 import gsbs.common.data.World;
 import gsbs.common.entities.Entity;
 import gsbs.common.events.EventManager;
-import gsbs.common.events.IEventListener;
+import gsbs.common.services.IEventListener;
 import gsbs.common.services.IProcess;
 import gsbs.common.services.IPlugin;
 import gsbs.common.services.IPostProcess;

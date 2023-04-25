@@ -2,22 +2,20 @@ package gsbs.flagshipsystem;
 
 
 import gsbs.common.components.Graphics;
-import gsbs.common.components.Movement;
 import gsbs.common.components.Position;
 import gsbs.common.data.GameData;
-import gsbs.common.data.GameKeys;
 import gsbs.common.data.World;
 import gsbs.common.entities.Entity;
 import gsbs.common.entities.Flagship;
 import gsbs.common.events.Event;
 import gsbs.common.events.EventType;
-import gsbs.common.events.IEventListener;
+import gsbs.common.services.IEventListener;
 import gsbs.common.events.PlayerControlEvent;
 import gsbs.common.math.Vector2;
 import gsbs.common.services.IProcess;
 import java.util.List;
 
-public class FlagshipControlSystem implements IProcess, IEventListener {
+public class FlagshipControlSystem implements IProcess {
 
     @Override
     public void process(GameData gameData, World world) {
@@ -51,13 +49,5 @@ public class FlagshipControlSystem implements IProcess, IEventListener {
         p4.y = (float) (y + Math.sin(radians + 4 * 3.1415f / 5) * 8);
 
         graphics.setShape(List.of(new Vector2[]{p1, p2, p3, p4}));
-    }
-
-    @Override
-    public void onEvent(Event event, GameData gameData) {
-        if (event.getEventType() == EventType.PLAYER_CONTROL) {
-            PlayerControlEvent controlEvent = (PlayerControlEvent) event;
-            gameData.getKeys().setKey(controlEvent.getKeyCode(), controlEvent.isKeyPressed());
-        }
     }
 }

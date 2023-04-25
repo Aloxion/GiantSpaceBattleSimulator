@@ -2,7 +2,7 @@ package gsbs.common.events;
 
 import gsbs.common.data.GameData;
 import gsbs.common.entities.Entity;
-import gsbs.common.events.*;
+import gsbs.common.services.IEventListener;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

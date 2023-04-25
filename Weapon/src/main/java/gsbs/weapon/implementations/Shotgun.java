@@ -1,16 +1,17 @@
 package gsbs.weapon.implementations;
 
-import gsbs.common.components.*;
+import gsbs.common.components.Position;
 import gsbs.common.data.GameData;
 import gsbs.common.data.World;
-import gsbs.common.entities.Bullet;
 import gsbs.common.entities.Entity;
 import gsbs.common.services.IWeapon;
 import gsbs.weapon.BulletControlSystem;
 
-public class Pistol implements IWeapon {
-    private final int reloadTime = 25;
+public class Shotgun implements IWeapon {
+    private final int reloadTime = 100;
+
     private int lastFire = -reloadTime; // To make sure the player can shoot as the game starts
+
 
     @Override
     public void fire(Entity source, GameData gameData, World world) {
@@ -25,7 +26,12 @@ public class Pistol implements IWeapon {
     private void addBullet(Entity source, World world){
         Position startPosition = source.getComponent(Position.class);
 
-        world.addEntity(BulletControlSystem.createBullet(startPosition));
-    }
+        //Create bullets in a semicircle
+        for(int i = -2; i < 3; i++){
+            float radians = (float) (i * Math.PI / 6);
+            Position position = new Position(startPosition.getX(), startPosition.getY(), radians);
+            world.addEntity(BulletControlSystem.createBullet(position));
+        }
 
+    }
 }

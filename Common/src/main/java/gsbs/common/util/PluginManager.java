@@ -3,6 +3,7 @@ package gsbs.common.util;
 
 import java.io.IOException;
 import java.lang.module.ModuleFinder;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -91,10 +92,9 @@ public class PluginManager {
 
     public static List<URL> updatePluginLayers() {
         // Find all plugin jars
-        var pluginsDir = Paths.get(getPathOfClass(PluginManager.class).getPath()).getParent().resolve(PLUGINS_PATH);
         Set<URL> pluginJars = new HashSet<>();
 
-        try (Stream<Path> stream = Files.list(pluginsDir)) {
+        try (Stream<Path> stream = Files.list(Paths.get(getPathOfClass(PluginManager.class).toURI()).getParent().resolve(PLUGINS_PATH))) {
             for (var item : stream.collect(Collectors.toList())) {
                 if (!item.getFileName().toString().endsWith(".jar")) {
                     continue;
@@ -104,6 +104,8 @@ public class PluginManager {
             }
         } catch (IOException e) {
             return new ArrayList<>();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
         }
 
         var validPluginsFound = new ArrayList<>();

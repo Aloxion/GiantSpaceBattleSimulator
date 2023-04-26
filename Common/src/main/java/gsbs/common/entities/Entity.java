@@ -4,8 +4,10 @@ import gsbs.common.components.Component;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class Entity implements Serializable {
     private final UUID ID = UUID.randomUUID();
@@ -38,5 +40,9 @@ public class Entity implements Serializable {
     @SuppressWarnings("unchecked")
     public <E extends Component> E getComponent(Class<E> componentClass) {
         return (E) this.components.get(componentClass);
+    }
+
+    public List<? extends Component> getComponents() {
+        return this.components.values().stream().collect(Collectors.toList());
     }
 }

@@ -1,20 +1,18 @@
 package gsbs.main;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
-import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
-import com.badlogic.gdx.graphics.OrthographicCamera;
+import gsbs.util.Color;
+import gsbs.util.Configuration;
 
 public class Main {
     public static void main(String[] args) {
-        var cfg = new LwjglApplicationConfiguration();
-        cfg.title = "Giant Space Battle Simulator";
-        cfg.width = 1200;
-        cfg.height = 800;
-        cfg.resizable = false;
-        cfg.vSyncEnabled = true;
-        cfg.forceExit = false;
+        var cfg = new Configuration();
+        cfg.setTitle("Giant Space Battle Simulator");
+        cfg.setWidth(800);
+        cfg.setHeight(600);
+        cfg.setFullScreen(false);
+        cfg.setVsync(true);
+        cfg.setBackgroundColor(new Color(0, 0, 0, 1));
 
-        new LwjglApplication(new SpaceGame(), cfg);
+        new SpaceGame(cfg).start();
     }
 }

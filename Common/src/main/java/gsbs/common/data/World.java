@@ -1,5 +1,6 @@
 package gsbs.common.data;
 
+import gsbs.common.components.Component;
 import gsbs.common.entities.Entity;
 
 import java.util.ArrayList;
@@ -50,6 +51,35 @@ public class World {
         List<Entity> r = new ArrayList<>();
         for (Entity e : getEntities()) {
             if (entityType.equals(e.getClass())) {
+                r.add(e);
+            }
+        }
+        return r;
+    }
+
+
+    public <E extends Component> List<Entity> getEntitiesWithComponent(Class<E> componentType) {
+        List<Entity> r = new ArrayList<>();
+        for (Entity e : getEntities()) {
+            if (e.getComponent(componentType) != null) {
+                r.add(e);
+            }
+        }
+        return r;
+    }
+
+    @SafeVarargs
+    public final List<Entity> getEntitiesWithComponents(Class<? extends Component>... componentTypes) {
+        List<Entity> r = new ArrayList<>();
+        for (Entity e : getEntities()) {
+            boolean hasAllComponents = true;
+            for (Class<? extends Component> type : componentTypes) {
+                if (e.getComponent(type) == null) {
+                    hasAllComponents = false;
+                }
+            }
+
+            if (hasAllComponents) {
                 r.add(e);
             }
         }

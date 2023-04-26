@@ -41,31 +41,31 @@ public class GameKeys {
 
     /**
      * Map the keys over to Core library
+     * <a href="https://www.glfw.org/docs/3.3/group__keys.html">...</a>
      */
     public static class Keys {
-
         //PLAYER MOVEMENT
-        public static final int UP = 51; //W
-        public static final int LEFT = 29; //A
-        public static final int DOWN = 47; //S
-        public static final int RIGHT = 32; //D
+        public static final int UP = 265;
+        public static final int LEFT = 262;
+        public static final int DOWN = 264;
+        public static final int RIGHT = 263;
 
         // PLAYER CONTROL KEYS
-        public static final int WEAPON_CYCLE_UP = 45; //Q
-        public static final int WEAPON_CYCLE_DOWN = 33; //E
+        public static final int WEAPON_CYCLE_UP = 81; //Q
+        public static final int WEAPON_CYCLE_DOWN = 69; //E
 
-        public static final int RELEASE_SHIPS = 46; //R
-        public static final int SHIPS_DEFEND = 34; //F
+        public static final int RELEASE_SHIPS = 82; //R
+        public static final int SHIPS_DEFEND = 70; //F
 
-        public static final int Z = 54;
-        public static final int X = 52;
-        public static final int C = 31;
-        public static final int V = 50;
+        public static final int Z = 90;
+        public static final int X = 88;
+        public static final int C = 67;
+        public static final int V = 86;
 
         // SYSTEM KEYS
-        public static final int ENTER = 66;
-        public static final int ESCAPE = 111;
-        public static final int SPACE = 62;
-        public static final int SHIFT = 59;
+        public static final int ENTER = 257;
+        public static final int ESCAPE = 256;
+        public static final int SPACE = 32;
+        public static final int SHIFT = 340;
     }
 }

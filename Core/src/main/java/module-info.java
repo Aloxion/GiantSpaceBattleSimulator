@@ -18,4 +18,5 @@ module Core {
     requires org.lwjgl.glfw.natives;
     requires org.lwjgl.bgfx.natives;
     requires org.lwjgl.nanovg.natives;
+    requires org.lwjgl.stb.natives;
 }

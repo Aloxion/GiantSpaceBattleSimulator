@@ -1,6 +1,8 @@
 package gsbs.main;
 
 import gsbs.common.components.Graphics;
+import gsbs.common.components.Position;
+import gsbs.common.components.Sprite;
 import gsbs.common.data.GameData;
 import gsbs.common.data.World;
 import gsbs.common.entities.Entity;
@@ -20,6 +22,7 @@ import imgui.flag.ImGuiTableFlags;
 import imgui.flag.ImGuiWindowFlags;
 import imgui.internal.ImGui;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.nanovg.NVGPaint;
 
 import java.net.URL;
 import java.nio.file.Paths;
@@ -75,6 +78,97 @@ public class SpaceGame {
     private void run(Window window) {
         gameData.setDeltaTime(ImGui.getIO().getDeltaTime());
 
+        renderGUI();
+
+        update();
+
+        draw();
+
+        gameData.getKeys().update();
+    }
+
+    private void update() {
+        if (paused)
+            return;
+
+        for (IPlugin iGamePlugin : getPluginServices()) {
+            if (!initializedPlugins.contains(iGamePlugin)) {
+                iGamePlugin.start(gameData, world);
+                initializedPlugins.add(iGamePlugin);
+            }
+        }
+
+        for (IProcess entityProcessorService : getProcessingServices()) {
+            entityProcessorService.process(gameData, world);
+        }
+
+        for (IPostProcess postEntityProcessorService : getPostProcessingServices()) {
+            postEntityProcessorService.process(gameData, world);
+        }
+    }
+
+    private void draw() {
+        // Draw vector graphics
+        for (Entity entity : world.getEntitiesWithComponent(Graphics.class)) {
+            var graphics = entity.getComponent(Graphics.class);
+
+            if (graphics == null || graphics.shape.size() == 0) {
+                continue;
+            }
+
+            nvgBeginPath(nvgContext);
+            nvgMoveTo(nvgContext, graphics.shape.get(0).x, graphics.shape.get(0).y);
+            for (int i = 1; i < graphics.shape.size(); i++) {
+                nvgLineTo(nvgContext, graphics.shape.get(i).x, graphics.shape.get(i).y);
+            }
+            nvgLineTo(nvgContext, graphics.shape.get(0).x, graphics.shape.get(0).y);
+            nvgStrokeColor(nvgContext, rgba(1, 1, 1, 1));
+            nvgStroke(nvgContext);
+        }
+
+        // Draw sprites
+        for (Entity entity : world.getEntitiesWithComponents(Position.class, Sprite.class)) {
+            var position = entity.getComponent(Position.class);
+            var sprite = entity.getComponent(Sprite.class);
+
+            float cx = sprite.getWidth() / 2.0f;
+            float cy = sprite.getHeight() / 2.0f;
+
+            nvgSave(nvgContext);
+            nvgTranslate(nvgContext, position.getX() + cx, position.getY() + cy);
+            nvgRotate(nvgContext, position.getRadians());
+            nvgTranslate(nvgContext, -cx, -cy);
+
+            try (NVGPaint img = NVGPaint.calloc()) {
+                nvgImagePattern(nvgContext, 0, 0, sprite.getWidth(), sprite.getHeight(), 0, sprite.getSpriteId(nvgContext), 1, img);
+
+                nvgBeginPath(nvgContext);
+                nvgRect(nvgContext, 0, 0, sprite.getWidth(), sprite.getHeight());
+                nvgFillPaint(nvgContext, img);
+                nvgFill(nvgContext);
+                nvgRestore(nvgContext);
+            }
+        }
+    }
+
+
+    private Collection<? extends IPlugin> getPluginServices() {
+        return PluginManager.locateAll(IPlugin.class);
+    }
+
+    private Collection<? extends IProcess> getProcessingServices() {
+        return PluginManager.locateAll(IProcess.class);
+    }
+
+    private Collection<? extends IPostProcess> getPostProcessingServices() {
+        return PluginManager.locateAll(IPostProcess.class);
+    }
+
+    private Collection<? extends IEventListener> getEventListeners() {
+        return PluginManager.locateAll(IEventListener.class);
+    }
+
+    private void renderGUI() {
         ImGui.setNextWindowPos(0, 0);
         ImGui.setNextWindowSize(gameData.getDisplayWidth() * 0.3f, gameData.getDisplayHeight());
         ImGui.setNextWindowCollapsed(true, ImGuiCond.FirstUseEver);
@@ -188,71 +282,5 @@ public class SpaceGame {
         ImGui.text("FPS: " + (int) (1 / gameData.getDeltaTime()));
 
         ImGui.end();
-
-        update();
-
-        draw();
-    }
-
-    private void update() {
-        if (paused)
-            return;
-
-
-        // Load all Game Plugins using ServiceLoader
-        for (IPlugin iGamePlugin : getPluginServices()) {
-            if (!initializedPlugins.contains(iGamePlugin)) {
-                iGamePlugin.start(gameData, world);
-                initializedPlugins.add(iGamePlugin);
-            }
-        }
-
-        for (IProcess entityProcessorService : getProcessingServices()) {
-            entityProcessorService.process(gameData, world);
-        }
-
-        for (IPostProcess postEntityProcessorService : getPostProcessingServices()) {
-            postEntityProcessorService.process(gameData, world);
-        }
-    }
-
-    private void draw() {
-        for (Entity entity : world.getEntitiesWithComponent(Graphics.class)) {
-            var graphics = entity.getComponent(Graphics.class);
-
-            if (graphics == null || graphics.shape.size() == 0) {
-                continue;
-            }
-
-            nvgBeginPath(nvgContext);
-            nvgMoveTo(nvgContext, graphics.shape.get(0).x, graphics.shape.get(0).y);
-            for (int i = 1; i < graphics.shape.size(); i++) {
-                nvgLineTo(nvgContext, graphics.shape.get(i).x, graphics.shape.get(i).y);
-            }
-            nvgLineTo(nvgContext, graphics.shape.get(0).x, graphics.shape.get(0).y);
-            nvgStrokeColor(nvgContext, rgba(1, 1, 1, 1));
-            nvgStroke(nvgContext);
-        }
-    }
-
-
-    private Collection<? extends IPlugin> getPluginServices() {
-        return PluginManager.locateAll(IPlugin.class);
-
-    }
-
-    private Collection<? extends IProcess> getProcessingServices() {
-        return PluginManager.locateAll(IProcess.class);
-
-    }
-
-    private Collection<? extends IPostProcess> getPostProcessingServices() {
-        return PluginManager.locateAll(IPostProcess.class);
-
-    }
-
-    private Collection<? extends IEventListener> getEventListeners() {
-        return PluginManager.locateAll(IEventListener.class);
-
     }
 }

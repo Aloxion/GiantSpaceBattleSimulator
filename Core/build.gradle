@@ -21,6 +21,7 @@ dependencies {
     implementation "org.lwjgl:lwjgl-bgfx:$lwjglVersion"
     implementation "org.lwjgl:lwjgl-glfw:$lwjglVersion"
     implementation "org.lwjgl:lwjgl-nanovg:$lwjglVersion"
+    implementation "org.lwjgl:lwjgl-stb:$lwjglVersion"
 
     ["natives-macos", "natives-windows", "natives-linux"].each { target ->
         implementation "io.github.spair:imgui-java-$target:$imguiVersion"
@@ -28,6 +29,7 @@ dependencies {
         implementation "org.lwjgl:lwjgl-glfw:$lwjglVersion:$target"
         implementation "org.lwjgl:lwjgl-bgfx:$lwjglVersion:$target"
         implementation "org.lwjgl:lwjgl-nanovg:$lwjglVersion:$target"
+        implementation "org.lwjgl:lwjgl-stb:$lwjglVersion:$target"
     }
 }
 

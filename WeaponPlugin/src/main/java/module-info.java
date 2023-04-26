@@ -1,4 +1,4 @@
-module Weapon {
+module WeaponPlugin {
     requires Common;
 
     exports gsbs.weapon.implementations;

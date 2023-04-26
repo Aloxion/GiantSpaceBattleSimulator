@@ -8,7 +8,9 @@ import gsbs.common.entities.Entity;
 import gsbs.common.entities.Flagship;
 import gsbs.common.services.IPlugin;
 import gsbs.common.services.IWeapon;
+import gsbs.common.util.PluginManager;
 
+import java.util.List;
 import java.util.ServiceLoader;
 
 public class FlagshipPlugin implements IPlugin {
@@ -49,9 +51,11 @@ public class FlagshipPlugin implements IPlugin {
     }
 
     private IWeapon loadWeapon(){
-        ServiceLoader<IWeapon> loader = ServiceLoader.load(IWeapon.class);
+        List<IWeapon> loader = PluginManager.locateAll(IWeapon.class);
         if (loader.iterator().hasNext()) {
-            return loader.iterator().next();
+            IWeapon wep = loader.iterator().next();
+            System.out.println(wep);
+            return wep;
         }
         return null;
     }

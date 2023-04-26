@@ -17,11 +17,7 @@ public class BulletControlSystem implements IProcess {
         for(Entity bullet : world.getEntities(Bullet.class)){
             updateAndRemoveIfDead(bullet, world);
             Movement movement = bullet.getComponent(Movement.class);
-            Position position = bullet.getComponent(Position.class);
-            bullet.add(new MySprite());
-
             movement.setUp(true);
-            updateShape(bullet.getComponent(MySprite.class), position);
         }
     }
 
@@ -34,9 +30,9 @@ public class BulletControlSystem implements IProcess {
         }
     }
 
-    private void updateShape(MySprite mySprite, Position position) {
+/*    private void updateShape(MySprite mySprite, Position position) {
         mySprite.setSprite("default-bullet.png", 10, 10, position);
-    }
+    }*/
 
     public static Entity createBullet(Position position, int duration){
         float acceleration = 10000;
@@ -48,6 +44,8 @@ public class BulletControlSystem implements IProcess {
         bullet.add(new Movement(deacceleration, acceleration, maxSpeed, rotationSpeed));
 
         bullet.add(new Position(position.getX(), position.getY(), position.getRadians()));
+        bullet.add(new Sprite(BulletControlSystem.class.getResource("/default-bullet.png"), 10, 10));
+
 
         bullet.add(new Health(duration));
         return bullet;

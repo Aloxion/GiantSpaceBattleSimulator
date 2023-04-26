@@ -81,6 +81,7 @@ public class SpaceGame {
 
     private void run(Window window) {
         gameData.setDeltaTime(ImGui.getIO().getDeltaTime());
+        gameData.setRenderCycles(gameData.getRenderCycles()+1);
 
         renderGUI();
 

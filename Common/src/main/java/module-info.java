@@ -17,6 +17,7 @@ module Common {
     uses gsbs.common.services.IProcess;
     uses gsbs.common.services.IPostProcess;
     uses gsbs.common.services.IEventListener;
+    uses gsbs.common.services.IWeapon;
 
     // Register built-in services
     provides gsbs.common.services.IProcess with gsbs.common.processors.MovementProcessor;

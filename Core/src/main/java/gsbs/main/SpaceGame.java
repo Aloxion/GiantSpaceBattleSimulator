@@ -122,6 +122,7 @@ public class SpaceGame {
 
         for (IPostProcess postEntityProcessorService : getPostProcessingServices()) {
             postEntityProcessorService.process(gameData, world);
+
         }
     }
 

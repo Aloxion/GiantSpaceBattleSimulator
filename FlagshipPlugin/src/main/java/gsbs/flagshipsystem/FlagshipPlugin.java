@@ -34,13 +34,14 @@ public class FlagshipPlugin implements IPlugin {
 
     private Entity createFlagship(GameData gameData, World world, Teams team, float x, float y, float radians) {
         float deacceleration = 10;
-        float acceleration = 12.5f;
-        float maxSpeed = 10;
+        float acceleration = 50f;
+        float maxSpeed = 50;
         float rotationSpeed = 0.4f;
 
         IWeapon weapon = loadWeapon();
 
         Entity Ship = new Flagship();
+        Ship.add(new Health(4));
         Ship.add(new Graphics());
         Ship.add(new Movement(deacceleration, acceleration, maxSpeed, rotationSpeed));
         Ship.add(new Position(x, y, radians));

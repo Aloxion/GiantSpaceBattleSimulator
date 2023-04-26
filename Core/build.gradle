@@ -6,12 +6,9 @@ plugins {
 dependencies {
     implementation project(':Common')
 
-//    implementation project(':BulletPlugin')
-//    implementation project(':CollisionPlugin')
     implementation project(':AsteroidPlugin')
     implementation project(':FlagshipPlugin')
     implementation project(':PlayerControllerPlugin')
-//    implementation project(':EnemyPlugin')
 
     // Dependencies
     implementation "io.github.spair:imgui-java-binding:$imguiVersion"
@@ -23,7 +20,21 @@ dependencies {
     implementation "org.lwjgl:lwjgl-nanovg:$lwjglVersion"
     implementation "org.lwjgl:lwjgl-stb:$lwjglVersion"
 
-    ["natives-macos", "natives-windows", "natives-linux"].each { target ->
+    def os = org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.currentOperatingSystem
+    def targets = []
+    println project.gradle.startParameter.taskNames
+
+    if (project.gradle.startParameter.taskNames.any { ["installDist", "distZip", "distTar"].contains(it) }) {
+        targets = ["natives-macos", "natives-windows", "natives-linux"]
+    } else if (os.isLinux()) {
+        targets = ["natives-linux"]
+    } else if (os.isWindows()) {
+        targets = ["natives-windows"]
+    } else if (os.isMacOsX()) {
+        targets = ["natives-macos"]
+    }
+
+    targets.each { target ->
         implementation "io.github.spair:imgui-java-$target:$imguiVersion"
         implementation "org.lwjgl:lwjgl:$lwjglVersion:$target"
         implementation "org.lwjgl:lwjgl-glfw:$lwjglVersion:$target"

@@ -8,7 +8,7 @@ import gsbs.common.data.GameKeys;
 import gsbs.common.data.World;
 import gsbs.common.entities.Entity;
 import gsbs.common.events.EventManager;
-import gsbs.common.events.IEventListener;
+import gsbs.common.services.IEventListener;
 import gsbs.common.services.IPlugin;
 import gsbs.common.services.IPostProcess;
 import gsbs.common.services.IProcess;
@@ -81,6 +81,7 @@ public class SpaceGame {
 
     private void run(Window window) {
         gameData.setDeltaTime(ImGui.getIO().getDeltaTime());
+        gameData.setRenderCycles(gameData.getRenderCycles()+1);
 
         renderGUI();
 
@@ -157,7 +158,7 @@ public class SpaceGame {
             nvgTranslate(nvgContext, -cx, -cy);
 
             try (NVGPaint img = NVGPaint.calloc()) {
-                nvgImagePattern(nvgContext, 0, 0, sprite.getWidth(), sprite.getHeight(), 0, sprite.getSpriteId(nvgContext), 1, img);
+                nvgImagePattern(nvgContext, 0, 0, sprite.getWidth(), sprite.getHeight(), (float) (Math.PI/2.0f), sprite.getSpriteId(nvgContext), 1, img);
 
                 nvgBeginPath(nvgContext);
                 nvgRect(nvgContext, 0, 0, sprite.getWidth(), sprite.getHeight());

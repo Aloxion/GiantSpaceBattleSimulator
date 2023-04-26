@@ -158,7 +158,7 @@ public class SpaceGame {
             nvgTranslate(nvgContext, -cx, -cy);
 
             try (NVGPaint img = NVGPaint.calloc()) {
-                nvgImagePattern(nvgContext, 0, 0, sprite.getWidth(), sprite.getHeight(), 0, sprite.getSpriteId(nvgContext), 1, img);
+                nvgImagePattern(nvgContext, 0, 0, sprite.getWidth(), sprite.getHeight(), (float) (Math.PI/2.0f), sprite.getSpriteId(nvgContext), 1, img);
 
                 nvgBeginPath(nvgContext);
                 nvgRect(nvgContext, 0, 0, sprite.getWidth(), sprite.getHeight());

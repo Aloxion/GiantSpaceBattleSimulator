@@ -1,0 +1,3 @@
+module CollisionPlugin {
+    requires Common;
+}

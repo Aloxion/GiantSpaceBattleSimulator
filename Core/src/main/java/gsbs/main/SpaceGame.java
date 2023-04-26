@@ -15,6 +15,7 @@ import gsbs.common.services.IProcess;
 import gsbs.common.util.Plugin;
 import gsbs.common.util.PluginManager;
 import gsbs.util.Configuration;
+import gsbs.util.PciIdParser;
 import gsbs.util.Window;
 import imgui.ImDrawList;
 import imgui.flag.ImGuiCol;
@@ -22,6 +23,7 @@ import imgui.flag.ImGuiCond;
 import imgui.flag.ImGuiTableFlags;
 import imgui.flag.ImGuiWindowFlags;
 import imgui.internal.ImGui;
+import org.lwjgl.bgfx.BGFX;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.nanovg.NVGPaint;
 
@@ -49,6 +51,7 @@ public class SpaceGame {
     // Track which plugins have been initialized
     private final List<IPlugin> initializedPlugins = new ArrayList<>();
     private final EventManager eventManager;
+    PciIdParser pciParser = new PciIdParser("/pci.ids.txt");
     private boolean paused = false;
     private Entity selectedEntity = null;
 
@@ -262,6 +265,14 @@ public class SpaceGame {
             }
         }
 
+        if (ImGui.collapsingHeader("Stats")) {
+            ImGui.text("FPS: " + (int) (1 / gameData.getDeltaTime()));
+            String vendorId = Integer.toHexString(BGFX.bgfx_get_caps().vendorId() & 0xffff);
+            String deviceId = Integer.toHexString(BGFX.bgfx_get_caps().deviceId() & 0xffff);
+            ImGui.text("GPU: " + pciParser.lookupName(vendorId, deviceId));
+            ImGui.text("Graphics API: " + BGFX.bgfx_get_renderer_name(BGFX.bgfx_get_renderer_type()));
+        }
+
         ImDrawList drawList = ImGui.getWindowDrawList();
 
         drawList.addRectFilled(ImGui.getCursorScreenPosX() + 4, ImGui.getCursorScreenPosY() + 4, ImGui.getCursorScreenPosX() + 8, ImGui.getCursorScreenPosY() + 16, ImGui.getColorU32(paused ? ImGuiCol.TextDisabled : ImGuiCol.Text));
@@ -292,8 +303,6 @@ public class SpaceGame {
         if (ImGui.button("## stop", 20, 20)) {
             GLFW.glfwSetWindowShouldClose(window.getHandle(), true);
         }
-
-        ImGui.text("FPS: " + (int) (1 / gameData.getDeltaTime()));
 
         ImGui.end();
     }

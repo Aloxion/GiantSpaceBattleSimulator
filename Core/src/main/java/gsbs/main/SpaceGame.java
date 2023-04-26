@@ -4,6 +4,7 @@ import gsbs.common.components.Graphics;
 import gsbs.common.components.Position;
 import gsbs.common.components.Sprite;
 import gsbs.common.data.GameData;
+import gsbs.common.data.GameKeys;
 import gsbs.common.data.World;
 import gsbs.common.entities.Entity;
 import gsbs.common.events.EventManager;
@@ -90,6 +91,19 @@ public class SpaceGame {
     private void update() {
         if (paused)
             return;
+
+        // Handle input
+        try {
+            for (var key : GameKeys.Keys.class.getDeclaredFields()) {
+                if (ImGui.isKeyPressed(key.getInt(key))) {
+                    gameData.getKeys().setKey(key.getInt(key), true);
+                } else if (ImGui.isKeyReleased(key.getInt(key))) {
+                    gameData.getKeys().setKey(key.getInt(key), false);
+                }
+            }
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
 
         for (IPlugin iGamePlugin : getPluginServices()) {
             if (!initializedPlugins.contains(iGamePlugin)) {

@@ -10,6 +10,8 @@ dependencies {
     implementation project(':FlagshipPlugin')
     implementation project(':PlayerControllerPlugin')
     implementation project(':WeaponPlugin')
+    implementation project(':PistolPlugin')
+    implementation project(':ShotgunPlugin')
 
     // Dependencies
     implementation "io.github.spair:imgui-java-binding:$imguiVersion"

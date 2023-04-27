@@ -29,25 +29,4 @@ public class BulletControlSystem implements IProcess {
             world.removeEntity(bullet);
         }
     }
-
-/*    private void updateShape(MySprite mySprite, Position position) {
-        mySprite.setSprite("default-bullet.png", 10, 10, position);
-    }*/
-
-    public static Entity createBullet(Position position, int duration){
-        float acceleration = 10000;
-        float deacceleration = 20;
-        float maxSpeed = 300;
-        float rotationSpeed = 0;
-
-        Entity bullet = new Bullet();
-        bullet.add(new Movement(deacceleration, acceleration, maxSpeed, rotationSpeed));
-
-        bullet.add(new Position(position.getX(), position.getY(), position.getRadians()));
-        bullet.add(new Sprite(BulletControlSystem.class.getResource("/default-bullet.png"), 10, 10));
-
-
-        bullet.add(new Health(duration));
-        return bullet;
-    }
 }

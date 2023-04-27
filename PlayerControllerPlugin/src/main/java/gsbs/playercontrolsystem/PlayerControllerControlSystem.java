@@ -17,8 +17,6 @@ import gsbs.common.services.IEventListener;
 import gsbs.common.services.IProcess;
 
 public class PlayerControllerControlSystem implements IProcess, IEventListener {
-
-
     @Override
     public void process(GameData gameData, World world) {
         for (Entity player : world.getEntities(Flagship.class)) {
@@ -33,6 +31,14 @@ public class PlayerControllerControlSystem implements IProcess, IEventListener {
                 var weapon = player.getComponent(Weapon.class);
                 if (gameData.getKeys().isDown(GameKeys.Keys.SPACE)){
                     weapon.fire(player, gameData, world);
+                }
+
+                if (gameData.getKeys().isDown(GameKeys.Keys.WEAPON_CYCLE_UP)){
+                    weapon.changeWeapon();
+                }
+
+                if (gameData.getKeys().isDown(GameKeys.Keys.WEAPON_CYCLE_DOWN)){
+                    weapon.changeWeapon();
                 }
 
             }

@@ -29,7 +29,7 @@ public class Shotgun implements IWeapon {
 
         //Create bullets in a semicircle
         for(int i = -2; i < 3; i++){
-            float radians = (float) (i * Math.PI / 6);
+            float radians = (float) (startPosition.getRadians() + i * Math.PI / 6);
             Position position = new Position(startPosition.getX(), startPosition.getY(), radians);
             world.addEntity(BulletControlSystem.createBullet(position, duration));
         }

@@ -38,25 +38,21 @@ public class FlagshipPlugin implements IPlugin {
         float maxSpeed = 10;
         float rotationSpeed = 0.4f;
 
-        IWeapon weapon = loadWeapon();
+        List<IWeapon> weapons = loadWeapons();
 
         Entity Ship = new Flagship();
         Ship.add(new Graphics());
         Ship.add(new Movement(deacceleration, acceleration, maxSpeed, rotationSpeed));
         Ship.add(new Position(x, y, radians));
         Ship.add(new Team(team));
-        Ship.add(new Weapon(weapon));
+        Ship.add(new Weapon(weapons));
 
         return Ship;
     }
 
-    private IWeapon loadWeapon(){
+    private List<IWeapon> loadWeapons(){
         List<IWeapon> loader = PluginManager.locateAll(IWeapon.class);
-        if (loader.iterator().hasNext()) {
-            IWeapon wep = loader.iterator().next();
-            System.out.println(wep);
-            return wep;
-        }
-        return null;
+        System.out.println("Found " + loader.size() + " weapons");
+        return loader;
     }
 }

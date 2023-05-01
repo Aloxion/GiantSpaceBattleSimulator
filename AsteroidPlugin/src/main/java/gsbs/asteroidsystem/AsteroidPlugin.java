@@ -1,6 +1,7 @@
 package gsbs.asteroidsystem;
 
 import gsbs.common.components.Health;
+import gsbs.common.components.Hitbox;
 import gsbs.common.components.Position;
 import gsbs.common.components.Sprite;
 import gsbs.common.data.GameData;
@@ -42,7 +43,9 @@ public class AsteroidPlugin implements IPlugin {
             int size = AsteroidSizes.randomDirection().getSize();
             Asteroid.add(new Sprite(getClass().getResource("/assets/default-asteroid.png"), size, size));
             Asteroid.add(new Position(x, y, radians));
-            Asteroid.add(new Health(2));
+
+            float fsize = (float) size;
+            Asteroid.add(new Hitbox(fsize, fsize, x,y));
 
             return Asteroid;
         } catch (Exception e) {

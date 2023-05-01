@@ -3,6 +3,7 @@ package gsbs.weapon;
 import gsbs.common.components.*;
 import gsbs.common.data.GameData;
 import gsbs.common.data.World;
+import gsbs.common.data.enums.Teams;
 import gsbs.common.entities.Bullet;
 import gsbs.common.entities.Entity;
 import gsbs.common.math.Vector2;
@@ -45,7 +46,8 @@ public class BulletControlSystem implements IProcess {
 
         bullet.add(new Position(position.getX(), position.getY(), position.getRadians()));
         bullet.add(new Sprite(BulletControlSystem.class.getResource("/default-bullet.png"), 10, 10));
-
+        bullet.add(new Hitbox(10,10,position.getX(),position.getY()));
+        bullet.add(new Team(Teams.PLAYER));
 
         bullet.add(new Health(duration));
         return bullet;

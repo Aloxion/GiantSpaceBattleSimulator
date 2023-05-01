@@ -47,6 +47,7 @@ public class FlagshipPlugin implements IPlugin {
         Ship.add(new Position(x, y, radians));
         Ship.add(new Team(team));
         Ship.add(new Weapon(weapons));
+        Ship.add(new Hitbox(15,20,x,y));
 
         return Ship;
     }

@@ -1,10 +1,10 @@
 package gsbs.collision;
 
-import gsbs.common.components.Health;
-import gsbs.common.components.Position;
-import gsbs.common.components.Sprite;
+import gsbs.common.components.*;
 import gsbs.common.data.GameData;
 import gsbs.common.data.World;
+import gsbs.common.entities.Asteroid;
+import gsbs.common.entities.Bullet;
 import gsbs.common.entities.Entity;
 import gsbs.common.services.IPostProcess;
 
@@ -42,18 +42,19 @@ public class CollisionControlSystem implements IPostProcess {
                     }
                 }
 
+
                 //Collides?
 
                 if (isCollided(entity, collisionEntity)){
-
-                    if (!entityHealth.isDead()){
                         entityHealth.removeHealthPoints(1);
 
                         if (entityHealth.isDead()){
                             entity.remove(Sprite.class);
                             world.removeEntity(entity);
+                        }else if(entity.getClass().equals(Bullet.class)){
+                            entity.remove(Sprite.class);
+                            world.removeEntity(entity);
                         }
-                    }
                 }
             }
 
@@ -63,28 +64,21 @@ public class CollisionControlSystem implements IPostProcess {
 
 
     private Boolean isCollided(Entity entity, Entity entity2){
-        Position entMov = entity.getComponent(Position.class);
-        Position entMov2 = entity2.getComponent(Position.class);
 
-        if(entity.getComponent(Sprite.class) == null || entity2.getComponent(Sprite.class) == null){
+        Hitbox hitbox = entity.getComponent(Hitbox.class);
+        Hitbox hitbox1 = entity2.getComponent(Hitbox.class);
+
+        if(hitbox == null || hitbox1 == null){
+            System.out.println("Collision");
+
             return false;
         }
 
-        Sprite sprite = entity.getComponent(Sprite.class);
-        Sprite sprite2 = entity2.getComponent(Sprite.class);
-        
-        float dx = entMov.getX() - entMov2.getX();
-        float dy = entMov.getY() - entMov2.getY();
-        float distance = (float) Math.sqrt(dx * dx + dy * dy);
-        float width = (float) (sprite.getWidth() + sprite2.getWidth())/2.0f;
-        float height = (float) (sprite.getHeight() + sprite2.getHeight()) / 2.0f;
-        if (distance < width || distance < height) {
-            System.out.println("Distance: " +distance +"\n" + "number: "+ width);
-            return true;
+        if (entity.getComponent(Team.class).getTeam() == entity2.getComponent(Team.class).getTeam()){
+            System.out.println("Friendly");
+            return false;
         }
-
-
-        return false;
+        return hitbox.intersects(hitbox1);
     }
 
 }

@@ -1,6 +1,7 @@
 package gsbs.main;
 
 import gsbs.common.components.Graphics;
+import gsbs.common.components.Hitbox;
 import gsbs.common.components.Position;
 import gsbs.common.components.Sprite;
 import gsbs.common.data.GameData;
@@ -167,6 +168,11 @@ public class SpaceGame {
                 nvgFill(nvgContext);
                 nvgRestore(nvgContext);
             }
+        }
+        for (Entity entity : world.getEntitiesWithComponents(Position.class, Hitbox.class)){
+            var hitbox = entity.getComponent(Hitbox.class);
+            var position = entity.getComponent(Position.class);
+            hitbox.Set(position.getX(),position.getY());
         }
     }
 

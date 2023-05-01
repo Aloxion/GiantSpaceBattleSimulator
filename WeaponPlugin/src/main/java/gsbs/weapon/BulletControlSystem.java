@@ -43,11 +43,8 @@ public class BulletControlSystem implements IProcess {
 
         Entity bullet = new Bullet();
         bullet.add(new Movement(deacceleration, acceleration, maxSpeed, rotationSpeed));
-
         bullet.add(new Position(position.getX(), position.getY(), position.getRadians()));
         bullet.add(new Sprite(BulletControlSystem.class.getResource("/default-bullet.png"), 10, 10));
-        bullet.add(new Hitbox(10,10,position.getX(),position.getY()));
-        bullet.add(new Team(Teams.PLAYER));
 
         bullet.add(new Health(duration));
         return bullet;

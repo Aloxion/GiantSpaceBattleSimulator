@@ -195,8 +195,6 @@ public class SpaceGame {
                 nvgRestore(nvgContext);
             }
         }
-
-
     }
 
 

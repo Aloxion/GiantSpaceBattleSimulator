@@ -21,6 +21,7 @@ public class CollisionControlSystem implements IPostProcess {
                 }
 
                 Health entityHealth = entity.getComponent(Health.class);
+                Health collisionHealth = collisionEntity.getComponent(Health.class);
 
                 if (entity.getID().equals(collisionEntity.getID())){
                     continue;
@@ -34,20 +35,25 @@ public class CollisionControlSystem implements IPostProcess {
                 //Collides?
 
                 if (isCollided(entity, collisionEntity)){
-                    //System.out.println("Current entity: " + entity + "\n" + "Collision Entity: " + collisionEntity);
+                    System.out.println("Current entity: " + entity + "\n" + "Collision Entity: " + collisionEntity);
 
                     if (collisionEntity instanceof Bullet) {
                         entityHealth.removeHealthPoints(1);
-                        //System.out.println("Entity: " + entity.getClass() + "\n" + "Entity health: " + entityHealth.getHealthPoints());
-                        collisionEntity.remove(Sprite.class);
+                        System.out.println("Entity: " + collisionEntity + "\n" + "Entity health: " + entityHealth.getHealthPoints());
                         world.removeEntity(collisionEntity);
-                    } else if (collisionEntity instanceof Asteroid){
+                    } else if (entity instanceof Bullet) {
+                        if (collisionHealth != null) {
+                            collisionHealth.removeHealthPoints(1);
+                        }
+                        world.removeEntity(entity);
+                    }
+
+                    if (collisionEntity instanceof Asteroid){
                         entityHealth.removeHealthPoints(1);
-                        //System.out.println("Entity: " + entity.getClass() + "\n" + "Entity health: " + entityHealth.getHealthPoints());
+                        System.out.println("Entity: " + collisionEntity + "\n" + "Entity health: " + entityHealth.getHealthPoints());
                     }
                 }
             }
-
         }
 
     }

@@ -12,11 +12,17 @@ import gsbs.common.entities.Entity;
 import gsbs.common.services.IPlugin;
 
 public class AsteroidPlugin implements IPlugin {
+
+    private static final int MAX_ATTEMPTS = 10;
     @Override
     public void start(GameData gameData, World world) {
         for (int i = 0; i < 16; i++) {
             Entity asteroid = createAsteroid(gameData, world);
-            world.addEntity(asteroid);
+            if (asteroid != null){
+                world.addEntity(asteroid);
+            } else {
+                i--;
+            }
         }
     }
 
@@ -28,28 +34,67 @@ public class AsteroidPlugin implements IPlugin {
     }
 
     private Entity createAsteroid(GameData gameData, World world) {
-        int xmin = gameData.getDisplayWidth() / 4;// Minimum value of range
-        int xmax = gameData.getDisplayWidth() - ((gameData.getDisplayWidth() / 4));
-        int ymin = gameData.getDisplayHeight() / 4;
-        int ymax = gameData.getDisplayHeight() - ((gameData.getDisplayHeight() / 4));
-
-        float x = (float) (Math.floor(Math.random() * (xmax - xmin + 1) + xmin));
-        float y = (float) (Math.floor(Math.random() * (ymax - ymin + 1) + ymin));
-
         float radians = (float) (3.1415f / (Math.random() * 5));
 
         try {
-            Entity Asteroid = new Asteroid();
+            Entity asteroid = new Asteroid();
             int size = AsteroidSizes.randomDirection().getSize();
-            Asteroid.add(new Sprite(getClass().getResource("/assets/default-asteroid.png"), size, size));
-            Asteroid.add(new Position(x, y, radians));
-
             float fsize = (float) size;
-            Asteroid.add(new Hitbox(fsize, fsize, x,y));
 
-            return Asteroid;
+            asteroid.add(new Hitbox(fsize, fsize, getRandomX(gameData), getRandomY(gameData)));
+            asteroid.add(new Position(asteroid.getComponent(Hitbox.class).getX(), asteroid.getComponent(Hitbox.class).getY(), radians));
+            asteroid.add(new Sprite(getClass().getResource("/assets/default-asteroid.png"), size, size));
+
+            int attempts = 0;
+            boolean overlapping = true;
+            while (overlapping && attempts < MAX_ATTEMPTS) {
+                overlapping = false;
+                for (Entity otherAsteroid : world.getEntities(Asteroid.class)){
+
+                    if (asteroid == null || otherAsteroid == null) {
+                        continue;
+                    }
+
+                    if (asteroid.getID() == otherAsteroid.getID()) {
+                        // skip self
+                        continue;
+                    }
+                    Hitbox otherH = otherAsteroid.getComponent(Hitbox.class);
+                    Hitbox currentH = asteroid.getComponent(Hitbox.class);
+
+                    if (currentH.intersects(otherH)) {
+                        Position pos = asteroid.getComponent(Position.class);
+                        pos.setX(getRandomX(gameData));
+                        pos.setY(getRandomY(gameData));
+                        currentH.set(pos.getX(), pos.getY());
+                        overlapping = true;
+                        break;
+                    }
+                }
+                attempts++;
+            }
+
+            if (overlapping) {
+                // failed to find non-overlapping position, return null
+                return null;
+            } else {
+                return asteroid;
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+
+    private float getRandomX(GameData gameData){
+        int xmin = gameData.getDisplayWidth() / 6;
+        int xmax = gameData.getDisplayWidth()+100 - (gameData.getDisplayWidth() / 2);
+        return (float) (Math.floor(Math.random() * (xmax - xmin + 1) + xmin));
+    }
+
+    private float getRandomY(GameData gameData){
+        int ymin = gameData.getDisplayHeight() / 8;
+        int ymax = gameData.getDisplayHeight() - (gameData.getDisplayHeight() / 2);
+        return (float) (Math.floor(Math.random() * (ymax - ymin + 1) + ymin));
     }
 }

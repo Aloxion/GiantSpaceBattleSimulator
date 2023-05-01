@@ -1,6 +1,7 @@
 package gsbs.common.entities;
 
 import gsbs.common.components.Component;
+import gsbs.common.data.World;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -12,7 +13,6 @@ import java.util.stream.Collectors;
 public class Entity implements Serializable {
     private final UUID ID = UUID.randomUUID();
     private final Map<Class<? extends Component>, Component> components = new HashMap<>();
-
     /**
      * Get a unique identifier for the entity.
      */
@@ -45,4 +45,5 @@ public class Entity implements Serializable {
     public List<? extends Component> getComponents() {
         return this.components.values().stream().collect(Collectors.toList());
     }
+
 }

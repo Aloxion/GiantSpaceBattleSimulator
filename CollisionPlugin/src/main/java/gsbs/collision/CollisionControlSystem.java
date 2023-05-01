@@ -3,6 +3,7 @@ package gsbs.collision;
 import gsbs.common.components.*;
 import gsbs.common.data.GameData;
 import gsbs.common.data.World;
+import gsbs.common.data.enums.Teams;
 import gsbs.common.entities.Asteroid;
 import gsbs.common.entities.Bullet;
 import gsbs.common.entities.Entity;
@@ -15,33 +16,26 @@ public class CollisionControlSystem implements IPostProcess {
 
         for (Entity entity : world.getEntities()){
             for (Entity collisionEntity : world.getEntities()){
-                if (entity.getComponent(Health.class) == null || collisionEntity.getComponent(Health.class) == null){
+                if (entity.getComponent(Health.class) == null){
                     continue;
                 }
-
 
                 Health entityHealth = entity.getComponent(Health.class);
-                Health collisionEntityHealth = collisionEntity.getComponent(Health.class);
+                Health collisionHealth = collisionEntity.getComponent(Health.class);
 
                 if (entity.getID().equals(collisionEntity.getID())){
-                    continue;
-                }
-
-                if (entity.getClass() == collisionEntity.getClass()){
                     continue;
                 }
 
                 if (entityHealth.isDead()){
                     entity.remove(Sprite.class);
                     world.removeEntity(entity);
-
-
-                    if (collisionEntityHealth.isDead()){
-                        collisionEntity.remove(Sprite.class);
-                        world.removeEntity(collisionEntity);
-                    }
                 }
 
+                if(collisionHealth != null && collisionHealth.isDead()){
+                    collisionEntity.remove(Sprite.class);
+                    world.removeEntity(collisionEntity);
+                }
 
                 //Collides?
 
@@ -51,7 +45,8 @@ public class CollisionControlSystem implements IPostProcess {
                         if (entityHealth.isDead()){
                             entity.remove(Sprite.class);
                             world.removeEntity(entity);
-                        }else if(entity.getClass().equals(Bullet.class)){
+
+                        } else if(entity instanceof Bullet){
                             entity.remove(Sprite.class);
                             world.removeEntity(entity);
                         }
@@ -63,24 +58,28 @@ public class CollisionControlSystem implements IPostProcess {
     }
 
 
-    private Boolean isCollided(Entity entity, Entity entity2){
+    private Boolean isCollided(Entity entity1, Entity entity2){
 
-        Hitbox hitbox = entity.getComponent(Hitbox.class);
-        Hitbox hitbox1 = entity2.getComponent(Hitbox.class);
+        Hitbox hitbox = entity1.getComponent(Hitbox.class);
+        Hitbox hitbox2 = entity2.getComponent(Hitbox.class);
 
-        if(hitbox == null || hitbox1 == null){
-            System.out.println("Collision");
-
+        if(hitbox == null || hitbox2 == null){
             return false;
         }
 
-        if (entity.getComponent(Team.class).getTeam() == entity2.getComponent(Team.class).getTeam()){
-            System.out.println("Friendly");
+        if (areOnSameTeam(entity1, entity2)) {
             return false;
         }
-        return hitbox.intersects(hitbox1);
+
+        return hitbox.intersects(hitbox2);
     }
 
+    private boolean areOnSameTeam(Entity entity1, Entity entity2) {
+        Team team1 = entity1.getComponent(Team.class);
+        Team team2 = entity2.getComponent(Team.class);
+
+        return team1 != null && team2 != null && team1.isInSameTeam(entity2);
+    }
 }
 
 

@@ -4,18 +4,24 @@ public class Hitbox extends Component{
 
     private float width, height;
     private float x, y;
+    private float hitboxPadding = 20.0f;
 
-    public Hitbox (float width, float height, float x, float y){
-        this.height = height;
-        this.width = width;
-        this.x = x;
-        this.y = y;
+    public Hitbox(float width, float height, float x, float y) {
+        this.width = (width + hitboxPadding) / 2.0f;
+        this.height = (height + hitboxPadding) / 2.0f;
+        this.x = x + (width / 2f);
+        this.y = y + (height / 2f);
     }
 
-    public void Set(float x, float y){
-        this.x = x;
-        this.y = y;
+    public void set(float x, float y){
+        float spriteWidth = this.width * 2.0f;
+        float spriteHeight = this.height * 2.0f;
+        float offsetX = (spriteWidth - (width + hitboxPadding)) / 2.0f;
+        float offsetY = (spriteHeight - (height + hitboxPadding)) / 2.0f;
+        this.x = x + offsetX;
+        this.y = y + offsetY;
     }
+
 
     public boolean intersects(Hitbox h){
         //Checks if entity1 right side intersects with entity2 left side
@@ -28,5 +34,21 @@ public class Hitbox extends Component{
         boolean bottom = h.y + h.height >= y;
 
         return right && left && bottom && top;
+    }
+
+    public float getWidth(){
+        return width;
+    }
+
+    public float getHeight(){
+        return height;
+    }
+
+    public float getX(){
+        return x;
+    }
+
+    public float getY(){
+        return y;
     }
 }

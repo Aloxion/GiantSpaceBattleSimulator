@@ -8,6 +8,7 @@ import gsbs.common.data.GameData;
 import gsbs.common.data.GameKeys;
 import gsbs.common.data.World;
 import gsbs.common.entities.Entity;
+import gsbs.common.entities.Flagship;
 import gsbs.common.events.EventManager;
 import gsbs.common.services.IEventListener;
 import gsbs.common.services.IPlugin;
@@ -18,6 +19,7 @@ import gsbs.common.util.PluginManager;
 import gsbs.util.Configuration;
 import gsbs.util.PciIdParser;
 import gsbs.util.Window;
+import imgui.ImColor;
 import imgui.ImDrawList;
 import imgui.flag.ImGuiCol;
 import imgui.flag.ImGuiCond;
@@ -55,6 +57,7 @@ public class SpaceGame {
     PciIdParser pciParser = new PciIdParser("/pci.ids.txt");
     private boolean paused = false;
     private Entity selectedEntity = null;
+    private boolean showHitbox = false;
 
     public SpaceGame(Configuration config) {
         this.eventManager = new EventManager();
@@ -169,11 +172,31 @@ public class SpaceGame {
                 nvgRestore(nvgContext);
             }
         }
+
         for (Entity entity : world.getEntitiesWithComponents(Position.class, Hitbox.class)){
             var hitbox = entity.getComponent(Hitbox.class);
             var position = entity.getComponent(Position.class);
-            hitbox.Set(position.getX(),position.getY());
+            hitbox.set(position.getX(),position.getY());
+
+            if (entity.getClass().equals(Flagship.class)){
+                hitbox.set(position.getX()-5, position.getY());
+            }
+
+            if (showHitbox){
+                nvgSave(nvgContext);
+                nvgTranslate(nvgContext, hitbox.getX() + hitbox.getWidth() / 2.0f, hitbox.getY() + hitbox.getHeight() / 2.0f);
+                nvgRotate(nvgContext, position.getRadians());
+                nvgTranslate(nvgContext, -hitbox.getWidth() / 2.0f, -hitbox.getHeight() / 2.0f);
+
+                nvgBeginPath(nvgContext);
+                nvgRect(nvgContext, 0, 0, hitbox.getWidth(), hitbox.getHeight());
+                nvgFillColor(nvgContext, rgba(255, 0, 0, 1));
+                nvgFill(nvgContext);
+                nvgRestore(nvgContext);
+            }
         }
+
+
     }
 
 
@@ -311,6 +334,19 @@ public class SpaceGame {
         if (ImGui.button("## stop", 20, 20)) {
             GLFW.glfwSetWindowShouldClose(window.getHandle(), true);
         }
+
+        ImDrawList drawList2 = ImGui.getWindowDrawList();
+
+        drawList2.addText(ImGui.getCursorScreenPosX() + 6, ImGui.getCursorScreenPosY() + 4, ImGui.getColorU32(ImGuiCol.Text),"Hitbox");
+        if (ImGui.button("## hitbox", 60, 20)) {
+            if (showHitbox){
+                showHitbox = false;
+            } else {
+                showHitbox = true;
+            }
+        }
+
+        ImGui.sameLine();
 
         ImGui.end();
     }

@@ -18,7 +18,12 @@ public class Weapon extends Component {
 
     public Weapon(List<IWeapon> weapons){
         this.weapons = weapons;
-        this.weapon = weapons.get(index);
+        try {
+            weapon = weapons.get(index);
+        } catch (IndexOutOfBoundsException e) {
+            System.out.println("No weapon implementations found");
+        }
+
     }
 
     public void changeWeapon(){

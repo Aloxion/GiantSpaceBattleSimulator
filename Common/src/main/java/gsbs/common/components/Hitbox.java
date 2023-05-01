@@ -4,9 +4,10 @@ public class Hitbox extends Component{
 
     private float width, height;
     private float x, y;
-    private float hitboxPadding = 20.0f;
+    private float hitboxPadding;
 
     public Hitbox(float width, float height, float x, float y) {
+        hitboxPadding = Math.min(width, height) * 0.3f;
         this.width = (width + hitboxPadding) / 2.0f;
         this.height = (height + hitboxPadding) / 2.0f;
         this.x = x + (width / 2f);

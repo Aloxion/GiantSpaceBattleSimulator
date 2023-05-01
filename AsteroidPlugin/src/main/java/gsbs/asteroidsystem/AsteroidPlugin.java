@@ -1,6 +1,5 @@
 package gsbs.asteroidsystem;
 
-import gsbs.common.components.Health;
 import gsbs.common.components.Hitbox;
 import gsbs.common.components.Position;
 import gsbs.common.components.Sprite;
@@ -13,7 +12,7 @@ import gsbs.common.services.IPlugin;
 
 public class AsteroidPlugin implements IPlugin {
 
-    private static final int MAX_ATTEMPTS = 10;
+    private static final int MAX_ATTEMPTS = 30;
     @Override
     public void start(GameData gameData, World world) {
         for (int i = 0; i < 16; i++) {
@@ -36,7 +35,6 @@ public class AsteroidPlugin implements IPlugin {
     private Entity createAsteroid(GameData gameData, World world) {
         float radians = (float) (3.1415f / (Math.random() * 5));
 
-        try {
             Entity asteroid = new Asteroid();
             int size = AsteroidSizes.randomDirection().getSize();
             float fsize = (float) size;
@@ -49,14 +47,8 @@ public class AsteroidPlugin implements IPlugin {
             boolean overlapping = true;
             while (overlapping && attempts < MAX_ATTEMPTS) {
                 overlapping = false;
-                for (Entity otherAsteroid : world.getEntities(Asteroid.class)){
-
-                    if (asteroid == null || otherAsteroid == null) {
-                        continue;
-                    }
-
-                    if (asteroid.getID() == otherAsteroid.getID()) {
-                        // skip self
+                for (Entity otherAsteroid : world.getEntities(Asteroid.class)) {
+                    if (asteroid == otherAsteroid) {
                         continue;
                     }
                     Hitbox otherH = otherAsteroid.getComponent(Hitbox.class);
@@ -75,17 +67,10 @@ public class AsteroidPlugin implements IPlugin {
             }
 
             if (overlapping) {
-                // failed to find non-overlapping position, return null
                 return null;
-            } else {
-                return asteroid;
             }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            return asteroid;
         }
-    }
-
-
     private float getRandomX(GameData gameData){
         int xmin = gameData.getDisplayWidth() / 6;
         int xmax = gameData.getDisplayWidth()+100 - (gameData.getDisplayWidth() / 2);

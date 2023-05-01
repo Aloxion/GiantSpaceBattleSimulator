@@ -179,7 +179,7 @@ public class SpaceGame {
             hitbox.set(position.getX(),position.getY());
 
             if (entity.getClass().equals(Flagship.class)){
-                hitbox.set(position.getX()-5, position.getY());
+                hitbox.set(position.getX()-5, position.getY()-2);
             }
 
             if (showHitbox){

@@ -21,7 +21,6 @@ public class CollisionControlSystem implements IPostProcess {
                 }
 
                 Health entityHealth = entity.getComponent(Health.class);
-                Health collisionHealth = collisionEntity.getComponent(Health.class);
 
                 if (entity.getID().equals(collisionEntity.getID())){
                     continue;
@@ -32,32 +31,26 @@ public class CollisionControlSystem implements IPostProcess {
                     world.removeEntity(entity);
                 }
 
-                if(collisionHealth != null && collisionHealth.isDead()){
-                    collisionEntity.remove(Sprite.class);
-                    world.removeEntity(collisionEntity);
-                }
-
                 //Collides?
 
                 if (isCollided(entity, collisionEntity)){
+                    //System.out.println("Current entity: " + entity + "\n" + "Collision Entity: " + collisionEntity);
+
+                    if (collisionEntity instanceof Bullet) {
                         entityHealth.removeHealthPoints(1);
-
-                        if (entityHealth.isDead()){
-                            entity.remove(Sprite.class);
-                            world.removeEntity(entity);
-
-                        } else if(entity instanceof Bullet){
-                            entity.remove(Sprite.class);
-                            world.removeEntity(entity);
-                        }
+                        //System.out.println("Entity: " + entity.getClass() + "\n" + "Entity health: " + entityHealth.getHealthPoints());
+                        collisionEntity.remove(Sprite.class);
+                        world.removeEntity(collisionEntity);
+                    } else if (collisionEntity instanceof Asteroid){
+                        entityHealth.removeHealthPoints(1);
+                        //System.out.println("Entity: " + entity.getClass() + "\n" + "Entity health: " + entityHealth.getHealthPoints());
+                    }
                 }
             }
 
         }
 
     }
-
-
     private Boolean isCollided(Entity entity1, Entity entity2){
 
         Hitbox hitbox = entity1.getComponent(Hitbox.class);

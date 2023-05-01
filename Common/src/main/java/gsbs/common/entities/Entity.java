@@ -1,7 +1,6 @@
 package gsbs.common.entities;
 
 import gsbs.common.components.Component;
-import gsbs.common.data.World;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -19,21 +18,18 @@ public class Entity implements Serializable {
     public String getID() {
         return ID.toString();
     }
-
     /**
      * Add a component to the entity.
      */
     public <T extends Component> void add(T part) {
         components.put(part.getClass(), part);
     }
-
     /**
      * Remove a component from the entity.
      */
     public void remove(Class<? extends Component> componentClass) {
         this.components.remove(componentClass);
     }
-
     /**
      * Get a component from the entity.
      */
@@ -41,7 +37,6 @@ public class Entity implements Serializable {
     public <E extends Component> E getComponent(Class<E> componentClass) {
         return (E) this.components.get(componentClass);
     }
-
     public List<? extends Component> getComponents() {
         return this.components.values().stream().collect(Collectors.toList());
     }

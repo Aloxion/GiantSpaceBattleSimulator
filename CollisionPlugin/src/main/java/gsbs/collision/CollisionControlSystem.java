@@ -51,8 +51,8 @@ public class CollisionControlSystem implements IPostProcess {
                 }
             }
         }
-
     }
+    
     private Boolean isCollided(Entity entity1, Entity entity2){
 
         Hitbox hitbox = entity1.getComponent(Hitbox.class);

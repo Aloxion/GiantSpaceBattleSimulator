@@ -33,13 +33,10 @@ public class CollisionControlSystem implements IPostProcess {
                 }
 
                 //Collides?
-
                 if (isCollided(entity, collisionEntity)){
-                    System.out.println("Current entity: " + entity + "\n" + "Collision Entity: " + collisionEntity);
 
                     if (collisionEntity instanceof Bullet) {
                         entityHealth.removeHealthPoints(1);
-                        System.out.println("Entity: " + collisionEntity + "\n" + "Entity health: " + entityHealth.getHealthPoints());
                         world.removeEntity(collisionEntity);
                     } else if (entity instanceof Bullet) {
                         if (collisionHealth != null) {
@@ -50,7 +47,6 @@ public class CollisionControlSystem implements IPostProcess {
 
                     if (collisionEntity instanceof Asteroid){
                         entityHealth.removeHealthPoints(1);
-                        System.out.println("Entity: " + collisionEntity + "\n" + "Entity health: " + entityHealth.getHealthPoints());
                     }
                 }
             }
@@ -66,18 +62,11 @@ public class CollisionControlSystem implements IPostProcess {
             return false;
         }
 
-        if (areOnSameTeam(entity1, entity2)) {
+        if (entity1.getComponent(Team.class).isInSameTeam(entity2)) {
             return false;
         }
 
         return hitbox.intersects(hitbox2);
-    }
-
-    private boolean areOnSameTeam(Entity entity1, Entity entity2) {
-        Team team1 = entity1.getComponent(Team.class);
-        Team team2 = entity2.getComponent(Team.class);
-
-        return team1 != null && team2 != null && team1.isInSameTeam(entity2);
     }
 }
 

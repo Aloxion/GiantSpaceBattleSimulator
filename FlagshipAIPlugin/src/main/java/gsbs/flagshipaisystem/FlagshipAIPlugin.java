@@ -1,4 +1,4 @@
-package gsbs.flagshipsystem;
+package gsbs.flagshipaisystem;
 
 import gsbs.common.components.*;
 import gsbs.common.data.GameData;
@@ -16,6 +16,7 @@ public class FlagshipAIPlugin implements IPlugin {
     public void start(GameData gameData, World world) {
         enemyFlagshipAI = createFlagshipAI(gameData, world, Teams.ENEMY);
         world.addEntity(enemyFlagshipAI);
+        System.out.println("AI plugin start");
     }
 
     @Override
@@ -32,3 +33,4 @@ public class FlagshipAIPlugin implements IPlugin {
         return enemyFlagshipAI;
     }
 }
+

@@ -17,6 +17,15 @@ public class GameData {
     private int renderCycles;
     private int displayWidth;
     private int displayHeight;
+    private Grid grid;
+
+    public Grid getGrid() {
+        return grid;
+    }
+
+    public void setGrid(Grid grid) {
+        this.grid = grid;
+    }
 
     /**
      * Get the number of milliseconds between frames.

@@ -1,7 +1,7 @@
-import gsbs.flagshipsystem.FlagshipAIControlSystem;
-import gsbs.flagshipsystem.FlagshipAIPlugin;
+import gsbs.flagshipaisystem.FlagshipAIControlSystem;
+import gsbs.flagshipaisystem.FlagshipAIPlugin;
 
-module FlagshipPlugin {
+module FlagshipAIPlugin {
     requires Common;
 
     uses gsbs.common.services.IWeapon;

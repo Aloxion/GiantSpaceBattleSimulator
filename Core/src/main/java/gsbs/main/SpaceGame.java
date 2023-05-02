@@ -5,6 +5,7 @@ import gsbs.common.components.Position;
 import gsbs.common.components.Sprite;
 import gsbs.common.data.GameData;
 import gsbs.common.data.GameKeys;
+import gsbs.common.data.Grid;
 import gsbs.common.data.World;
 import gsbs.common.entities.Entity;
 import gsbs.common.events.EventManager;
@@ -70,6 +71,7 @@ public class SpaceGame {
 
         gameData.setDisplayWidth(width[0]);
         gameData.setDisplayHeight(height[0]);
+        gameData.setGrid(new Grid(50, width[0], height[0]));
 
         System.out.println(getEventListeners());
         for (IEventListener eventListener : getEventListeners()) {
@@ -82,6 +84,7 @@ public class SpaceGame {
     private void run(Window window) {
         gameData.setDeltaTime(ImGui.getIO().getDeltaTime());
         gameData.setRenderCycles(gameData.getRenderCycles()+1);
+        gameData.getGrid().updateGrid(world);
 
         renderGUI();
 

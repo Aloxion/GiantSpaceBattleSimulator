@@ -6,6 +6,8 @@ import gsbs.common.services.IEventListener;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -56,25 +58,13 @@ class EventManagerTest {
         }
 
         SampleListener listener = new SampleListener();
-        eventManager.addEventListener(listener);
+        var listeners = new ArrayList<IEventListener>();
+        listeners.add(listener);
         eventManager.addEvent(event);
-        eventManager.dispatchEvents(gameData);
+        eventManager.dispatchEvents(gameData, listeners);
         assertTrue(listener.eventReceived);
     }
 
-    @Test
-    void testRemoveEventListener() {
-        class SampleListener implements IEventListener {
-            @Override
-            public void onEvent(Event event, GameData gameData) {
-            }
-        }
-
-        SampleListener listener = new SampleListener();
-        eventManager.addEventListener(listener);
-        eventManager.removeEventListener(listener);
-        assertTrue(eventManager.getListeners().isEmpty());
-    }
 
     @Test
     void testDispatchEvents() {
@@ -96,8 +86,9 @@ class EventManagerTest {
         }
 
         SampleListener listener = new SampleListener();
-        eventManager.addEventListener(listener);
-        eventManager.dispatchEvents(gameData);
+        var listeners = new ArrayList<IEventListener>();
+        listeners.add(listener);
+        eventManager.dispatchEvents(gameData, listeners);
         assertEquals(1, listener.eventCount);
         assertTrue(eventManager.getEventQueue().isEmpty());
     }

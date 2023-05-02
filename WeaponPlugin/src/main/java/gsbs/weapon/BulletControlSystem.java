@@ -19,6 +19,10 @@ public class BulletControlSystem implements IProcess {
             updateAndRemoveIfDead(bullet, world);
             Movement movement = bullet.getComponent(Movement.class);
             movement.setUp(true);
+            Hitbox hitbox = bullet.getComponent(Hitbox.class);
+            Position position = bullet.getComponent(Position.class);
+            updateHitbox(hitbox, position);
+
         }
     }
 
@@ -48,5 +52,9 @@ public class BulletControlSystem implements IProcess {
 
         bullet.add(new Health(duration));
         return bullet;
+    }
+
+    private void updateHitbox(Hitbox hitbox, Position position){
+        hitbox.set(position.getX(), position.getY());
     }
 }

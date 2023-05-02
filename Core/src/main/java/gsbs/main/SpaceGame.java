@@ -173,14 +173,10 @@ public class SpaceGame {
             }
         }
 
+        //Draw hitbox
         for (Entity entity : world.getEntitiesWithComponents(Position.class, Hitbox.class)){
             var hitbox = entity.getComponent(Hitbox.class);
             var position = entity.getComponent(Position.class);
-            hitbox.set(position.getX(),position.getY());
-
-            if (entity.getClass().equals(Flagship.class)){
-                hitbox.set(position.getX()-5, position.getY()-2);
-            }
 
             if (showHitbox){
                 nvgSave(nvgContext);

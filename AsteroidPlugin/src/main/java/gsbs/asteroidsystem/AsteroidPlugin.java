@@ -18,6 +18,7 @@ public class AsteroidPlugin implements IPlugin {
         for (int i = 0; i < 16; i++) {
             Entity asteroid = createAsteroid(gameData, world);
             if (asteroid != null){
+                updateHitbox(asteroid);
                 world.addEntity(asteroid);
             } else {
                 i--;
@@ -38,9 +39,9 @@ public class AsteroidPlugin implements IPlugin {
         Entity asteroid = new Asteroid();
         float size = AsteroidSizes.randomDirection().getSize();
 
-        asteroid.add(new Hitbox(size, size, getRandomX(gameData), getRandomY(gameData)));
-        asteroid.add(new Position(asteroid.getComponent(Hitbox.class).getX(), asteroid.getComponent(Hitbox.class).getY(), radians));
+        asteroid.add(new Position(getRandomX(gameData), getRandomY(gameData), radians));
         asteroid.add(new Sprite(getClass().getResource("/assets/default-asteroid.png"), (int) size, (int) size));
+        asteroid.add(new Hitbox(size, size, 0, 0));
 
         int attempts = 0;
         boolean overlapping = true;
@@ -61,6 +62,7 @@ public class AsteroidPlugin implements IPlugin {
                     overlapping = true;
                     break;
                 }
+                setRandomPosition(asteroid, gameData, currentHitbox);
             }
             attempts++;
         }
@@ -88,5 +90,12 @@ public class AsteroidPlugin implements IPlugin {
         int ymin = 0;
         int ymax = gameData.getDisplayHeight() - (gameData.getDisplayHeight() / 6);
         return (float) (Math.floor(Math.random() * (ymax - ymin + 1) + ymin));
+    }
+
+    private void updateHitbox(Entity entity){
+        Position pos = entity.getComponent(Position.class);
+        Hitbox hitbox = entity.getComponent(Hitbox.class);
+
+        hitbox.set(pos.getX(),pos.getY());
     }
 }

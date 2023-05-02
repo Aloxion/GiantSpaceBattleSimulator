@@ -8,8 +8,6 @@ import gsbs.common.entities.Entity;
 import gsbs.common.math.Vector2;
 import gsbs.common.services.IProcess;
 
-import java.util.List;
-
 public class BulletControlSystem implements IProcess {
 
     @Override

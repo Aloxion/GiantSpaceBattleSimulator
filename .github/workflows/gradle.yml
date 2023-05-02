@@ -32,7 +32,7 @@ jobs:
           arguments: testCodeCoverageReport
       - name: Add coverage to PR
         id: jacoco
-        uses: madrapps/jacoco-report@v1.3
+        uses: madrapps/jacoco-report@main
         with:
           paths: ${{ github.workspace }}/Core/build/reports/jacoco/testCodeCoverageReport/testCodeCoverageReport.xml
           token: ${{ secrets.GITHUB_TOKEN }}

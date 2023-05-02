@@ -5,4 +5,5 @@ include 'CollisionPlugin'
 include 'WeaponPlugin'
 include 'PistolPlugin'
 include 'ShotgunPlugin'
+include 'StartMenuPlugin'
 

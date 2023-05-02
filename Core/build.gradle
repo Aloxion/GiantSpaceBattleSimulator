@@ -13,6 +13,7 @@ dependencies {
     implementation project(':CollisionPlugin')
     implementation project(':PistolPlugin')
     implementation project(':ShotgunPlugin')
+    implementation project(':StartMenuPlugin')
 
     // Dependencies
     implementation "io.github.spair:imgui-java-binding:$imguiVersion"

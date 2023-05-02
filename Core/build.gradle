@@ -1,6 +1,7 @@
 plugins {
     id 'application'
     id 'distribution'
+    id 'jacoco-report-aggregation'
 }
 
 dependencies {
@@ -49,6 +50,9 @@ dependencies {
     }
 }
 
+tasks.named('check') {
+    dependsOn tasks.named('testCodeCoverageReport', JacocoReport)
+}
 
 application {
     mainModule = moduleName

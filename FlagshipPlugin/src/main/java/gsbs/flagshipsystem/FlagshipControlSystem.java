@@ -3,6 +3,7 @@ package gsbs.flagshipsystem;
 
 import gsbs.common.components.Graphics;
 import gsbs.common.components.Position;
+import gsbs.common.components.Weapon;
 import gsbs.common.data.GameData;
 import gsbs.common.data.World;
 import gsbs.common.entities.Entity;
@@ -21,6 +22,9 @@ public class FlagshipControlSystem implements IProcess {
     public void process(GameData gameData, World world) {
         for (Entity player : world.getEntities(Flagship.class)) {
             var position = player.getComponent(Position.class);
+
+            var weapon = player.getComponent(Weapon.class);
+            weapon.decreaseSwapCooldown();
 
             var graphics = player.getComponent(Graphics.class);
             updateShape(graphics, position);

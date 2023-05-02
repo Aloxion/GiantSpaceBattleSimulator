@@ -10,6 +10,7 @@ dependencies {
     implementation project(':FlagshipPlugin')
     implementation project(':PlayerControllerPlugin')
     implementation project(':WeaponPlugin')
+    implementation project(':CollisionPlugin')
     implementation project(':PistolPlugin')
     implementation project(':ShotgunPlugin')
 

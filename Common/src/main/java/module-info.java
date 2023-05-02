@@ -2,6 +2,7 @@ module Common {
     opens gsbs.common.components;
 
     requires org.lwjgl.nanovg;
+    requires imgui.binding;
 
     exports gsbs.common.data;
     exports gsbs.common.entities;
@@ -16,6 +17,7 @@ module Common {
     uses gsbs.common.services.IPlugin;
     uses gsbs.common.services.IProcess;
     uses gsbs.common.services.IPostProcess;
+    uses gsbs.common.services.ISystemProcess;
     uses gsbs.common.services.IEventListener;
     uses gsbs.common.services.IWeapon;
 

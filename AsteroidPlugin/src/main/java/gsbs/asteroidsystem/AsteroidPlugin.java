@@ -1,5 +1,6 @@
 package gsbs.asteroidsystem;
 
+import gsbs.common.components.Hitbox;
 import gsbs.common.components.Position;
 import gsbs.common.components.Sprite;
 import gsbs.common.data.GameData;
@@ -10,11 +11,18 @@ import gsbs.common.entities.Entity;
 import gsbs.common.services.IPlugin;
 
 public class AsteroidPlugin implements IPlugin {
+
+    private static final int MAX_ATTEMPTS = 100 * 100;
     @Override
     public void start(GameData gameData, World world) {
         for (int i = 0; i < 16; i++) {
             Entity asteroid = createAsteroid(gameData, world);
-            world.addEntity(asteroid);
+            if (asteroid != null){
+                updateHitbox(asteroid);
+                world.addEntity(asteroid);
+            } else {
+                i--;
+            }
         }
     }
 
@@ -26,25 +34,68 @@ public class AsteroidPlugin implements IPlugin {
     }
 
     private Entity createAsteroid(GameData gameData, World world) {
-        int xmin = gameData.getDisplayWidth() / 4;// Minimum value of range
-        int xmax = gameData.getDisplayWidth() - ((gameData.getDisplayWidth() / 4));
-        int ymin = gameData.getDisplayHeight() / 4;
-        int ymax = gameData.getDisplayHeight() - ((gameData.getDisplayHeight() / 4));
-
-        float x = (float) (Math.floor(Math.random() * (xmax - xmin + 1) + xmin));
-        float y = (float) (Math.floor(Math.random() * (ymax - ymin + 1) + ymin));
-
         float radians = (float) (3.1415f / (Math.random() * 5));
 
-        try {
-            Entity Asteroid = new Asteroid();
-            int size = AsteroidSizes.randomDirection().getSize();
-            Asteroid.add(new Sprite(getClass().getResource("/assets/default-asteroid.png"), size, size));
-            Asteroid.add(new Position(x, y, radians));
+        Entity asteroid = new Asteroid();
+        float size = AsteroidSizes.randomDirection().getSize();
 
-            return Asteroid;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        asteroid.add(new Position(getRandomX(gameData), getRandomY(gameData), radians));
+        asteroid.add(new Sprite(getClass().getResource("/assets/default-asteroid.png"), (int) size, (int) size));
+        asteroid.add(new Hitbox(size, size, 0, 0));
+
+        int attempts = 0;
+        boolean overlapping = true;
+        while (overlapping && attempts < MAX_ATTEMPTS) {
+            overlapping = false;
+            for (Entity otherAsteroid : world.getEntities(Asteroid.class)) {
+                // Skip if the same
+                if (asteroid == otherAsteroid) {
+                    continue;
+                }
+                Hitbox currentHitbox = asteroid.getComponent(Hitbox.class);
+                Hitbox otherHitbox = otherAsteroid.getComponent(Hitbox.class);
+
+                //Checks collision between the two asteroids
+
+                if (currentHitbox.intersects(otherHitbox)) {
+                    setRandomPosition(asteroid, gameData, currentHitbox);
+                    overlapping = true;
+                    break;
+                }
+                setRandomPosition(asteroid, gameData, currentHitbox);
+            }
+            attempts++;
         }
+        //If overlapping is true, then we return null.
+        if (overlapping) {
+            return null;
+        }
+        return asteroid;
+    }
+
+    private void setRandomPosition(Entity asteroid, GameData gameData, Hitbox currentHitbox){
+        Position pos = asteroid.getComponent(Position.class);
+        pos.setX(getRandomX(gameData));
+        pos.setY(getRandomY(gameData));
+        currentHitbox.set(pos.getX(), pos.getY());
+    }
+
+    private float getRandomX(GameData gameData){
+        int xmin = gameData.getDisplayWidth() / 6;
+        int xmax = gameData.getDisplayWidth()+100 - (gameData.getDisplayWidth() / 2);
+        return (float) (Math.floor(Math.random() * (xmax - xmin + 1) + xmin));
+    }
+
+    private float getRandomY(GameData gameData){
+        int ymin = 0;
+        int ymax = gameData.getDisplayHeight() - (gameData.getDisplayHeight() / 6);
+        return (float) (Math.floor(Math.random() * (ymax - ymin + 1) + ymin));
+    }
+
+    private void updateHitbox(Entity entity){
+        Position pos = entity.getComponent(Position.class);
+        Hitbox hitbox = entity.getComponent(Hitbox.class);
+
+        hitbox.set(pos.getX(),pos.getY());
     }
 }

@@ -2,6 +2,7 @@ package gsbs.flagshipsystem;
 
 
 import gsbs.common.components.Graphics;
+import gsbs.common.components.Hitbox;
 import gsbs.common.components.Position;
 import gsbs.common.data.GameData;
 import gsbs.common.data.World;
@@ -21,9 +22,10 @@ public class FlagshipControlSystem implements IProcess {
     public void process(GameData gameData, World world) {
         for (Entity player : world.getEntities(Flagship.class)) {
             var position = player.getComponent(Position.class);
-
             var graphics = player.getComponent(Graphics.class);
+            var hitbox = player.getComponent(Hitbox.class);
             updateShape(graphics, position);
+            updateHitbox(hitbox, position);
         }
     }
 
@@ -49,5 +51,9 @@ public class FlagshipControlSystem implements IProcess {
         p4.y = (float) (y + Math.sin(radians + 4 * 3.1415f / 5) * 8);
 
         graphics.setShape(List.of(new Vector2[]{p1, p2, p3, p4}));
+    }
+
+    private void updateHitbox(Hitbox hitbox, Position position){
+        hitbox.set(position.getX(), position.getY());
     }
 }

@@ -1,4 +1,9 @@
 rootProject.name = 'GiantSpaceBattleSimulator'
 
 include 'Common', 'Core', 'FlagshipPlugin', 'PlayerControllerPlugin', 'AsteroidPlugin'
+include 'CollisionPlugin'
 include 'WeaponPlugin'
+include 'PistolPlugin'
+include 'ShotgunPlugin'
+include 'StartMenuPlugin'
+

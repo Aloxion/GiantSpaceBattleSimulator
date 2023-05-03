@@ -26,7 +26,7 @@ public class Pistol implements IWeapon {
     private void addBullet(Entity source, World world){
         Position startPosition = source.getComponent(Position.class);
 
-        world.addEntity(BulletControlSystem.createBullet(startPosition, duration));
+        //world.addEntity(BulletControlSystem.createBullet(startPosition, duration));
     }
 
 }

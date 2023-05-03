@@ -7,7 +7,7 @@ public class Main {
     public static void main(String[] args) {
         var cfg = new Configuration();
         cfg.setTitle("Giant Space Battle Simulator");
-        cfg.setWidth(800);
+        cfg.setWidth(1200);
         cfg.setHeight(600);
         cfg.setFullScreen(false);
         cfg.setVsync(true);

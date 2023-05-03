@@ -4,10 +4,7 @@ import gsbs.common.components.Graphics;
 import gsbs.common.components.Hitbox;
 import gsbs.common.components.Position;
 import gsbs.common.components.Sprite;
-import gsbs.common.data.GameData;
-import gsbs.common.data.GameKeys;
-import gsbs.common.data.GameState;
-import gsbs.common.data.World;
+import gsbs.common.data.*;
 import gsbs.common.entities.Entity;
 import gsbs.common.events.Event;
 import gsbs.common.events.GameLoseEvent;
@@ -108,6 +105,7 @@ public class SpaceGame implements IEventListener {
                 for (IPostProcess postEntityProcessorService : getPostProcessingServices()) {
                     postEntityProcessorService.process(gameData, world);
                 }
+
                 break;
             case QUIT:
                 GLFW.glfwSetWindowShouldClose(window.getHandle(), true);
@@ -117,6 +115,7 @@ public class SpaceGame implements IEventListener {
 
     private void draw() {
         // Draw vector graphics
+
         for (Entity entity : world.getEntitiesWithComponent(Graphics.class)) {
             var graphics = entity.getComponent(Graphics.class);
 
@@ -351,5 +350,28 @@ public class SpaceGame implements IEventListener {
             this.world = new World();
             this.gameData = new GameData();
         }
+    }
+
+
+    public void drawGrid(GameData gameData) {
+        int cellSize = 128;
+        int numRows = gameData.getDisplayHeight() / cellSize;
+        int numCols = (gameData.getDisplayWidth() - (2 * (gameData.getDisplayWidth() / 6))) / cellSize;
+        int startCol = (gameData.getDisplayWidth() / 2 - (numCols * cellSize) / 2) / cellSize;
+
+        nvgBeginPath(nvgContext);
+        nvgStrokeWidth(nvgContext, 1.0f);
+        nvgStrokeColor(nvgContext, rgba(0, 0, 0, 255));
+
+        for (int row = 0; row < numRows; row++) {
+            for (int col = 0; col < numCols; col++) {
+                nvgRect(nvgContext, (col + startCol) * cellSize, row * cellSize, cellSize, cellSize);
+            }
+        }
+
+        nvgFillColor(nvgContext, rgba(255, 255, 255, 128));
+        nvgFill(nvgContext);
+        nvgStroke(nvgContext);
+        nvgRestore(nvgContext);
     }
 }

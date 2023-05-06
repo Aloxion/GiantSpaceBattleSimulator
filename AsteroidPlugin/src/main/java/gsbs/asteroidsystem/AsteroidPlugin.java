@@ -98,11 +98,20 @@ public class AsteroidPlugin implements IPlugin {
     }
 
     public Node[][] createAsteroidGrid(GameData gameData) {
-        //Sets row and col for the grid, that takes account for the fact that we want a max-x column
+        //Sets row and col for the grid, that takes account for the fact that we want a min-x column
         int numRows = gameData.getDisplayHeight() / cellSize;
         int numCols = ((gameData.getDisplayWidth() - (2 * (gameData.getDisplayWidth() / 4))) / cellSize);
-        int startX = (gameData.getDisplayWidth() / 2) - (numCols / 2) * cellSize;
-        int startY = (gameData.getDisplayHeight() / 2) - (numRows / 2) * cellSize;
+
+        //Center (X,Y) for screen & grid
+        int centerScreenX = gameData.getDisplayWidth()/2;
+        int centerScreenY = gameData.getDisplayHeight()/2;
+        int centerGridX = (numCols/2) * cellSize;
+        int centerGridY = (numRows/2) * cellSize;
+
+        int startX = centerScreenX - centerGridX;
+        int startY = centerScreenY - centerGridY;
+        //We plus by 1, to get the start column to be a bit more towards x-positive. This way we get it into the center of the screen.
+        System.out.println(numCols);
         int startCol = startX / cellSize + 1;
         int startRow = startY / cellSize;
 

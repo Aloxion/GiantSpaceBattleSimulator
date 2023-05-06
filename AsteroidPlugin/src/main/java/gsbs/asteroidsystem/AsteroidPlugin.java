@@ -11,10 +11,13 @@ import gsbs.common.entities.Asteroid;
 import gsbs.common.entities.Entity;
 import gsbs.common.services.IPlugin;
 
+import java.util.Random;
+
 public class AsteroidPlugin implements IPlugin {
     private Node[][] asteroidGrid;
     private final static int cellSize = 128;
     private final static int MAX_ATTEMPTS = 50;
+    private static final Random getRandom = new Random();
     @Override
     public void start(GameData gameData, World world) {
         asteroidGrid = createGrid(gameData);
@@ -46,15 +49,17 @@ public class AsteroidPlugin implements IPlugin {
     private Entity createAsteroid() {
         float radians = (float) (3.1415f / (Math.random() * 5));
         Entity asteroid = new Asteroid();
-        AsteroidSizes sizeEnum = AsteroidSizes.randomDirection();
+        AsteroidSizes sizeEnum = randomDirection();
         float size = sizeEnum.getSize();
 
+        //Get number (rows, cols)
         int numRows = asteroidGrid.length;
         int numCols = asteroidGrid[0].length;
 
-        // randomly select a starting node from within the grid, '-2' just means we are trying to look for inner nodes.
-        int randRow = (int) (Math.random() * (numRows - 2) + 1);
-        int randCol = (int) (Math.random() * (numCols - 2) + 1);
+        // randomly select a starting node from within the grid, we use the grids number of col & rows,
+        // to look for inner nodes.
+        int randRow = (int) (Math.random() * (numRows/2) + 1);
+        int randCol = (int) (Math.random() * (numCols/2) + 1);
         Node currentNode = asteroidGrid[randRow][randCol];
 
         // Randomly selected a value between 0..3
@@ -115,6 +120,12 @@ public class AsteroidPlugin implements IPlugin {
         Position pos = entity.getComponent(Position.class);
         Hitbox hitbox = entity.getComponent(Hitbox.class);
         hitbox.set(pos.getX(),pos.getY());
+    }
+
+    //Get random asteroid enum.
+    public AsteroidSizes randomDirection() {
+        AsteroidSizes[] asteroids = AsteroidSizes.class.getEnumConstants();
+        return asteroids[getRandom.nextInt(asteroids.length)];
     }
 
 }

@@ -26,6 +26,7 @@ public class AsteroidPlugin implements IPlugin {
         for (int i = 0; i < 16; i++) {
             Entity asteroid = createAsteroid();
             if (asteroid != null){
+                //Update hitbox to make sure hitboxes are correct
                 updateHitbox(asteroid);
                 world.addEntity(asteroid);
                 attempts = 0;

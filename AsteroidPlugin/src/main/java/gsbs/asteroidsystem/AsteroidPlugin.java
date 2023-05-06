@@ -20,7 +20,7 @@ public class AsteroidPlugin implements IPlugin {
     private static final Random getRandom = new Random();
     @Override
     public void start(GameData gameData, World world) {
-        asteroidGrid = createGrid(gameData);
+        asteroidGrid = createAsteroidGrid(gameData);
         int attempts = 0;
 
         for (int i = 0; i < 16; i++) {
@@ -84,7 +84,7 @@ public class AsteroidPlugin implements IPlugin {
             } else {
                 currentNode = asteroidGrid[currentRow][currentCol];
             }
-
+            //Create new asteroid if currentNode is defined && if there is no entities in that node.
             if (currentNode != null && currentNode.getEntities().isEmpty()) {
                 asteroid.add(new Position(currentNode.getCol()*cellSize, currentNode.getRow()*cellSize, radians));
                 asteroid.add(new Sprite(getClass().getResource("/assets/default-asteroid.png"), (int) size, (int) size));
@@ -93,11 +93,10 @@ public class AsteroidPlugin implements IPlugin {
                 return asteroid;
             }
         }
-
         return null;
     }
 
-    public Node[][] createGrid(GameData gameData) {
+    public Node[][] createAsteroidGrid(GameData gameData) {
         //Sets row and col for the grid, that takes account for the fact that we want a max-x column
         int numRows = gameData.getDisplayHeight() / cellSize;
         int numCols = ((gameData.getDisplayWidth() - (2 * (gameData.getDisplayWidth() / 4))) / cellSize);

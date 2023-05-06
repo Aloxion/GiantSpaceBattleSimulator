@@ -11,18 +11,22 @@ import gsbs.common.entities.Asteroid;
 import gsbs.common.entities.Entity;
 import gsbs.common.services.IPlugin;
 
+import java.util.Random;
+
 public class AsteroidPlugin implements IPlugin {
     private Node[][] asteroidGrid;
     private final static int cellSize = 128;
     private final static int MAX_ATTEMPTS = 50;
+    private static final Random getRandom = new Random();
     @Override
     public void start(GameData gameData, World world) {
-        asteroidGrid = createGrid(gameData);
+        asteroidGrid = createAsteroidGrid(gameData);
         int attempts = 0;
 
         for (int i = 0; i < 16; i++) {
             Entity asteroid = createAsteroid();
             if (asteroid != null){
+                //Update hitbox to make sure hitboxes are correct
                 updateHitbox(asteroid);
                 world.addEntity(asteroid);
                 attempts = 0;
@@ -46,15 +50,17 @@ public class AsteroidPlugin implements IPlugin {
     private Entity createAsteroid() {
         float radians = (float) (3.1415f / (Math.random() * 5));
         Entity asteroid = new Asteroid();
-        AsteroidSizes sizeEnum = AsteroidSizes.randomDirection();
+        AsteroidSizes sizeEnum = randomDirection();
         float size = sizeEnum.getSize();
 
+        //Get number (rows, cols)
         int numRows = asteroidGrid.length;
         int numCols = asteroidGrid[0].length;
 
-        // randomly select a starting node from within the grid, '-2' just means we are trying to look for inner nodes.
-        int randRow = (int) (Math.random() * (numRows - 2) + 1);
-        int randCol = (int) (Math.random() * (numCols - 2) + 1);
+        // randomly select a starting node from within the grid, we use the grids number of col & rows,
+        // to look for inner nodes.
+        int randRow = (int) (Math.random() * (numRows/2) + 1);
+        int randCol = (int) (Math.random() * (numCols/2) + 1);
         Node currentNode = asteroidGrid[randRow][randCol];
 
         // Randomly selected a value between 0..3
@@ -79,7 +85,7 @@ public class AsteroidPlugin implements IPlugin {
             } else {
                 currentNode = asteroidGrid[currentRow][currentCol];
             }
-
+            //Create new asteroid if currentNode is defined && if there is no entities in that node.
             if (currentNode != null && currentNode.getEntities().isEmpty()) {
                 asteroid.add(new Position(currentNode.getCol()*cellSize, currentNode.getRow()*cellSize, radians));
                 asteroid.add(new Sprite(getClass().getResource("/assets/default-asteroid.png"), (int) size, (int) size));
@@ -88,16 +94,23 @@ public class AsteroidPlugin implements IPlugin {
                 return asteroid;
             }
         }
-
         return null;
     }
 
-    public Node[][] createGrid(GameData gameData) {
-        //Sets row and col for the grid, that takes account for the fact that we want a max-x column
+    public Node[][] createAsteroidGrid(GameData gameData) {
+        //Sets row and col for the grid, that takes account for the fact that we want a min-x column
         int numRows = gameData.getDisplayHeight() / cellSize;
         int numCols = ((gameData.getDisplayWidth() - (2 * (gameData.getDisplayWidth() / 4))) / cellSize);
-        int startX = (gameData.getDisplayWidth() / 2) - (numCols / 2) * cellSize;
-        int startY = (gameData.getDisplayHeight() / 2) - (numRows / 2) * cellSize;
+
+        //Center (X,Y) for screen & grid
+        int centerScreenX = gameData.getDisplayWidth()/2;
+        int centerScreenY = gameData.getDisplayHeight()/2;
+        int centerGridX = (numCols/2) * cellSize;
+        int centerGridY = (numRows/2) * cellSize;
+
+        int startX = centerScreenX - centerGridX;
+        int startY = centerScreenY - centerGridY;
+        //We plus by 1, to get the start column to be a bit more towards x-positive. This way we get it into the center of the screen.
         int startCol = startX / cellSize + 1;
         int startRow = startY / cellSize;
 
@@ -115,6 +128,12 @@ public class AsteroidPlugin implements IPlugin {
         Position pos = entity.getComponent(Position.class);
         Hitbox hitbox = entity.getComponent(Hitbox.class);
         hitbox.set(pos.getX(),pos.getY());
+    }
+
+    //Get random asteroid enum.
+    public AsteroidSizes randomDirection() {
+        AsteroidSizes[] asteroids = AsteroidSizes.class.getEnumConstants();
+        return asteroids[getRandom.nextInt(asteroids.length)];
     }
 
 }

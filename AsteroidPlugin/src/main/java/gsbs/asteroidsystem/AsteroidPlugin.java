@@ -111,7 +111,6 @@ public class AsteroidPlugin implements IPlugin {
         int startX = centerScreenX - centerGridX;
         int startY = centerScreenY - centerGridY;
         //We plus by 1, to get the start column to be a bit more towards x-positive. This way we get it into the center of the screen.
-        System.out.println(numCols);
         int startCol = startX / cellSize + 1;
         int startRow = startY / cellSize;
 

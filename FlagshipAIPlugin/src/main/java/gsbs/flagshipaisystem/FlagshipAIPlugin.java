@@ -16,7 +16,6 @@ public class FlagshipAIPlugin implements IPlugin {
     public void start(GameData gameData, World world) {
         enemyFlagshipAI = createFlagshipAI(gameData, world, Teams.ENEMY);
         world.addEntity(enemyFlagshipAI);
-        System.out.println("AI plugin start");
     }
 
     @Override

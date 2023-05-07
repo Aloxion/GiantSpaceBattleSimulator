@@ -11,6 +11,11 @@ public class Node {
         this.isBlocked = isBlocked;
     }
 
+    @Override
+    public String toString() {
+        return "(" + row + ", " + column + ")";
+    }
+
     public int getRow() {
         return row;
     }

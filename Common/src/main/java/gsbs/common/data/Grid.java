@@ -1,10 +1,12 @@
 package gsbs.common.data;
 
 import gsbs.common.components.Position;
+import gsbs.common.entities.Asteroid;
 import gsbs.common.entities.Entity;
 import gsbs.common.entities.Flagship;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Grid {
@@ -18,18 +20,23 @@ public class Grid {
         this.nodeSize = nodeSize;
         this.maxRow = displayWidth/nodeSize;
         this.maxColumn = displayHeight/nodeSize;
-        this.grid = new Node[(maxRow*maxColumn)];
+        this.grid = new Node[maxRow*maxColumn];
+        int index = 0;
         for (int i = 0; i < maxRow; i++) {
+            index = i * maxColumn - 1;
             for (int j = 0; j < maxColumn; j++) {
-                this.grid[i*j] = new Node(i, j, false);
+                index += 1;
+                this.grid[index] = new Node(i, j, false);
             }
         }
+        System.out.println(Arrays.toString(grid));
     }
-    
+
+
     
     public void updateGrid(World world){
-        for (Entity entity : world.getEntities(Flagship.class)) {
-            var position = entity.getComponent(Position.class);
+        for (Entity asteroid : world.getEntities(Asteroid.class)) {
+            var position = asteroid.getComponent(Position.class);
             if (position != null) {
                 getNodeFromCoords((int) position.getX(), (int) position.getY()).setBlocked(true);
             }
@@ -41,9 +48,9 @@ public class Grid {
     }
 
     public Node getNodeFromCoords(int x, int y){
-        int row = maxRow / x;
-        int column = maxColumn / y;
-        return this.grid[row * column];
+        int row = x / nodeSize;
+        int column = y / nodeSize;
+        return this.grid[row * maxColumn + column];
     }
 
     public Node[] getNeighbors(Node node){
@@ -58,7 +65,7 @@ public class Grid {
         if (node.getColumn() != 0){
             nodes.add(grid[nodeSpot - 1]);
         }
-        if (node.getRow() != maxColumn){
+        if (node.getColumn() != maxColumn){
             nodes.add(grid[nodeSpot + 1]);
         }
 

@@ -29,7 +29,6 @@ public class FlagshipAIControlSystem implements IProcess {
 
     public void process(GameData gameData, World world) {
         grid = gameData.getGrid();
-        System.out.println("AI control system go YEEEEE");
 
         for (Entity flagship : world.getEntities(Flagship.class)) {
             var team = flagship.getComponent(Team.class);
@@ -54,24 +53,51 @@ public class FlagshipAIControlSystem implements IProcess {
 
         Node start = grid.getNodeFromCoords((int) positionAIShip.getX(), (int) positionAIShip.getY());
         Node goal = grid.getNodeFromCoords((int) positionTarget.getX(), (int) positionTarget.getY());
-        thetaStar(start, goal);
+        //thetaStar(start, goal);
 
         var movementAIShip = thisFlagship.getComponent(Movement.class);
-        if(heuristic(start, goal) < 50){
+        if(heuristic(start, goal) < 2){
             handleOffensiveAction(gameData, world);
             movementAIShip.setUp(false);
         }
         else{
-            movementAIShip.setUp(true);
+            movementAIShip.setUp(false);
         }
 
-        positionAIShip.setRadians(getDirection(positionAIShip.getX(), positionAIShip.getY(), positionTarget.getX(), positionTarget.getY()));
+        movementAIShip.setLeft(false);
+        movementAIShip.setRight(false);
+
+        //double dirDiff = (2*Math.PI - (Math.PI + positionAIShip.getRadians())%(2*Math.PI)) + Math.PI + getDirection(positionAIShip.getX(), positionAIShip.getY(), positionTarget.getX(), positionTarget.getY());
+        double desiredUnit = convertToUnitCircle(getDirection(positionAIShip.getX(), positionAIShip.getY(), positionTarget.getX(), positionTarget.getY()));
+        double currUnit = convertToUnitCircle(positionAIShip.getRadians());
+        double dirDiff = ((2*Math.PI - currUnit) + desiredUnit) % (2*Math.PI);
+
+        if(dirDiff > Math.PI){
+            movementAIShip.setLeft(true);
+        }
+        else {
+            movementAIShip.setRight(true);
+        }
+        //movementAIShip.setLeft(false);
+        //movementAIShip.setRight(true);
+        //System.out.println(getDirection(positionAIShip.getX(), positionAIShip.getY(), positionTarget.getX(), positionTarget.getY()) + 2 * Math.PI);
+        //System.out.println(dirDiff);
+        System.out.println(".....");
+        System.out.println(desiredUnit);
+        System.out.println(currUnit);
+        System.out.println(dirDiff);
 
     }
 
-    private float getDirection(float x1, float y1, float x2, float y2){
-        return (float) Math.atan2(x2 - x1, y2 - y1);
+    private double getDirection(float x1, float y1, float x2, float y2){
+        // System.out.println((float) Math.atan2(x2 - x1, y2 - y1));
 
+        return Math.atan2(y2 - y1, x2 - x1);
+
+    }
+
+    private double convertToUnitCircle(double dir){
+        return 2*Math.PI - ((dir % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI));
     }
 
     public List<Node> thetaStar(Node start, Node goal) {
@@ -196,7 +222,7 @@ public class FlagshipAIControlSystem implements IProcess {
         return Math.sqrt(deltaRow * deltaRow + deltaColumn * deltaColumn);
     }
 
-        private static double heuristic(Node node, Node goal) {
+    private static double heuristic(Node node, Node goal) {
         // Euclidean distance heuristic
         int deltaRow = node.getRow() - goal.getRow();
         int deltaColumn = node.getColumn() - goal.getColumn();

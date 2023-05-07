@@ -308,6 +308,15 @@ public class SpaceGame {
             GLFW.glfwSetWindowShouldClose(window.getHandle(), true);
         }
 
+        ImGui.newLine();
+
+
+        drawList.addRectFilled(ImGui.getCursorScreenPosX() + 4, ImGui.getCursorScreenPosY() + 4, ImGui.getCursorScreenPosX() + 16, ImGui.getCursorScreenPosY() + 16, ImGui.getColorU32(ImGuiCol.Text));
+
+        if (ImGui.button("## grid", 20, 20)) {
+
+        }
+
         ImGui.end();
     }
 }

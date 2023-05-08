@@ -4,8 +4,8 @@ import gsbs.common.data.GameData;
 import gsbs.common.data.World;
 
 /**
- * This is the interface for the processor, and will be called on every frame when the game state is In-Game.
+ * This will be called on every frame, no matter what the game state is
  */
-public interface IProcess {
+public interface ISystemProcess {
     void process(GameData gameData, World world);
 }

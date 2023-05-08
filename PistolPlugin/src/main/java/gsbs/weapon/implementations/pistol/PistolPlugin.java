@@ -1,11 +1,9 @@
 package gsbs.weapon.implementations.pistol;
 
-import gsbs.common.components.Health;
-import gsbs.common.components.Movement;
-import gsbs.common.components.Position;
-import gsbs.common.components.Sprite;
+import gsbs.common.components.*;
 import gsbs.common.data.GameData;
 import gsbs.common.data.World;
+import gsbs.common.data.enums.Teams;
 import gsbs.common.entities.Bullet;
 import gsbs.common.entities.Entity;
 import gsbs.common.services.IWeapon;
@@ -39,10 +37,11 @@ public class PistolPlugin implements IWeapon {
 
         Entity bullet = new Bullet();
         bullet.add(new Movement(deacceleration, acceleration, maxSpeed, rotationSpeed));
-
+        Sprite sprite = new Sprite(PistolPlugin.class.getResource("/default-bullet.png"), 10, 10);
         bullet.add(new Position(position.getX(), position.getY(), position.getRadians()));
-        bullet.add(new Sprite(PistolPlugin.class.getResource("/default-bullet.png"), 10, 10));
-
+        bullet.add(sprite);
+        bullet.add(new Hitbox(sprite.getWidth(),sprite.getHeight(),position.getX(),position.getY()));
+        bullet.add(new Team(Teams.PLAYER));
 
         bullet.add(new Health(duration));
         return bullet;

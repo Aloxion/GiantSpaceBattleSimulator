@@ -1,17 +1,15 @@
 package gsbs.main;
 
 import gsbs.common.components.Graphics;
+import gsbs.common.components.Hitbox;
 import gsbs.common.components.Position;
 import gsbs.common.components.Sprite;
-import gsbs.common.data.GameData;
-import gsbs.common.data.GameKeys;
-import gsbs.common.data.World;
+import gsbs.common.data.*;
 import gsbs.common.entities.Entity;
-import gsbs.common.events.EventManager;
-import gsbs.common.services.IEventListener;
-import gsbs.common.services.IPlugin;
-import gsbs.common.services.IPostProcess;
-import gsbs.common.services.IProcess;
+import gsbs.common.events.Event;
+import gsbs.common.events.GameLoseEvent;
+import gsbs.common.events.GameWinEvent;
+import gsbs.common.services.*;
 import gsbs.common.util.Plugin;
 import gsbs.common.util.PluginManager;
 import gsbs.util.Configuration;
@@ -29,59 +27,40 @@ import org.lwjgl.nanovg.NVGPaint;
 
 import java.net.URL;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import static gsbs.util.Color.rgba;
-import static org.lwjgl.glfw.GLFW.glfwGetWindowSize;
 import static org.lwjgl.nanovg.NanoVG.*;
 
 /**
  * Responsible for creating, rendering, updating and drawing.
  */
-public class SpaceGame {
+public class SpaceGame implements IEventListener {
     private final Window window;
     private final long nvgContext;
-    private final GameData gameData = new GameData();
-    private final World world = new World();
-
-    // Track which plugins have been initialized
-    private final List<IPlugin> initializedPlugins = new ArrayList<>();
-    private final EventManager eventManager;
     PciIdParser pciParser = new PciIdParser("/pci.ids.txt");
+    private GameData gameData = new GameData();
+    private World world = new World();
     private boolean paused = false;
     private Entity selectedEntity = null;
+    private boolean showHitbox = false;
 
     public SpaceGame(Configuration config) {
-        this.eventManager = new EventManager();
         this.window = new Window(config, this::run);
         this.nvgContext = this.window.getNvgContext();
     }
 
     public void start() {
-        // Capture window size
-        int[] width = new int[1];
-        int[] height = new int[1];
-
-        glfwGetWindowSize(window.getHandle(), width, height);
-
-        gameData.setDisplayWidth(width[0]);
-        gameData.setDisplayHeight(height[0]);
-
-        System.out.println(getEventListeners());
-        for (IEventListener eventListener : getEventListeners()) {
-            eventManager.addEventListener(eventListener);
-        }
-
         this.window.run();
     }
 
     private void run(Window window) {
         gameData.setDeltaTime(ImGui.getIO().getDeltaTime());
-        gameData.setRenderCycles(gameData.getRenderCycles()+1);
+        gameData.setRenderCycles(gameData.getRenderCycles() + 1);
+        this.gameData.getEventManager().dispatchEvents(gameData, getEventListeners());
 
         renderGUI();
 
@@ -93,9 +72,6 @@ public class SpaceGame {
     }
 
     private void update() {
-        if (paused)
-            return;
-
         // Handle input
         try {
             for (var key : GameKeys.Keys.class.getDeclaredFields()) {
@@ -109,24 +85,37 @@ public class SpaceGame {
             throw new RuntimeException(e);
         }
 
-        for (IPlugin iGamePlugin : getPluginServices()) {
-            if (!initializedPlugins.contains(iGamePlugin)) {
-                iGamePlugin.start(gameData, world);
-                initializedPlugins.add(iGamePlugin);
-            }
+        for (ISystemProcess systemProcess : getSystemProcessingServices()) {
+            systemProcess.process(gameData, world);
         }
 
-        for (IProcess entityProcessorService : getProcessingServices()) {
-            entityProcessorService.process(gameData, world);
-        }
+        switch (this.gameData.getGameState()) {
+            case IN_GAME:
+                for (IPlugin iGamePlugin : getPluginServices()) {
+                    if (!gameData.getInitializedPlugins().contains(iGamePlugin)) {
+                        iGamePlugin.start(gameData, world);
+                        gameData.getInitializedPlugins().add(iGamePlugin);
+                    }
+                }
 
-        for (IPostProcess postEntityProcessorService : getPostProcessingServices()) {
-            postEntityProcessorService.process(gameData, world);
+                for (IProcess entityProcessorService : getProcessingServices()) {
+                    entityProcessorService.process(gameData, world);
+                }
+
+                for (IPostProcess postEntityProcessorService : getPostProcessingServices()) {
+                    postEntityProcessorService.process(gameData, world);
+                }
+
+                break;
+            case QUIT:
+                GLFW.glfwSetWindowShouldClose(window.getHandle(), true);
+                break;
         }
     }
 
     private void draw() {
         // Draw vector graphics
+
         for (Entity entity : world.getEntitiesWithComponent(Graphics.class)) {
             var graphics = entity.getComponent(Graphics.class);
 
@@ -158,7 +147,7 @@ public class SpaceGame {
             nvgTranslate(nvgContext, -cx, -cy);
 
             try (NVGPaint img = NVGPaint.calloc()) {
-                nvgImagePattern(nvgContext, 0, 0, sprite.getWidth(), sprite.getHeight(), (float) (Math.PI/2.0f), sprite.getSpriteId(nvgContext), 1, img);
+                nvgImagePattern(nvgContext, 0, 0, sprite.getWidth(), sprite.getHeight(), (float) (Math.PI / 2.0f), sprite.getSpriteId(nvgContext), 1, img);
 
                 nvgBeginPath(nvgContext);
                 nvgRect(nvgContext, 0, 0, sprite.getWidth(), sprite.getHeight());
@@ -167,8 +156,26 @@ public class SpaceGame {
                 nvgRestore(nvgContext);
             }
         }
-    }
 
+        //Draw hitbox
+        for (Entity entity : world.getEntitiesWithComponents(Position.class, Hitbox.class)) {
+            var hitbox = entity.getComponent(Hitbox.class);
+            var position = entity.getComponent(Position.class);
+
+            if (showHitbox) {
+                nvgSave(nvgContext);
+                nvgTranslate(nvgContext, hitbox.getX() + hitbox.getWidth() / 2.0f, hitbox.getY() + hitbox.getHeight() / 2.0f);
+                nvgRotate(nvgContext, position.getRadians());
+                nvgTranslate(nvgContext, -hitbox.getWidth() / 2.0f, -hitbox.getHeight() / 2.0f);
+
+                nvgBeginPath(nvgContext);
+                nvgRect(nvgContext, 0, 0, hitbox.getWidth(), hitbox.getHeight());
+                nvgFillColor(nvgContext, rgba(255, 0, 0, 1));
+                nvgFill(nvgContext);
+                nvgRestore(nvgContext);
+            }
+        }
+    }
 
     private Collection<? extends IPlugin> getPluginServices() {
         return PluginManager.locateAll(IPlugin.class);
@@ -182,8 +189,14 @@ public class SpaceGame {
         return PluginManager.locateAll(IPostProcess.class);
     }
 
+    private Collection<? extends ISystemProcess> getSystemProcessingServices() {
+        return PluginManager.locateAll(ISystemProcess.class);
+    }
+
     private Collection<? extends IEventListener> getEventListeners() {
-        return PluginManager.locateAll(IEventListener.class);
+        var eventListeners = PluginManager.locateAll(IEventListener.class);
+        eventListeners.add(this);
+        return eventListeners;
     }
 
     private void renderGUI() {
@@ -305,6 +318,60 @@ public class SpaceGame {
             GLFW.glfwSetWindowShouldClose(window.getHandle(), true);
         }
 
+        ImDrawList drawList2 = ImGui.getWindowDrawList();
+
+        drawList2.addText(ImGui.getCursorScreenPosX() + 6, ImGui.getCursorScreenPosY() + 4, ImGui.getColorU32(ImGuiCol.Text), "Hitbox");
+        if (ImGui.button("## hitbox", 60, 20)) {
+            showHitbox = !showHitbox;
+        }
+
+        if (ImGui.button("Restart")) {
+            this.gameData.setGameState(GameState.START);
+        }
+
+        if (ImGui.button("Win")) {
+            this.gameData.getEventManager().addEvent(new GameWinEvent(null));
+        }
+
+        if (ImGui.button("Lose")) {
+            this.gameData.getEventManager().addEvent(new GameLoseEvent(null));
+        }
+
         ImGui.end();
+    }
+
+    @Override
+    public void onEvent(Event event, GameData gameData) {
+        // Handle events
+        if (event instanceof GameWinEvent) {
+            this.world = new World();
+            this.gameData = new GameData();
+        } else if (event instanceof GameLoseEvent) {
+            this.world = new World();
+            this.gameData = new GameData();
+        }
+    }
+
+
+    public void drawGrid(GameData gameData) {
+        int cellSize = 128;
+        int numRows = gameData.getDisplayHeight() / cellSize;
+        int numCols = (gameData.getDisplayWidth() - (2 * (gameData.getDisplayWidth() / 6))) / cellSize;
+        int startCol = (gameData.getDisplayWidth() / 2 - (numCols * cellSize) / 2) / cellSize;
+
+        nvgBeginPath(nvgContext);
+        nvgStrokeWidth(nvgContext, 1.0f);
+        nvgStrokeColor(nvgContext, rgba(0, 0, 0, 255));
+
+        for (int row = 0; row < numRows; row++) {
+            for (int col = 0; col < numCols; col++) {
+                nvgRect(nvgContext, (col + startCol) * cellSize, row * cellSize, cellSize, cellSize);
+            }
+        }
+
+        nvgFillColor(nvgContext, rgba(255, 255, 255, 128));
+        nvgFill(nvgContext);
+        nvgStroke(nvgContext);
+        nvgRestore(nvgContext);
     }
 }

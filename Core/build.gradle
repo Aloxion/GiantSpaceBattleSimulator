@@ -1,23 +1,139 @@
 plugins {
     id 'application'
-    id "org.gradlex.extra-java-module-info"
+    id 'distribution'
 }
 
 dependencies {
     implementation project(':Common')
-    implementation project(path: ':LibGDX', configuration: 'shadow')
 
-    implementation project(':Flagship')
-    implementation project(':Asteroid')
-    implementation project(':PlayerController')
+    implementation project(':AsteroidPlugin')
+    implementation project(':FlagshipPlugin')
+    implementation project(':PlayerControllerPlugin')
+    implementation project(':WeaponPlugin')
+    implementation project(':CollisionPlugin')
+    implementation project(':PistolPlugin')
+    implementation project(':ShotgunPlugin')
+    implementation project(':StartMenuPlugin')
 
+    // Dependencies
+    implementation "io.github.spair:imgui-java-binding:$imguiVersion"
+    implementation "io.github.spair:imgui-java-lwjgl3:$imguiVersion"
+
+    implementation platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
+    implementation "org.lwjgl:lwjgl-bgfx:$lwjglVersion"
+    implementation "org.lwjgl:lwjgl-glfw:$lwjglVersion"
+    implementation "org.lwjgl:lwjgl-nanovg:$lwjglVersion"
+    implementation "org.lwjgl:lwjgl-stb:$lwjglVersion"
+
+    def os = org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.currentOperatingSystem
+    def targets = []
+    println project.gradle.startParameter.taskNames
+
+    if (project.gradle.startParameter.taskNames.any { ["installDist", "distZip", "distTar"].contains(it) }) {
+        targets = ["natives-macos", "natives-windows", "natives-linux"]
+    } else if (os.isLinux()) {
+        targets = ["natives-linux"]
+    } else if (os.isWindows()) {
+        targets = ["natives-windows"]
+    } else if (os.isMacOsX()) {
+        targets = ["natives-macos"]
+    }
+
+    targets.each { target ->
+        implementation "io.github.spair:imgui-java-$target:$imguiVersion"
+        implementation "org.lwjgl:lwjgl:$lwjglVersion:$target"
+        implementation "org.lwjgl:lwjgl-glfw:$lwjglVersion:$target"
+        implementation "org.lwjgl:lwjgl-bgfx:$lwjglVersion:$target"
+        implementation "org.lwjgl:lwjgl-nanovg:$lwjglVersion:$target"
+        implementation "org.lwjgl:lwjgl-stb:$lwjglVersion:$target"
+    }
 }
+
 
 application {
     mainModule = moduleName
     mainClass = 'gsbs.main.Main'
+    startScripts {
+        doLast {
+            unixScript.text = """#!/bin/sh
+app_path=\$0
+
+while
+    APP_HOME=\${app_path%"\${app_path##*/}"}
+    [ -h "\$app_path" ]
+do 
+    ls = \$( ls -ld "\$app_path")
+    link = \${ls#*' -> '}
+    case \$link in
+        /*)   app_path=\$link ;;
+        *)    app_path=\$APP_HOME\$link ;;
+    esac
+done
+
+APP_BASE_NAME=\${0##*/}
+APP_HOME=\$(cd "\${APP_HOME:-./}.." && pwd -P ) || exit
+
+# Find path to native modules
+case "\$( uname )" in               
+  CYGWIN* )         NATIVE_PATH="natives-windows"  ;;
+  MSYS* | MINGW* )   NATIVE_PATH="natives-windows"    ;;
+  Darwin* )         NATIVE_PATH="natives-macos"    ;;
+  Linux* )          NATIVE_PATH="natives-linux"    ;;
+esac
+
+DEFAULT_JVM_OPTS='"--module-path" "\$APP_HOME/lib:\$APP_HOME/natives/\$NATIVE_PATH" "--module" "${moduleName}/${mainClassName}"'
+
+eval "set -- \$(
+        printf '%s\\n' "\$DEFAULT_JVM_OPTS \$JAVA_OPTS \$CORE_OPTS" |
+        xargs -n1 |
+        sed ' s~[^-[:alnum:]+,./:=@_]~\\\\&~g; ' |
+        tr '\\n' ' '
+    )" '"\$@"'
+
+eval set -- \$JAVA_OPTS \$CORE_OPTS \$DEFAULT_JVM_OPTS "\$APP_ARGS"
+
+exec java "\$@"
+"""
+        }
+    }
 }
 
-extraJavaModuleInfo {
-    automaticModule("LibGDX-${gdxVersion}.jar", "com.badlogic.gdx")
+task copyNatives(type: Copy) {
+    into('natives-macos') {
+        from configurations.runtimeClasspath.filter { it.name.contains('natives-macos') }
+    }
+    into('natives-windows') {
+        from configurations.runtimeClasspath.filter { it.name.contains('natives-windows') }
+    }
+    into('natives-linux') {
+        from configurations.runtimeClasspath.filter { it.name.contains('natives-linux') }
+    }
+    destinationDir = project.file("$buildDir/natives")
+}
+
+task copyPlugins(type: Copy) {
+    into('plugins') {
+        from configurations.runtimeClasspath.filter { it.name.contains('Plugin') }
+    }
+    destinationDir = project.file("$buildDir/plugins")
+}
+
+distributions {
+    main {
+        contents {
+            into('lib') {
+                configurations.runtimeClasspath.filter { it.name.contains('natives') }.each { file ->
+                    exclude file.name
+                }
+                configurations.runtimeClasspath.filter { it.name.contains('Plugin') }.each { file ->
+                    exclude file.name
+                }
+            }
+            into('natives') {
+                from copyNatives
+            }
+            from copyPlugins
+            exclude '**/*.bat'
+        }
+    }
 }

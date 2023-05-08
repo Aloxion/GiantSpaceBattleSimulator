@@ -1,82 +1,68 @@
 package gsbs.main;
 
-import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import gsbs.common.components.Graphics;
-import gsbs.common.components.MySprite;
-import gsbs.common.data.GameData;
-import gsbs.common.data.World;
+import gsbs.common.components.Hitbox;
+import gsbs.common.components.Position;
+import gsbs.common.components.Sprite;
+import gsbs.common.data.*;
 import gsbs.common.entities.Entity;
-import gsbs.common.events.EventManager;
-import gsbs.common.events.IEventListener;
-import gsbs.common.services.IProcess;
-import gsbs.common.services.IPlugin;
-import gsbs.common.services.IPostProcess;
-import gsbs.managers.GameInputProcessor;
+import gsbs.common.events.Event;
+import gsbs.common.events.GameLoseEvent;
+import gsbs.common.events.GameWinEvent;
+import gsbs.common.services.*;
+import gsbs.common.util.Plugin;
+import gsbs.common.util.PluginManager;
+import gsbs.util.Configuration;
+import gsbs.util.PciIdParser;
+import gsbs.util.Window;
+import imgui.ImDrawList;
+import imgui.flag.ImGuiCol;
+import imgui.flag.ImGuiCond;
+import imgui.flag.ImGuiTableFlags;
+import imgui.flag.ImGuiWindowFlags;
+import imgui.internal.ImGui;
+import org.lwjgl.bgfx.BGFX;
+import org.lwjgl.glfw.GLFW;
+import org.lwjgl.nanovg.NVGPaint;
 
+import java.net.URL;
+import java.nio.file.Paths;
 import java.util.Collection;
-import java.util.ServiceLoader;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+
+import static gsbs.util.Color.rgba;
+import static org.lwjgl.nanovg.NanoVG.*;
 
 /**
  * Responsible for creating, rendering, updating and drawing.
  */
-public class SpaceGame extends ApplicationAdapter {
+public class SpaceGame implements IEventListener {
+    private final Window window;
+    private final long nvgContext;
+    PciIdParser pciParser = new PciIdParser("/pci.ids.txt");
+    private GameData gameData = new GameData();
+    private World world = new World();
+    private boolean paused = false;
+    private Entity selectedEntity = null;
+    private boolean showHitbox = false;
 
-    private static OrthographicCamera cam;
-    private final GameData gameData = new GameData();
-    private final World world = new World();
-    private ShapeRenderer sr;
-    private EventManager eventManager;
-    private SpriteBatch batch;
-
-    @Override
-    public void create() {
-        batch = new SpriteBatch();
-        // Capture window size
-        if (gameData.getDisplayWidth() != Gdx.graphics.getWidth() || gameData.getDisplayHeight() != Gdx.graphics.getHeight()
-        ) {
-            this.updateCam(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        }
-        // Create a vector renderer
-        sr = new ShapeRenderer();
-        eventManager = new EventManager();
-
-        // Setup input handling
-        Gdx.input.setInputProcessor(
-                new GameInputProcessor(gameData, eventManager)
-        );
-
-        // Load all Game Plugins using ServiceLoader
-        for (IPlugin IPlugin : getPluginServices()) {
-            IPlugin.start(gameData, world);
-        }
-
-        System.out.println(getEventListeners());
-        for (IEventListener eventListener : getEventListeners()) {
-            eventManager.addEventListener(eventListener);
-        }
+    public SpaceGame(Configuration config) {
+        this.window = new Window(config, this::run);
+        this.nvgContext = this.window.getNvgContext();
     }
 
-    private void updateCam(int width, int height) {
-        gameData.setDisplayWidth(width);
-        gameData.setDisplayHeight(height);
-
-        cam = new OrthographicCamera(gameData.getDisplayWidth(), gameData.getDisplayHeight());
-        cam.setToOrtho(false, gameData.getDisplayWidth(), gameData.getDisplayHeight());
-        cam.position.set((float) gameData.getDisplayWidth(), (float) gameData.getDisplayHeight(),0);
-        cam.update();
+    public void start() {
+        this.window.run();
     }
 
-    @Override
-    public void render() {
-        Gdx.gl.glClearColor(0, 0, 0, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        gameData.setDeltaTime(Gdx.graphics.getDeltaTime());
+    private void run(Window window) {
+        gameData.setDeltaTime(ImGui.getIO().getDeltaTime());
+        gameData.setRenderCycles(gameData.getRenderCycles() + 1);
+        this.gameData.getEventManager().dispatchEvents(gameData, getEventListeners());
+
+        renderGUI();
 
         update();
 
@@ -86,65 +72,306 @@ public class SpaceGame extends ApplicationAdapter {
     }
 
     private void update() {
-        for (IProcess entityProcessorService : getProcessingServices()) {
-            entityProcessorService.process(gameData, world);
+        // Handle input
+        try {
+            for (var key : GameKeys.Keys.class.getDeclaredFields()) {
+                if (ImGui.isKeyPressed(key.getInt(key))) {
+                    gameData.getKeys().setKey(key.getInt(key), true);
+                } else if (ImGui.isKeyReleased(key.getInt(key))) {
+                    gameData.getKeys().setKey(key.getInt(key), false);
+                }
+            }
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
         }
 
-        eventManager.dispatchEvents(gameData);
+        for (ISystemProcess systemProcess : getSystemProcessingServices()) {
+            systemProcess.process(gameData, world);
+        }
 
-        for (IPostProcess postEntityProcessorService : getPostProcessingServices()) {
-            postEntityProcessorService.process(gameData, world);
+        switch (this.gameData.getGameState()) {
+            case IN_GAME:
+                for (IPlugin iGamePlugin : getPluginServices()) {
+                    if (!gameData.getInitializedPlugins().contains(iGamePlugin)) {
+                        iGamePlugin.start(gameData, world);
+                        gameData.getInitializedPlugins().add(iGamePlugin);
+                    }
+                }
+
+                for (IProcess entityProcessorService : getProcessingServices()) {
+                    entityProcessorService.process(gameData, world);
+                }
+
+                for (IPostProcess postEntityProcessorService : getPostProcessingServices()) {
+                    postEntityProcessorService.process(gameData, world);
+                }
+
+                break;
+            case QUIT:
+                GLFW.glfwSetWindowShouldClose(window.getHandle(), true);
+                break;
         }
     }
 
     private void draw() {
-        for (Entity entity : world.getEntities()) {
-            Graphics graphics = entity.getComponent(Graphics.class);
-            MySprite mySprite = entity.getComponent(MySprite.class);
+        // Draw vector graphics
 
-            if (graphics != null){
-                sr.setColor(1, 1, 1, 1);
+        for (Entity entity : world.getEntitiesWithComponent(Graphics.class)) {
+            var graphics = entity.getComponent(Graphics.class);
 
-                sr.begin(ShapeRenderer.ShapeType.Line);
-
-                for (int i = -1; i < graphics.shape.size() - 1; i++) {
-                    var current = graphics.shape.get(i == -1 ? graphics.shape.size() - 1 : i);
-
-                    var next = graphics.shape.get(i + 1);
-                    sr.line(current.x, current.y, next.x, next.y);
-                }
-                sr.end();
+            if (graphics == null || graphics.shape.size() == 0) {
+                continue;
             }
-            if (mySprite != null){
-                batch.begin();
-                        mySprite.getSprite().draw(batch);
-                batch.end();
+
+            nvgBeginPath(nvgContext);
+            nvgMoveTo(nvgContext, graphics.shape.get(0).x, graphics.shape.get(0).y);
+            for (int i = 1; i < graphics.shape.size(); i++) {
+                nvgLineTo(nvgContext, graphics.shape.get(i).x, graphics.shape.get(i).y);
+            }
+            nvgLineTo(nvgContext, graphics.shape.get(0).x, graphics.shape.get(0).y);
+            nvgStrokeColor(nvgContext, rgba(1, 1, 1, 1));
+            nvgStroke(nvgContext);
+        }
+
+        // Draw sprites
+        for (Entity entity : world.getEntitiesWithComponents(Position.class, Sprite.class)) {
+            var position = entity.getComponent(Position.class);
+            var sprite = entity.getComponent(Sprite.class);
+
+            float cx = sprite.getWidth() / 2.0f;
+            float cy = sprite.getHeight() / 2.0f;
+
+            nvgSave(nvgContext);
+            nvgTranslate(nvgContext, position.getX() + cx, position.getY() + cy);
+            nvgRotate(nvgContext, position.getRadians());
+            nvgTranslate(nvgContext, -cx, -cy);
+
+            try (NVGPaint img = NVGPaint.calloc()) {
+                nvgImagePattern(nvgContext, 0, 0, sprite.getWidth(), sprite.getHeight(), (float) (Math.PI / 2.0f), sprite.getSpriteId(nvgContext), 1, img);
+
+                nvgBeginPath(nvgContext);
+                nvgRect(nvgContext, 0, 0, sprite.getWidth(), sprite.getHeight());
+                nvgFillPaint(nvgContext, img);
+                nvgFill(nvgContext);
+                nvgRestore(nvgContext);
+            }
+        }
+
+        //Draw hitbox
+        for (Entity entity : world.getEntitiesWithComponents(Position.class, Hitbox.class)) {
+            var hitbox = entity.getComponent(Hitbox.class);
+            var position = entity.getComponent(Position.class);
+
+            if (showHitbox) {
+                nvgSave(nvgContext);
+                nvgTranslate(nvgContext, hitbox.getX() + hitbox.getWidth() / 2.0f, hitbox.getY() + hitbox.getHeight() / 2.0f);
+                nvgRotate(nvgContext, position.getRadians());
+                nvgTranslate(nvgContext, -hitbox.getWidth() / 2.0f, -hitbox.getHeight() / 2.0f);
+
+                nvgBeginPath(nvgContext);
+                nvgRect(nvgContext, 0, 0, hitbox.getWidth(), hitbox.getHeight());
+                nvgFillColor(nvgContext, rgba(255, 0, 0, 1));
+                nvgFill(nvgContext);
+                nvgRestore(nvgContext);
             }
         }
     }
 
-    @Override
-    public void dispose() {
-        batch.dispose();
-    }
-
     private Collection<? extends IPlugin> getPluginServices() {
-        ServiceLoader<IPlugin> serviceLoader = ServiceLoader.load(IPlugin.class);
-        return serviceLoader.stream().map(ServiceLoader.Provider::get).collect(Collectors.toList());
+        return PluginManager.locateAll(IPlugin.class);
     }
 
     private Collection<? extends IProcess> getProcessingServices() {
-        ServiceLoader<IProcess> serviceLoader = ServiceLoader.load(IProcess.class);
-        return serviceLoader.stream().map(ServiceLoader.Provider::get).collect(Collectors.toList());
+        return PluginManager.locateAll(IProcess.class);
     }
 
     private Collection<? extends IPostProcess> getPostProcessingServices() {
-        ServiceLoader<IPostProcess> serviceLoader = ServiceLoader.load(IPostProcess.class);
-        return serviceLoader.stream().map(ServiceLoader.Provider::get).collect(Collectors.toList());
+        return PluginManager.locateAll(IPostProcess.class);
+    }
+
+    private Collection<? extends ISystemProcess> getSystemProcessingServices() {
+        return PluginManager.locateAll(ISystemProcess.class);
     }
 
     private Collection<? extends IEventListener> getEventListeners() {
-        ServiceLoader<IEventListener> serviceLoader = ServiceLoader.load(IEventListener.class);
-        return serviceLoader.stream().map(ServiceLoader.Provider::get).collect(Collectors.toList());
+        var eventListeners = PluginManager.locateAll(IEventListener.class);
+        eventListeners.add(this);
+        return eventListeners;
+    }
+
+    private void renderGUI() {
+        ImGui.setNextWindowPos(0, 0);
+        ImGui.setNextWindowSize(gameData.getDisplayWidth() * 0.3f, gameData.getDisplayHeight());
+        ImGui.setNextWindowCollapsed(true, ImGuiCond.FirstUseEver);
+
+        ImGui.begin("Debug Menu", ImGuiWindowFlags.NoResize);
+
+        if (ImGui.collapsingHeader("Inspector")) {
+            if (selectedEntity == null) {
+                ImGui.text("No entity selected.");
+            } else {
+                ImGui.text("ID: " + selectedEntity.getID());
+
+                if (ImGui.treeNode("Components")) {
+                    for (var component : selectedEntity.getComponents()) {
+                        if (ImGui.treeNode(component.getClass().getSimpleName() + "##" + component)) {
+                            for (var field : component.getClass().getDeclaredFields()) {
+                                field.setAccessible(true);
+                                try {
+                                    ImGui.text(field.getName() + ": " + field.get(component));
+                                } catch (IllegalAccessException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }
+                            ImGui.treePop();
+                        }
+                    }
+                    ImGui.treePop();
+                }
+            }
+        }
+
+        if (ImGui.collapsingHeader("World")) {
+            if (ImGui.beginListBox("## entities", Float.MIN_VALUE, 5 * ImGui.getTextLineHeightWithSpacing())) {
+                Map<Class<? extends Entity>, List<Entity>> entitiesGrouped =
+                        world.getEntities().stream().collect(Collectors.groupingBy(Entity::getClass));
+
+                for (var entityType : entitiesGrouped.keySet()) {
+                    if (ImGui.treeNode(entityType.getSimpleName() + " ## " + entityType.getName())) {
+                        for (var entity : entitiesGrouped.get(entityType)) {
+                            boolean isSelected = selectedEntity != null && selectedEntity.equals(entity);
+
+                            if (ImGui.selectable(entity.getID(), isSelected)) {
+                                selectedEntity = entity;
+                            }
+
+                            if (isSelected) {
+                                ImGui.setItemDefaultFocus();
+                            }
+                        }
+                        ImGui.treePop();
+                    }
+                }
+                ImGui.endListBox();
+            }
+        }
+
+        if (ImGui.collapsingHeader("Plugins")) {
+            if (ImGui.beginTable("plugins_table", 1, ImGuiTableFlags.Borders + ImGuiTableFlags.Resizable)) {
+                for (Map.Entry<URL, Plugin> plugin : PluginManager.getPlugins().entrySet()) {
+                    ImGui.tableNextRow();
+                    ImGui.tableSetColumnIndex(0);
+                    ImGui.text(Paths.get(plugin.getKey().getFile()).getFileName().toString());
+                }
+            }
+            ImGui.endTable();
+
+            if (ImGui.button("Update")) {
+                var pluginsToBeUnloaded = PluginManager.updatePluginLayers();
+
+                for (var pluginURL : pluginsToBeUnloaded) {
+                    PluginManager.getPlugins().get(pluginURL).getServices(IPlugin.class).forEach(s -> {
+                        s.stop(gameData, world);
+                    });
+                }
+
+                PluginManager.reloadPlugins();
+            }
+        }
+
+        if (ImGui.collapsingHeader("Stats")) {
+            ImGui.text("FPS: " + (int) (1 / gameData.getDeltaTime()));
+            String vendorId = Integer.toHexString(BGFX.bgfx_get_caps().vendorId() & 0xffff);
+            String deviceId = Integer.toHexString(BGFX.bgfx_get_caps().deviceId() & 0xffff);
+            ImGui.text("GPU: " + pciParser.lookupName(vendorId, deviceId));
+            ImGui.text("Graphics API: " + BGFX.bgfx_get_renderer_name(BGFX.bgfx_get_renderer_type()));
+        }
+
+        ImDrawList drawList = ImGui.getWindowDrawList();
+
+        drawList.addRectFilled(ImGui.getCursorScreenPosX() + 4, ImGui.getCursorScreenPosY() + 4, ImGui.getCursorScreenPosX() + 8, ImGui.getCursorScreenPosY() + 16, ImGui.getColorU32(paused ? ImGuiCol.TextDisabled : ImGuiCol.Text));
+        drawList.addRectFilled(ImGui.getCursorScreenPosX() + 12, ImGui.getCursorScreenPosY() + 4, ImGui.getCursorScreenPosX() + 16, ImGui.getCursorScreenPosY() + 16, ImGui.getColorU32(paused ? ImGuiCol.TextDisabled : ImGuiCol.Text));
+
+        ImGui.beginDisabled(paused);
+        if (ImGui.button("## pause", 20, 20)) {
+            paused = true;
+        }
+        ImGui.endDisabled();
+
+        ImGui.sameLine();
+
+        drawList.addTriangleFilled(ImGui.getCursorScreenPosX() + 4, ImGui.getCursorScreenPosY() + 4, ImGui.getCursorScreenPosX() + 16, ImGui.getCursorScreenPosY() + 10, ImGui.getCursorScreenPosX() + 4, ImGui.getCursorScreenPosY() + 16, ImGui.getColorU32(paused ? ImGuiCol.Text : ImGuiCol.TextDisabled));
+
+        ImGui.beginDisabled(!paused);
+        if (ImGui.button("## play", 20, 20)) {
+            paused = false;
+        }
+        ImGui.endDisabled();
+
+
+        ImGui.sameLine();
+
+
+        drawList.addRectFilled(ImGui.getCursorScreenPosX() + 4, ImGui.getCursorScreenPosY() + 4, ImGui.getCursorScreenPosX() + 16, ImGui.getCursorScreenPosY() + 16, ImGui.getColorU32(ImGuiCol.Text));
+
+        if (ImGui.button("## stop", 20, 20)) {
+            GLFW.glfwSetWindowShouldClose(window.getHandle(), true);
+        }
+
+        ImDrawList drawList2 = ImGui.getWindowDrawList();
+
+        drawList2.addText(ImGui.getCursorScreenPosX() + 6, ImGui.getCursorScreenPosY() + 4, ImGui.getColorU32(ImGuiCol.Text), "Hitbox");
+        if (ImGui.button("## hitbox", 60, 20)) {
+            showHitbox = !showHitbox;
+        }
+
+        if (ImGui.button("Restart")) {
+            this.gameData.setGameState(GameState.START);
+        }
+
+        if (ImGui.button("Win")) {
+            this.gameData.getEventManager().addEvent(new GameWinEvent(null));
+        }
+
+        if (ImGui.button("Lose")) {
+            this.gameData.getEventManager().addEvent(new GameLoseEvent(null));
+        }
+
+        ImGui.end();
+    }
+
+    @Override
+    public void onEvent(Event event, GameData gameData) {
+        // Handle events
+        if (event instanceof GameWinEvent) {
+            this.world = new World();
+            this.gameData = new GameData();
+        } else if (event instanceof GameLoseEvent) {
+            this.world = new World();
+            this.gameData = new GameData();
+        }
+    }
+
+
+    public void drawGrid(GameData gameData) {
+        int cellSize = 128;
+        int numRows = gameData.getDisplayHeight() / cellSize;
+        int numCols = (gameData.getDisplayWidth() - (2 * (gameData.getDisplayWidth() / 6))) / cellSize;
+        int startCol = (gameData.getDisplayWidth() / 2 - (numCols * cellSize) / 2) / cellSize;
+
+        nvgBeginPath(nvgContext);
+        nvgStrokeWidth(nvgContext, 1.0f);
+        nvgStrokeColor(nvgContext, rgba(0, 0, 0, 255));
+
+        for (int row = 0; row < numRows; row++) {
+            for (int col = 0; col < numCols; col++) {
+                nvgRect(nvgContext, (col + startCol) * cellSize, row * cellSize, cellSize, cellSize);
+            }
+        }
+
+        nvgFillColor(nvgContext, rgba(255, 255, 255, 128));
+        nvgFill(nvgContext);
+        nvgStroke(nvgContext);
+        nvgRestore(nvgContext);
     }
 }

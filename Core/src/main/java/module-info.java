@@ -1,17 +1,22 @@
 module Core {
     requires Common;
-    requires Flagship;
-    requires Asteroid;
-    requires PlayerController;
 
-
-    // LibGDX
-    requires com.badlogic.gdx;
-    requires java.desktop;
-    requires jdk.unsupported;
-
-    uses gsbs.common.services.IProcess;
     uses gsbs.common.services.IPlugin;
+    uses gsbs.common.services.IProcess;
     uses gsbs.common.services.IPostProcess;
-    uses gsbs.common.events.IEventListener;
+    uses gsbs.common.services.IEventListener;
+
+    requires imgui.lwjgl3;
+    requires imgui.binding;
+
+    requires org.lwjgl;
+    requires org.lwjgl.glfw;
+    requires org.lwjgl.nanovg;
+    requires org.lwjgl.bgfx;
+
+    requires org.lwjgl.natives;
+    requires org.lwjgl.glfw.natives;
+    requires org.lwjgl.bgfx.natives;
+    requires org.lwjgl.nanovg.natives;
+    requires org.lwjgl.stb.natives;
 }

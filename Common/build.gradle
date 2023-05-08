@@ -1,11 +1,4 @@
-plugins {
-    id "org.gradlex.extra-java-module-info"
-}
-
 dependencies {
-    implementation project(path: ':LibGDX', configuration: 'shadow')
-}
-
-extraJavaModuleInfo {
-    automaticModule("LibGDX-${gdxVersion}.jar", "com.badlogic.gdx")
+    implementation "io.github.spair:imgui-java-binding:$imguiVersion"
+    implementation "org.lwjgl:lwjgl-nanovg:$lwjglVersion"
 }

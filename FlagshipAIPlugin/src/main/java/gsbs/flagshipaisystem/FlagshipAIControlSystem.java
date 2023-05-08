@@ -53,12 +53,11 @@ public class FlagshipAIControlSystem implements IProcess {
 
         Node start = grid.getNodeFromCoords((int) positionAIShip.getX(), (int) positionAIShip.getY());
         Node goal = grid.getNodeFromCoords((int) positionTarget.getX(), (int) positionTarget.getY());
-        //thetaStar(start, goal);
 
         var movementAIShip = thisFlagship.getComponent(Movement.class);
-        if(heuristic(start, goal) < 2){
+        if(heuristic(start, goal) > 2){
             handleOffensiveAction(gameData, world);
-            movementAIShip.setUp(false);
+            movementAIShip.setUp(true);
         }
         else{
             movementAIShip.setUp(false);
@@ -67,10 +66,14 @@ public class FlagshipAIControlSystem implements IProcess {
         movementAIShip.setLeft(false);
         movementAIShip.setRight(false);
 
-        //double dirDiff = (2*Math.PI - (Math.PI + positionAIShip.getRadians())%(2*Math.PI)) + Math.PI + getDirection(positionAIShip.getX(), positionAIShip.getY(), positionTarget.getX(), positionTarget.getY());
-        double desiredUnit = convertToUnitCircle(getDirection(positionAIShip.getX(), positionAIShip.getY(), positionTarget.getX(), positionTarget.getY()));
+        List<Node> thetaStarList = thetaStar(start, goal);
+
+        int[] desiredLocation = grid.getCoordsFromNode(thetaStarList.get(thetaStarList.size()-1));
+
+        System.out.println(thetaStarList);
+        double desiredAngle = convertToUnitCircle(getDirection(positionAIShip.getX(), positionAIShip.getY(), desiredLocation[0], desiredLocation[1]));
         double currUnit = convertToUnitCircle(positionAIShip.getRadians());
-        double dirDiff = ((2*Math.PI - currUnit) + desiredUnit) % (2*Math.PI);
+        double dirDiff = ((2*Math.PI - currUnit) + desiredAngle) % (2*Math.PI);
 
         if(dirDiff > Math.PI){
             movementAIShip.setLeft(true);
@@ -78,14 +81,13 @@ public class FlagshipAIControlSystem implements IProcess {
         else {
             movementAIShip.setRight(true);
         }
-        //movementAIShip.setLeft(false);
-        //movementAIShip.setRight(true);
-        //System.out.println(getDirection(positionAIShip.getX(), positionAIShip.getY(), positionTarget.getX(), positionTarget.getY()) + 2 * Math.PI);
-        //System.out.println(dirDiff);
-        System.out.println(".....");
-        System.out.println(desiredUnit);
-        System.out.println(currUnit);
-        System.out.println(dirDiff);
+
+        float speed = 10.0f * gameData.getDeltaTime();
+        float newX = positionAIShip.getX() + (float) Math.cos(desiredAngle) * speed;
+        float newY = positionAIShip.getY() + (float) Math.sin(desiredAngle) * speed;
+        positionAIShip.setX(newX);
+        positionAIShip.setY(newY);
+        positionAIShip.setRadians((float) desiredAngle);
 
     }
 

@@ -53,14 +53,22 @@ public class Grid {
         return this.grid[row * maxColumn + column];
     }
 
+    public int[] getCoordsFromNode(Node node){
+        int[] result = new int[2];
+        result[0] = node.getRow() * maxRow - (maxRow/2);
+        result[1] = node.getColumn() * maxColumn - (maxColumn/2);
+        return result;
+
+    }
+
     public Node[] getNeighbors(Node node){
         List<Node> nodes = new ArrayList<>();
-        int nodeSpot = node.getRow() * node.getColumn();
+        int nodeSpot = node.getRow() * maxColumn + node.getColumn();
         if (node.getRow() != 0){
-            nodes.add(grid[nodeSpot - maxRow]);
+            nodes.add(grid[nodeSpot - maxColumn]);
         }
-        if (node.getRow() != maxRow){
-            nodes.add(grid[nodeSpot + maxRow]);
+        if (node.getRow() != maxRow-1){
+            nodes.add(grid[nodeSpot + maxColumn]);
         }
         if (node.getColumn() != 0){
             nodes.add(grid[nodeSpot - 1]);

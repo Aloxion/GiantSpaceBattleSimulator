@@ -34,9 +34,9 @@ public class FlagshipPlugin implements IPlugin {
 
     private Entity createFlagship(GameData gameData, World world, Teams team, float x, float y, float radians) {
         float deacceleration = 10;
-        float acceleration = 120.5f;
-        float maxSpeed = 100;
-        float rotationSpeed = 10.4f;
+        float acceleration = 12.5f + 40;
+        float maxSpeed = 10 + 40;
+        float rotationSpeed = 1.4f;
 
         List<IWeapon> weapons = loadWeapons();
 

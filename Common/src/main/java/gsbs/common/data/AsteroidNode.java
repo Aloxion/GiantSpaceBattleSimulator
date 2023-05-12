@@ -4,12 +4,12 @@ import gsbs.common.entities.Entity;
 
 import java.util.ArrayList;
 
-public class Node {
+public class AsteroidNode {
     private int row;
     private int col;
     private ArrayList<Entity> entities;
 
-    public Node(int row, int col) {
+    public AsteroidNode(int row, int col) {
         this.row = row;
         this.col = col;
         this.entities = new ArrayList<>();

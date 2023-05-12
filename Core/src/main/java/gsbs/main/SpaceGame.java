@@ -61,7 +61,9 @@ public class SpaceGame implements IEventListener {
         gameData.setDeltaTime(ImGui.getIO().getDeltaTime());
         gameData.setRenderCycles(gameData.getRenderCycles() + 1);
         this.gameData.getEventManager().dispatchEvents(gameData, getEventListeners());
-        gameData.setGrid(new Grid(50, gameData.getDisplayWidth(), gameData.getDisplayHeight()));
+        if (gameData.getGrid() == null){
+            gameData.setGrid(new Grid(50, gameData.getDisplayWidth(), gameData.getDisplayHeight()));
+        }
 
         renderGUI();
 
@@ -70,11 +72,15 @@ public class SpaceGame implements IEventListener {
         draw();
 
         gameData.getKeys().update();
-        gameData.getGrid().updateGrid(world);
+
     }
 
     private void update() {
         // Handle input
+
+        if (paused){
+            return;
+        }
         try {
             for (var key : GameKeys.Keys.class.getDeclaredFields()) {
                 if (ImGui.isKeyPressed(key.getInt(key))) {
@@ -106,6 +112,7 @@ public class SpaceGame implements IEventListener {
 
                 for (IPostProcess postEntityProcessorService : getPostProcessingServices()) {
                     postEntityProcessorService.process(gameData, world);
+                    gameData.getGrid().updateGrid(world);
                 }
 
                 break;
@@ -177,6 +184,29 @@ public class SpaceGame implements IEventListener {
                 nvgRestore(nvgContext);
             }
         }
+        for (int i = 0; i < gameData.getDisplayWidth()/50; i++) {
+            for (int j = 0; j < gameData.getDisplayHeight()/50; j++) {
+                Node node = gameData.getGrid().getNode(i,j);
+                float nodeX = gameData.getGrid().getCoordsFromNode(node)[0];
+                float nodeY = gameData.getGrid().getCoordsFromNode(node)[1];
+
+                // Draw the filled rectangle with transparency
+                nvgBeginPath(nvgContext);
+                nvgRect(nvgContext,nodeX, nodeY,50, 50);
+                nvgFillColor(nvgContext, rgba(255, 255, 255, 0));
+                nvgFill(nvgContext);
+
+
+                // Draw the stroke (edge) of the rectangle
+                nvgStrokeColor(nvgContext, rgba(255, 255, 255, 0.3f));
+                nvgStrokeWidth(nvgContext, 1.0f);
+                nvgStroke(nvgContext);
+
+
+            }
+        }
+
+
     }
 
     private Collection<? extends IPlugin> getPluginServices() {

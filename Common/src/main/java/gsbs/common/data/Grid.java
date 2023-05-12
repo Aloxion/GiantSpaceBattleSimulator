@@ -1,5 +1,6 @@
 package gsbs.common.data;
 
+import gsbs.common.components.Hitbox;
 import gsbs.common.components.Position;
 import gsbs.common.entities.Asteroid;
 import gsbs.common.entities.Entity;
@@ -13,6 +14,7 @@ public class Grid {
     int maxRow;
     int maxColumn;
     Node[] grid;
+    boolean printedGrid = false;
 
 
     public Grid(int nodeSize, int displayWidth, int displayHeight) {
@@ -33,18 +35,41 @@ public class Grid {
     public void updateGrid(World world){
         for (Entity asteroid : world.getEntities(Asteroid.class)) {
             var position = asteroid.getComponent(Position.class);
+            var hitbox = asteroid.getComponent(Hitbox.class);
             if (position != null) {
-                getNodeFromCoords((int) position.getX(), (int) position.getY()).setBlocked(true);
+                for (Node node : grid){
+                    Hitbox nodeHitbox = new Hitbox(nodeSize, nodeSize, (float) getCoordsFromNode(node)[0],(float) getCoordsFromNode(node)[1]);
+                    if (nodeHitbox.intersects(hitbox)){
+                        node.setBlocked(true);
+                    }
+                }
+
             }
         }
 
-        for (Node node : grid){
-            System.out.println(node.isBlocked());
+        if (printedGrid == false){
+            printGrid();
         }
     }
 
+    public void printGrid() {
+        printedGrid = true;
+        for (int i = 0; i < maxColumn; i++) {
+            for (int j = 0; j < maxRow; j++) {
+              Node node = getNode(j,i);
+                if (node.isBlocked()) {
+                   System.out.print("[X]");  // Blocked node marker
+               } else {
+                    System.out.print("["+getCoordsFromNode(node)[0]+" "+getCoordsFromNode(node)[1]+"]");  // Empty node marker
+               }
+            }
+            System.out.println();  // Move to the next row
+       }
+
+    }
+
     public Node getNode(int row, int column){
-        return this.grid[row * column];
+        return this.grid[row * maxColumn + column];
     }
 
     public Node getNodeFromCoords(int x, int y){
@@ -58,8 +83,8 @@ public class Grid {
 
     public int[] getCoordsFromNode(Node node){
         int[] result = new int[2];
-        result[0] = node.getRow() * nodeSize - (nodeSize/2);
-        result[1] = node.getColumn() * nodeSize - (nodeSize/2);
+        result[0] = node.getRow() * nodeSize + (nodeSize/2);
+        result[1] = node.getColumn() * nodeSize + (nodeSize/2);
         return result;
     }
 

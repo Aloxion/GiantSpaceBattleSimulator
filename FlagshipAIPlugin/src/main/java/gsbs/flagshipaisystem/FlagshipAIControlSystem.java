@@ -72,6 +72,7 @@ public class FlagshipAIControlSystem implements IProcess {
         movementAIShip.setRight(false);
 
         List<Node> thetaStarList = thetaStar(start, goal);
+        System.out.println(thetaStarList);
         int[] desiredLocation = grid.getCoordsFromNode(thetaStarList.get(thetaStarList.size()-2));
         double desiredAngle = convertToUnitCircle(getDirection(positionAIShip.getX(), positionAIShip.getY(), desiredLocation[0], desiredLocation[1]));
         double currUnit = convertToUnitCircle(positionAIShip.getRadians());
@@ -185,7 +186,7 @@ public class FlagshipAIControlSystem implements IProcess {
         // Continue until the current node reaches the neighbor node
         while (true) {
             // Get the current node at the current row and column coordinates
-            Node currentNode =  grid.getNode(x0, y0);
+            Node currentNode =  grid.getNode(x1, y1);
 
             // Check if the current node is blocked
             if (currentNode.isBlocked()) {

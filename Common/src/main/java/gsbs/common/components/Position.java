@@ -11,7 +11,6 @@ public class Position extends Component {
         this.radians = radians;
     }
 
-
     public float getX() {
         return x;
     }

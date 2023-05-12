@@ -16,6 +16,6 @@ public class Health extends Component {
     }
 
     public boolean isDead() {
-        return healthPoints == 0;
+        return healthPoints <= 0;
     }
 }

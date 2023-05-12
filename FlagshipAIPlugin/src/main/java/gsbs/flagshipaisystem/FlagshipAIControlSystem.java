@@ -16,6 +16,8 @@ import gsbs.common.entities.Flagship;
 import gsbs.common.services.IProcess;
 import java.util.List;
 
+import static java.lang.Math.atan;
+
 public class FlagshipAIControlSystem implements IProcess {
     private Entity thisFlagship;
     private Entity targetFlagship;
@@ -56,10 +58,10 @@ public class FlagshipAIControlSystem implements IProcess {
 
         var movementAIShip = thisFlagship.getComponent(Movement.class);
         if(heuristic(start, goal) > 2){
-            handleOffensiveAction(gameData, world);
             movementAIShip.setUp(true);
         }
         else{
+            handleOffensiveAction(gameData, world);
             movementAIShip.setUp(false);
         }
 
@@ -67,10 +69,12 @@ public class FlagshipAIControlSystem implements IProcess {
         movementAIShip.setRight(false);
 
         List<Node> thetaStarList = thetaStar(start, goal);
-
-        int[] desiredLocation = grid.getCoordsFromNode(thetaStarList.get(thetaStarList.size()-1));
-
         System.out.println(thetaStarList);
+        //int[] desiredLocation = grid.getCoordsFromNode(thetaStarList.get(thetaStarList.size()-1));
+        int[] desiredLocation = grid.getCoordsFromNode(thetaStarList.get(thetaStarList.size()-2));
+        System.out.println("X="+grid.getCoordsFromNode(thetaStarList.get(thetaStarList.size()-2))[0]);
+        System.out.println("Y="+grid.getCoordsFromNode(thetaStarList.get(thetaStarList.size()-2))[1]);
+        //System.out.println(thetaStarList);
         double desiredAngle = convertToUnitCircle(getDirection(positionAIShip.getX(), positionAIShip.getY(), desiredLocation[0], desiredLocation[1]));
         double currUnit = convertToUnitCircle(positionAIShip.getRadians());
         double dirDiff = ((2*Math.PI - currUnit) + desiredAngle) % (2*Math.PI);
@@ -82,18 +86,10 @@ public class FlagshipAIControlSystem implements IProcess {
             movementAIShip.setRight(true);
         }
 
-        float speed = 10.0f * gameData.getDeltaTime();
-        float newX = positionAIShip.getX() + (float) Math.cos(desiredAngle) * speed;
-        float newY = positionAIShip.getY() + (float) Math.sin(desiredAngle) * speed;
-        positionAIShip.setX(newX);
-        positionAIShip.setY(newY);
-        positionAIShip.setRadians((float) desiredAngle);
-
     }
 
     private double getDirection(float x1, float y1, float x2, float y2){
         // System.out.println((float) Math.atan2(x2 - x1, y2 - y1));
-
         return Math.atan2(y2 - y1, x2 - x1);
 
     }
@@ -106,49 +102,55 @@ public class FlagshipAIControlSystem implements IProcess {
         gScore.put(start, 0.0);
         parent.put(start, start);
 
-        PriorityQueue<Node> open = new PriorityQueue<>(Comparator.comparingDouble(node -> gScore.get(node) + heuristic(node, goal)));
-        open.add(start);
-
+        Map<Node, Double> open = new HashMap();
+        //Comparator.comparingDouble(node -> gScore.get(node) + heuristic(node, goal))
+        open.put(start, gScore.get(start) + heuristic(start, goal));
         Set<Node> closed = new HashSet<>();
 
         while (!open.isEmpty()) {
-            Node currentNode = open.poll();
+            Node currentNode = getKeyByValue(open, Collections.min(open.values()));
+            open.remove(currentNode);
+
             if (currentNode.equals(goal)) {
                 return reconstructPath(currentNode);
             }
-
             closed.add(currentNode);
 
             for (Node neighbor : grid.getNeighbors(currentNode)) {
                 if (!closed.contains(neighbor)) {
-                    if (!open.contains(neighbor)) {
+                    if (!open.containsKey(neighbor)) {
                         gScore.put(neighbor, Double.POSITIVE_INFINITY);
                         parent.put(neighbor, null);
                     }
-                    updateVertex(currentNode, neighbor, open);
+                    updateVertex(currentNode, neighbor, open, goal);
                 }
             }
         }
+
         return null;
     }
 
-
-    private  void updateVertex(Node currentNode, Node neighbor, PriorityQueue<Node> open) {
+    private  void updateVertex(Node currentNode, Node neighbor, Map<Node, Double> open, Node goal) {
         if (lineOfSight(parent.get(currentNode), neighbor)) {
             if (gScore.get(parent.get(currentNode)) + cost(parent.get(currentNode), neighbor) < gScore.get(neighbor)) {
                 gScore.put(neighbor, gScore.get(parent.get(currentNode)) + cost(parent.get(currentNode), neighbor));
                 parent.put(neighbor, parent.get(currentNode));
 
-                open.remove(neighbor);
-                open.add(neighbor);
+                if (open.containsKey(neighbor)){
+                    open.remove(neighbor);
+                }
+
+                open.put(neighbor, (gScore.get(neighbor) + heuristic(neighbor, goal)));
             }
         } else {
             if (gScore.get(currentNode) + cost(currentNode, neighbor) < gScore.get(neighbor)) {
                 gScore.put(neighbor, gScore.get(currentNode) + cost(currentNode, neighbor));
                 parent.put(neighbor, currentNode);
 
-                open.remove(neighbor);
-                open.add(neighbor);
+                if (open.containsKey(neighbor)){
+                    open.remove(neighbor);
+                }
+                open.put(neighbor, (gScore.get(neighbor) + heuristic(neighbor, goal)));
             }
         }
     }
@@ -229,5 +231,14 @@ public class FlagshipAIControlSystem implements IProcess {
         int deltaRow = node.getRow() - goal.getRow();
         int deltaColumn = node.getColumn() - goal.getColumn();
         return Math.sqrt(deltaRow * deltaRow + deltaColumn * deltaColumn);
+    }
+
+    public static <T, E> T getKeyByValue(Map<T, E> map, E value) {
+        for (Map.Entry<T, E> entry : map.entrySet()) {
+            if (Objects.equals(value, entry.getValue())) {
+                return entry.getKey();
+            }
+        }
+        return null;
     }
 }

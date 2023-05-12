@@ -3,7 +3,6 @@ package gsbs.common.data;
 import gsbs.common.components.Position;
 import gsbs.common.entities.Asteroid;
 import gsbs.common.entities.Entity;
-import gsbs.common.entities.Flagship;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,15 +49,17 @@ public class Grid {
     public Node getNodeFromCoords(int x, int y){
         int row = x / nodeSize;
         int column = y / nodeSize;
+        if (row > maxRow-1){
+            row = maxRow-1;
+        }
         return this.grid[row * maxColumn + column];
     }
 
     public int[] getCoordsFromNode(Node node){
         int[] result = new int[2];
-        result[0] = node.getRow() * maxRow - (maxRow/2);
-        result[1] = node.getColumn() * maxColumn - (maxColumn/2);
+        result[0] = node.getRow() * nodeSize - (nodeSize/2);
+        result[1] = node.getColumn() * nodeSize - (nodeSize/2);
         return result;
-
     }
 
     public Node[] getNeighbors(Node node){
@@ -73,10 +74,9 @@ public class Grid {
         if (node.getColumn() != 0){
             nodes.add(grid[nodeSpot - 1]);
         }
-        if (node.getColumn() != maxColumn){
+        if (node.getColumn() != maxColumn-1){
             nodes.add(grid[nodeSpot + 1]);
         }
-
         return nodes.toArray(new Node[0]);
     }
 

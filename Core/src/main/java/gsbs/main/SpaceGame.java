@@ -61,6 +61,7 @@ public class SpaceGame implements IEventListener {
         gameData.setDeltaTime(ImGui.getIO().getDeltaTime());
         gameData.setRenderCycles(gameData.getRenderCycles() + 1);
         this.gameData.getEventManager().dispatchEvents(gameData, getEventListeners());
+        gameData.setGrid(new Grid(50, gameData.getDisplayWidth(), gameData.getDisplayHeight()));
 
         renderGUI();
 
@@ -69,6 +70,7 @@ public class SpaceGame implements IEventListener {
         draw();
 
         gameData.getKeys().update();
+        gameData.getGrid().updateGrid(world);
     }
 
     private void update() {

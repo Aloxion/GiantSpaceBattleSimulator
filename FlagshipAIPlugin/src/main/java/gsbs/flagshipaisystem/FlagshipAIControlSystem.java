@@ -69,12 +69,7 @@ public class FlagshipAIControlSystem implements IProcess {
         movementAIShip.setRight(false);
 
         List<Node> thetaStarList = thetaStar(start, goal);
-        System.out.println(thetaStarList);
-        //int[] desiredLocation = grid.getCoordsFromNode(thetaStarList.get(thetaStarList.size()-1));
         int[] desiredLocation = grid.getCoordsFromNode(thetaStarList.get(thetaStarList.size()-2));
-        System.out.println("X="+grid.getCoordsFromNode(thetaStarList.get(thetaStarList.size()-2))[0]);
-        System.out.println("Y="+grid.getCoordsFromNode(thetaStarList.get(thetaStarList.size()-2))[1]);
-        //System.out.println(thetaStarList);
         double desiredAngle = convertToUnitCircle(getDirection(positionAIShip.getX(), positionAIShip.getY(), desiredLocation[0], desiredLocation[1]));
         double currUnit = convertToUnitCircle(positionAIShip.getRadians());
         double dirDiff = ((2*Math.PI - currUnit) + desiredAngle) % (2*Math.PI);

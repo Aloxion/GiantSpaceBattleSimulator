@@ -28,17 +28,18 @@ public class Grid {
                 this.grid[index] = new Node(i, j, false);
             }
         }
-        System.out.println(Arrays.toString(grid));
     }
 
-
-    
     public void updateGrid(World world){
         for (Entity asteroid : world.getEntities(Asteroid.class)) {
             var position = asteroid.getComponent(Position.class);
             if (position != null) {
                 getNodeFromCoords((int) position.getX(), (int) position.getY()).setBlocked(true);
             }
+        }
+
+        for (Node node : grid){
+            System.out.println(node.isBlocked());
         }
     }
 

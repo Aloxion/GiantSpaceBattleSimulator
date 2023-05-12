@@ -5,6 +5,7 @@ import java.util.*;
 import gsbs.common.components.Movement;
 import gsbs.common.components.Position;
 import gsbs.common.components.Team;
+import gsbs.common.components.Weapon;
 import gsbs.common.data.GameData;
 import gsbs.common.data.Grid;
 import gsbs.common.data.Node;
@@ -47,6 +48,8 @@ public class FlagshipAIControlSystem implements IProcess {
     }
 
     private void handleOffensiveAction(GameData gameData, World world){
+        Weapon weapon = thisFlagship.getComponent(Weapon.class);
+        weapon.fire(thisFlagship, gameData, world);
     }
 
     private void handlePathfinding(GameData gameData, World world, Entity thisFlagship, Entity targetFlagship){

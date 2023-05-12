@@ -26,6 +26,7 @@ import org.lwjgl.glfw.GLFW;
 import org.lwjgl.nanovg.NVGPaint;
 
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
@@ -171,7 +172,7 @@ public class SpaceGame implements IEventListener {
             var hitbox = entity.getComponent(Hitbox.class);
             var position = entity.getComponent(Position.class);
 
-            if (showHitbox) {
+            if (true) {
                 nvgSave(nvgContext);
                 nvgTranslate(nvgContext, hitbox.getX() + hitbox.getWidth() / 2.0f, hitbox.getY() + hitbox.getHeight() / 2.0f);
                 nvgRotate(nvgContext, position.getRadians());
@@ -182,6 +183,25 @@ public class SpaceGame implements IEventListener {
                 nvgFillColor(nvgContext, rgba(255, 0, 0, 1));
                 nvgFill(nvgContext);
                 nvgRestore(nvgContext);
+
+                int [] target = gameData.getTarget();
+                nvgBeginPath(nvgContext);
+                nvgCircle(nvgContext, target[0], target[1], 10);
+                nvgFillColor(nvgContext, rgba(255, 255, 255, 0));
+                nvgFill(nvgContext);
+                nvgStrokeColor(nvgContext, rgba(0, 255, 0, 0.3f));
+                nvgStrokeWidth(nvgContext, 1.0f);
+                nvgStroke(nvgContext);
+
+                nvgBeginPath(nvgContext);
+                nvgFontSize(nvgContext, 25);
+                nvgCreateFont(nvgContext, "Aaarg", "C:\\Users\\Anton Sandbye\\Documents\\GitHub\\GiantSpaceBattleSimulator\\Core\\src\\main\\resources\\Aaargh.ttf");
+                nvgFontFace(nvgContext, "Aaarg");
+                nvgFillColor(nvgContext, rgba(0, 255, 0, 1)); // Adjust the alpha value if needed
+                nvgText(nvgContext, target[0], target[1]+35, "x: " + target[0] + " y: " + target[1]);
+                nvgText(nvgContext, target[0], target[1]+55, "row: " + gameData.getGrid().getNodeFromCoords(target[0],target[1]).getRow()+ " col: " + gameData.getGrid().getNodeFromCoords(target[0],target[1]).getColumn());
+
+
             }
         }
         for (int i = 0; i < gameData.getDisplayWidth()/50; i++) {
@@ -205,8 +225,6 @@ public class SpaceGame implements IEventListener {
 
             }
         }
-
-
     }
 
     private Collection<? extends IPlugin> getPluginServices() {

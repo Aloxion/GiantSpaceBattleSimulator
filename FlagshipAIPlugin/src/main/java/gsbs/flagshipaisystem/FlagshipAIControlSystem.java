@@ -72,8 +72,9 @@ public class FlagshipAIControlSystem implements IProcess {
         movementAIShip.setRight(false);
 
         List<Node> thetaStarList = thetaStar(start, goal);
-        System.out.println(thetaStarList);
         int[] desiredLocation = grid.getCoordsFromNode(thetaStarList.get(thetaStarList.size()-2));
+        gameData.setTarget(desiredLocation[0], desiredLocation[1]);
+
         double desiredAngle = convertToUnitCircle(getDirection(positionAIShip.getX(), positionAIShip.getY(), desiredLocation[0], desiredLocation[1]));
         double currUnit = convertToUnitCircle(positionAIShip.getRadians());
         double dirDiff = ((2*Math.PI - currUnit) + desiredAngle) % (2*Math.PI);
@@ -158,6 +159,10 @@ public class FlagshipAIControlSystem implements IProcess {
         List<Node> totalPath = new ArrayList<>();
         totalPath.add(currentNode);
 
+        for (Object key : parent.keySet()){
+            System.out.println(key);
+        }
+
         if (!parent.get(currentNode).equals(currentNode)) {
             totalPath.addAll(reconstructPath(parent.get(currentNode)));
         }
@@ -165,58 +170,125 @@ public class FlagshipAIControlSystem implements IProcess {
         return totalPath;
     }
 
-    private boolean lineOfSight(Node parent, Node neighbor) {
-        // Get the row and column coordinates of the parent and neighbor nodes
+    private boolean lineOfSight(Node parent, Node neighbor){
         int x0 = parent.getRow();
         int y0 = parent.getColumn();
         int x1 = neighbor.getRow();
         int y1 = neighbor.getColumn();
 
-        // Calculate the differences in the row and column coordinates
-        int dx = Math.abs(x1 - x0);
-        int dy = Math.abs(y1 - y0);
+        int dx = x1 - x0;
+        int dy = y1 - y0;
 
-        // Determine the direction of the line of sight
-        int sx = x0 < x1 ? 1 : -1;
-        int sy = y0 < y1 ? 1 : -1;
+        int f = 0;
+        int sy = 1;
+        int sx = 1;
+        int offsetX = 0;
+        int offsetY = 0;
 
-        // Initialize the error term for Bresenham's line algorithm
-        int err = dx - dy;
+        if (dy < 0) {
+            dy *= -1;
+            sy = -1;
+            offsetY = -1;
+        }
+        if (dx < 0){
+            dx *= -1;
+            sx = -1;
+            offsetX = -1;
+        }
 
-        // Continue until the current node reaches the neighbor node
-        while (true) {
-            // Get the current node at the current row and column coordinates
-            Node currentNode =  grid.getNode(x1, y1);
-
-            // Check if the current node is blocked
-            if (currentNode.isBlocked()) {
-                return false;
-            }
-
-            // If the current node has reached the neighbor node, break the loop
-            if (x0 == x1 && y0 == y1) {
-                break;
-            }
-
-            // Calculate the next error term for Bresenham's line algorithm
-            int e2 = 2 * err;
-
-            // Update the row coordinate if needed
-            if (e2 > -dy) {
-                err -= dy;
+        if (dx >= dy){
+            while (x0 != x1){
+                f += dy;
+                if (f >= dx){
+                    if (grid.getNode(x0 + offsetX,y0 + offsetY).isBlocked()) {
+                        return false;
+                    }
+                    y0 += sy;
+                    f -= dx;
+                }
+                if (f != 0 && grid.getNode(x0 + offsetX,y0 + offsetY).isBlocked()){
+                    return false;
+                }
+                if (dy == 0 && grid.getNode(x0 + offsetX,y0).isBlocked() && grid.getNode(x0 + offsetX,y0-1).isBlocked()){
+                    return false;
+                }
                 x0 += sx;
             }
-
-            // Update the column coordinate if needed
-            if (e2 < dx) {
-                err += dx;
+        } else {
+            while (y0 != y1){
+                f += dx;
+                if (f >= dy){
+                    if (grid.getNode(x0 + offsetX,y0 + offsetY).isBlocked()) {
+                        return false;
+                    }
+                    x0 += sx;
+                    f -= dy;
+                }
+                if (f != 0 && grid.getNode(x0 + offsetX,y0 + offsetY).isBlocked()){
+                    return false;
+                }
+                if (dx == 0 && grid.getNode(x0,y0 + offsetY).isBlocked() && grid.getNode(x0-1,y0 + offsetY).isBlocked()) {
+                    return false;
+                }
                 y0 += sy;
             }
         }
-
-        // If the loop has completed, it means there is a line of sight
         return true;
     }
+
+//    private boolean lineOfSight(Node parent, Node neighbor) {
+//        // Get the row and column coordinates of the parent and neighbor nodes
+//        int x0 = parent.getRow();
+//        int y0 = parent.getColumn();
+//        int x1 = neighbor.getRow();
+//        int y1 = neighbor.getColumn();
+//
+//        // Calculate the differences in the row and column coordinates
+//        int dx = Math.abs(x1 - x0);
+//        int dy = Math.abs(y1 - y0);
+//
+//        // Determine the direction of the line of sight
+//        int sx = x0 < x1 ? 1 : -1;
+//        int sy = y0 < y1 ? 1 : -1;
+//
+//        // Initialize the error term for Bresenham's line algorithm
+//        int err = dx - dy;
+//
+//        // Continue until the current node reaches the neighbor node
+//        while (true) {
+//            // Get the current node at the current row and column coordinates
+//            Node currentNode = grid.getNode(x0, y0);
+//
+//            // Check if the current node is blocked
+//            if (currentNode.isBlocked()) {
+//                System.out.println("Blocked node: (" + x0 + ", " + y0 + ")");
+//                return false;
+//            }
+//
+//            // If the current node has reached the neighbor node, break the loop
+//            if (x0 == x1 && y0 == y1) {
+//                break;
+//            }
+//
+//            // Calculate the next error term for Bresenham's line algorithm
+//            int e2 = 2 * err;
+//
+//            // Update the row coordinate if needed
+//            if (e2 > -dy) {
+//                err -= dy;
+//                x0 += sx;
+//            }
+//
+//            // Update the column coordinate if needed
+//            if (e2 < dx) {
+//                err += dx;
+//                y0 += sy;
+//            }
+//        }
+//
+//        // If the loop has completed, it means there is a line of sight
+//        return true;
+//    }
 
     private static double cost(Node currentNode, Node neighbor) {
         // Euclidean distance cost function

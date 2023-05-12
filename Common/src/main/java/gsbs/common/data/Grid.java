@@ -35,15 +35,20 @@ public class Grid {
     public void updateGrid(World world){
         for (Entity asteroid : world.getEntities(Asteroid.class)) {
             var position = asteroid.getComponent(Position.class);
-            var hitbox = asteroid.getComponent(Hitbox.class);
             if (position != null) {
-                for (Node node : grid){
-                    Hitbox nodeHitbox = new Hitbox(nodeSize, nodeSize, (float) getCoordsFromNode(node)[0],(float) getCoordsFromNode(node)[1]);
-                    if (nodeHitbox.intersects(hitbox)){
+                for (Node node : grid) {
+                    int nodeX = getCoordsFromNode(node)[0];
+                    int nodeY = getCoordsFromNode(node)[1];
+
+                    // Check if the asteroid's position is within the boundaries of the node
+                    if (position.getX() >= nodeX && position.getX() < nodeX + nodeSize &&
+                            position.getY() >= nodeY && position.getY() < nodeY + nodeSize) {
+                        // The asteroid is inside the current node
                         node.setBlocked(true);
+                        break;
                     }
                 }
-
+//                getNode(16,8).setBlocked(true);
             }
         }
 
@@ -54,18 +59,17 @@ public class Grid {
 
     public void printGrid() {
         printedGrid = true;
-        for (int i = 0; i < maxColumn; i++) {
-            for (int j = 0; j < maxRow; j++) {
-              Node node = getNode(j,i);
+        for (int i = 0; i < maxRow; i++) {
+            for (int j = 0; j < maxColumn; j++) {
+                Node node = getNode(i, j);
                 if (node.isBlocked()) {
-                   System.out.print("[X]");  // Blocked node marker
-               } else {
-                    System.out.print("["+getCoordsFromNode(node)[0]+" "+getCoordsFromNode(node)[1]+"]");  // Empty node marker
-               }
+                    System.out.print("[X]");  // Blocked node marker
+                } else {
+                    System.out.print("[ ]");  // Empty node marker
+                }
             }
             System.out.println();  // Move to the next row
-       }
-
+        }
     }
 
     public Node getNode(int row, int column){

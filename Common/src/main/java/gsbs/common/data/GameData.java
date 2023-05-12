@@ -18,6 +18,7 @@ public class GameData {
     private GameState gameState = GameState.START;
     private float deltaTime;
     private int renderCycles;
+    private int target[] = new int[2];
 
     private Grid grid;
 
@@ -27,6 +28,15 @@ public class GameData {
 
     public void setGrid(Grid grid) {
         this.grid = grid;
+    }
+
+    public void setTarget(int x, int y){
+        target[0] = x;
+        target[1] = y;
+    }
+
+    public int[] getTarget(){
+        return target;
     }
 
     /**

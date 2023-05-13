@@ -72,7 +72,11 @@ public class FlagshipAIControlSystem implements IProcess {
         movementAIShip.setRight(false);
 
         List<Node> thetaStarList = thetaStar(start, goal);
-        int[] desiredLocation = grid.getCoordsFromNode(thetaStarList.get(thetaStarList.size()-2));
+        int[] desiredLocation = new int[2];
+        if (thetaStarList.size() > 1){
+            desiredLocation = grid.getCoordsFromNode(thetaStarList.get(thetaStarList.size()-2));
+        }
+
         gameData.setTarget(desiredLocation[0], desiredLocation[1]);
 
         double desiredAngle = convertToUnitCircle(getDirection(positionAIShip.getX(), positionAIShip.getY(), desiredLocation[0], desiredLocation[1]));
@@ -109,7 +113,7 @@ public class FlagshipAIControlSystem implements IProcess {
 
         while (!open.isEmpty()) {
             Node currentNode = getKeyByValue(open, Collections.min(open.values()));
-            open.remove(currentNode);
+            open.remove(getKeyByValue(open, Collections.min(open.values())));
 
             if (currentNode.equals(goal)) {
                 return reconstructPath(currentNode);
@@ -143,7 +147,7 @@ public class FlagshipAIControlSystem implements IProcess {
                 open.put(neighbor, (gScore.get(neighbor) + heuristic(neighbor, goal)));
             }
         } else {
-            if (gScore.get(currentNode) + cost(currentNode, neighbor) < gScore.get(neighbor)) {
+            if (gScore.get(currentNode) + cost(currentNode, neighbor) < gScore.get(neighbor) && !neighbor.isBlocked()) {
                 gScore.put(neighbor, gScore.get(currentNode) + cost(currentNode, neighbor));
                 parent.put(neighbor, currentNode);
 
@@ -158,10 +162,6 @@ public class FlagshipAIControlSystem implements IProcess {
     private static List<Node> reconstructPath(Node currentNode) {
         List<Node> totalPath = new ArrayList<>();
         totalPath.add(currentNode);
-
-        for (Object key : parent.keySet()){
-            System.out.println(key);
-        }
 
         if (!parent.get(currentNode).equals(currentNode)) {
             totalPath.addAll(reconstructPath(parent.get(currentNode)));
@@ -180,36 +180,36 @@ public class FlagshipAIControlSystem implements IProcess {
         int dy = y1 - y0;
 
         int f = 0;
-        int sy = 1;
-        int sx = 1;
-        int offsetX = 0;
-        int offsetY = 0;
+        int sy = 0;
+        int sx = 0;
 
         if (dy < 0) {
             dy *= -1;
             sy = -1;
-            offsetY = -1;
+        } else {
+            sy = 1;
         }
         if (dx < 0){
             dx *= -1;
             sx = -1;
-            offsetX = -1;
+        } else {
+            sx = 1;
         }
 
         if (dx >= dy){
             while (x0 != x1){
                 f += dy;
                 if (f >= dx){
-                    if (grid.getNode(x0 + offsetX,y0 + offsetY).isBlocked()) {
+                    if (grid.getNode(x0 + ((sx-1)/2),y0 + ((sy-1)/2)).isBlocked()) {
                         return false;
                     }
                     y0 += sy;
                     f -= dx;
                 }
-                if (f != 0 && grid.getNode(x0 + offsetX,y0 + offsetY).isBlocked()){
+                if (f != 0 && grid.getNode(x0 + ((sx-1)/2),y0 + ((sy-1)/2)).isBlocked()){
                     return false;
                 }
-                if (dy == 0 && grid.getNode(x0 + offsetX,y0).isBlocked() && grid.getNode(x0 + offsetX,y0-1).isBlocked()){
+                if (dy == 0 && grid.getNode(x0 + ((sx-1)/2),y0).isBlocked() && grid.getNode(x0 + ((sx-1)/2),y0-1).isBlocked()){
                     return false;
                 }
                 x0 += sx;
@@ -218,16 +218,16 @@ public class FlagshipAIControlSystem implements IProcess {
             while (y0 != y1){
                 f += dx;
                 if (f >= dy){
-                    if (grid.getNode(x0 + offsetX,y0 + offsetY).isBlocked()) {
+                    if (grid.getNode(x0 + ((sx-1)/2),y0 + ((sy-1)/2)).isBlocked()) {
                         return false;
                     }
                     x0 += sx;
                     f -= dy;
                 }
-                if (f != 0 && grid.getNode(x0 + offsetX,y0 + offsetY).isBlocked()){
+                if (f != 0 && grid.getNode(x0 + ((sx-1)/2),y0 + ((sy-1)/2)).isBlocked()){
                     return false;
                 }
-                if (dx == 0 && grid.getNode(x0,y0 + offsetY).isBlocked() && grid.getNode(x0-1,y0 + offsetY).isBlocked()) {
+                if (dx == 0 && grid.getNode(x0,y0 + ((sy-1)/2)).isBlocked() && grid.getNode(x0-1,y0 + ((sy-1)/2)).isBlocked()) {
                     return false;
                 }
                 y0 += sy;

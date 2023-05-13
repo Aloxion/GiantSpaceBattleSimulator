@@ -35,25 +35,27 @@ public class Grid {
     public void updateGrid(World world){
         for (Entity asteroid : world.getEntities(Asteroid.class)) {
             var position = asteroid.getComponent(Position.class);
+            var hitbox = asteroid.getComponent(Hitbox.class);
             if (position != null) {
                 for (Node node : grid) {
                     int nodeX = getCoordsFromNode(node)[0];
                     int nodeY = getCoordsFromNode(node)[1];
+                    var hitbox2 = new Hitbox(nodeSize, nodeSize, nodeX,nodeY);
+
+                    //Check if any asteroids would collide with given nodeSize and (x ,y)
+                    if (hitbox2.intersects(hitbox)){
+                        node.setBlocked(true);
+                    }
 
                     // Check if the asteroid's position is within the boundaries of the node
-                    if (position.getX() >= nodeX && position.getX() < nodeX + nodeSize &&
-                            position.getY() >= nodeY && position.getY() < nodeY + nodeSize) {
+                    if (position.getX()+hitbox.getWidth() >= nodeX && position.getX()+hitbox.getWidth() < nodeX + nodeSize &&
+                            position.getY()+hitbox.getHeight() >= nodeY && position.getY()+hitbox.getHeight() < nodeY + nodeSize) {
                         // The asteroid is inside the current node
                         node.setBlocked(true);
-                        break;
                     }
                 }
 //                getNode(16,8).setBlocked(true);
             }
-        }
-
-        if (printedGrid == false){
-            printGrid();
         }
     }
 

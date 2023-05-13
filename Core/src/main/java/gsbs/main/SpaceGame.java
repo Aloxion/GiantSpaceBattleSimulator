@@ -48,6 +48,7 @@ public class SpaceGame implements IEventListener {
     private boolean paused = false;
     private Entity selectedEntity = null;
     private boolean showHitbox = false;
+    private boolean showGrid = false;
 
     public SpaceGame(Configuration config) {
         this.window = new Window(config, this::run);
@@ -63,7 +64,7 @@ public class SpaceGame implements IEventListener {
         gameData.setRenderCycles(gameData.getRenderCycles() + 1);
         this.gameData.getEventManager().dispatchEvents(gameData, getEventListeners());
         if (gameData.getGrid() == null){
-            gameData.setGrid(new Grid(50, gameData.getDisplayWidth(), gameData.getDisplayHeight()));
+            gameData.setGrid(new Grid(20, gameData.getDisplayWidth(), gameData.getDisplayHeight()));
         }
 
         renderGUI();
@@ -172,58 +173,58 @@ public class SpaceGame implements IEventListener {
             var hitbox = entity.getComponent(Hitbox.class);
             var position = entity.getComponent(Position.class);
 
-            if (true) {
+            if (showHitbox) {
                 nvgSave(nvgContext);
-                nvgTranslate(nvgContext, hitbox.getX() + hitbox.getWidth() / 2.0f, hitbox.getY() + hitbox.getHeight() / 2.0f);
+                nvgTranslate(nvgContext, (float) (hitbox.getX() + hitbox.getWidth() / 2.0f), (float) (hitbox.getY() + hitbox.getHeight() / 2.0f));
                 nvgRotate(nvgContext, position.getRadians());
-                nvgTranslate(nvgContext, -hitbox.getWidth() / 2.0f, -hitbox.getHeight() / 2.0f);
+                nvgTranslate(nvgContext, (float) (-hitbox.getWidth() / 2.0f), (float) (-hitbox.getHeight() / 2.0f));
 
                 nvgBeginPath(nvgContext);
-                nvgRect(nvgContext, 0, 0, hitbox.getWidth(), hitbox.getHeight());
+                nvgRect(nvgContext, 0,0, (float) hitbox.getWidth(), (float) hitbox.getHeight());
                 nvgFillColor(nvgContext, rgba(255, 0, 0, 1));
                 nvgFill(nvgContext);
                 nvgRestore(nvgContext);
 
-                int [] target = gameData.getTarget();
-                nvgBeginPath(nvgContext);
-                nvgCircle(nvgContext, target[0], target[1], 10);
-                nvgFillColor(nvgContext, rgba(255, 255, 255, 0));
-                nvgFill(nvgContext);
-                nvgStrokeColor(nvgContext, rgba(0, 255, 0, 0.3f));
-                nvgStrokeWidth(nvgContext, 1.0f);
-                nvgStroke(nvgContext);
-
-                nvgBeginPath(nvgContext);
-                nvgFontSize(nvgContext, 25);
-                nvgCreateFont(nvgContext, "Aaarg", "C:\\Users\\Anton Sandbye\\Documents\\GitHub\\GiantSpaceBattleSimulator\\Core\\src\\main\\resources\\Aaargh.ttf");
-                nvgFontFace(nvgContext, "Aaarg");
-                nvgFillColor(nvgContext, rgba(0, 255, 0, 1)); // Adjust the alpha value if needed
-                nvgText(nvgContext, target[0], target[1]+35, "x: " + target[0] + " y: " + target[1]);
-                nvgText(nvgContext, target[0], target[1]+55, "row: " + gameData.getGrid().getNodeFromCoords(target[0],target[1]).getRow()+ " col: " + gameData.getGrid().getNodeFromCoords(target[0],target[1]).getColumn());
-
-
             }
         }
-        for (int i = 0; i < gameData.getDisplayWidth()/50; i++) {
-            for (int j = 0; j < gameData.getDisplayHeight()/50; j++) {
-                Node node = gameData.getGrid().getNode(i,j);
-                float nodeX = gameData.getGrid().getCoordsFromNode(node)[0];
-                float nodeY = gameData.getGrid().getCoordsFromNode(node)[1];
+        if (showGrid){
+            for (int i = 0; i < gameData.getDisplayWidth()/20; i++) {
+                for (int j = 0; j < gameData.getDisplayHeight()/20; j++) {
+                    Node node = gameData.getGrid().getNode(i,j);
+                    float nodeX = gameData.getGrid().getCoordsFromNode(node)[0];
+                    float nodeY = gameData.getGrid().getCoordsFromNode(node)[1];
 
-                // Draw the filled rectangle with transparency
-                nvgBeginPath(nvgContext);
-                nvgRect(nvgContext,nodeX, nodeY,50, 50);
-                nvgFillColor(nvgContext, rgba(255, 255, 255, 0));
-                nvgFill(nvgContext);
-
-
-                // Draw the stroke (edge) of the rectangle
-                nvgStrokeColor(nvgContext, rgba(255, 255, 255, 0.3f));
-                nvgStrokeWidth(nvgContext, 1.0f);
-                nvgStroke(nvgContext);
+                    // Draw the filled rectangle with transparency
+                    nvgBeginPath(nvgContext);
+                    nvgRect(nvgContext,nodeX, nodeY,2, 2);
+                    nvgFillColor(nvgContext, rgba(255, 255, 255, 0));
+                    nvgFill(nvgContext);
 
 
+                    // Draw the stroke (edge) of the rectangle
+                    nvgStrokeColor(nvgContext, rgba(255, 255, 255, 0.3f));
+                    nvgStrokeWidth(nvgContext, 1.0f);
+                    nvgStroke(nvgContext);
+
+
+                }
             }
+            int [] target = gameData.getTarget();
+            nvgBeginPath(nvgContext);
+            nvgCircle(nvgContext, target[0], target[1], 10);
+            nvgFillColor(nvgContext, rgba(255, 255, 255, 0));
+            nvgFill(nvgContext);
+            nvgStrokeColor(nvgContext, rgba(0, 255, 0, 0.3f));
+            nvgStrokeWidth(nvgContext, 1.0f);
+            nvgStroke(nvgContext);
+
+            nvgBeginPath(nvgContext);
+            nvgFontSize(nvgContext, 25);
+            nvgCreateFont(nvgContext, "Aaarg", "C:\\Users\\Anton Sandbye\\Documents\\GitHub\\GiantSpaceBattleSimulator\\Core\\src\\main\\resources\\Aaargh.ttf");
+            nvgFontFace(nvgContext, "Aaarg");
+            nvgFillColor(nvgContext, rgba(0, 255, 0, 1)); // Adjust the alpha value if needed
+            nvgText(nvgContext, target[0], target[1]+35, "x: " + target[0] + " y: " + target[1]);
+            nvgText(nvgContext, target[0], target[1]+55, "row: " + gameData.getGrid().getNodeFromCoords(target[0],target[1]).getRow()+ " col: " + gameData.getGrid().getNodeFromCoords(target[0],target[1]).getColumn());
         }
     }
 
@@ -371,8 +372,12 @@ public class SpaceGame implements IEventListener {
         ImDrawList drawList2 = ImGui.getWindowDrawList();
 
         drawList2.addText(ImGui.getCursorScreenPosX() + 6, ImGui.getCursorScreenPosY() + 4, ImGui.getColorU32(ImGuiCol.Text), "Hitbox");
-        if (ImGui.button("## hitbox", 60, 20)) {
+        if (ImGui.button("## hitbox", 50, 20)) {
             showHitbox = !showHitbox;
+        }
+        drawList2.addText(ImGui.getCursorScreenPosX() + 6, ImGui.getCursorScreenPosY() + 4, ImGui.getColorU32(ImGuiCol.Text), "Grid");
+        if (ImGui.button("## grid", 50, 20)) {
+            showGrid = !showGrid;
         }
 
         if (ImGui.button("Restart")) {

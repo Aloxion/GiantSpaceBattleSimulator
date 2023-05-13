@@ -23,13 +23,9 @@ public class FlagshipControlSystem implements IProcess {
     public void process(GameData gameData, World world) {
         for (Entity player : world.getEntities(Flagship.class)) {
             var position = player.getComponent(Position.class);
-
             var weapon = player.getComponent(Weapon.class);
             weapon.decreaseSwapCooldown();
-
-            var graphics = player.getComponent(Graphics.class);
             var hitbox = player.getComponent(Hitbox.class);
-            updateShape(graphics, position);
             updateHitbox(hitbox, position);
         }
     }

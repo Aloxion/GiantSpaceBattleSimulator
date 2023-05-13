@@ -1,12 +1,11 @@
 package gsbs.common.data;
 
-import gsbs.common.components.Hitbox;
 import gsbs.common.components.Position;
+import gsbs.common.components.Sprite;
 import gsbs.common.entities.Asteroid;
 import gsbs.common.entities.Entity;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class Grid {
@@ -35,11 +34,11 @@ public class Grid {
     public void updateGrid(World world) {
         for (Entity asteroid : world.getEntities(Asteroid.class)) {
             var position = asteroid.getComponent(Position.class);
-            var hitbox = asteroid.getComponent(Hitbox.class);
+            var sprite = asteroid.getComponent(Sprite.class);
 
-            if (position != null && hitbox != null) {
-                float asteroidCenterX = position.getX() + hitbox.getWidth() / 2;
-                float asteroidCenterY = position.getY() + hitbox.getHeight() / 2;
+            if (position != null && sprite != null) {
+                float asteroidCenterX = position.getX() + sprite.getWidth() / 2;
+                float asteroidCenterY = position.getY() + sprite.getHeight() / 2;
 
                 for (Node node : grid) {
                     int nodeX = getCoordsFromNode(node)[0];
@@ -51,7 +50,7 @@ public class Grid {
                     float distance = calculateDistance(nodeCenterX, nodeCenterY, asteroidCenterX, asteroidCenterY);
 
                     // Adjust the blocking radius based on the desired value
-                    float radius = hitbox.getWidth() / 2 + 25f;
+                    float radius = sprite.getWidth()/2 + 20f;
 
                     if (distance <= radius) {
                         node.setBlocked(true);

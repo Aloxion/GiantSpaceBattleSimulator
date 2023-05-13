@@ -49,6 +49,7 @@ public class SpaceGame implements IEventListener {
     private Entity selectedEntity = null;
     private boolean showHitbox = false;
     private boolean showGrid = false;
+    private int nodeSize = 10;
 
     public SpaceGame(Configuration config) {
         this.window = new Window(config, this::run);
@@ -64,7 +65,7 @@ public class SpaceGame implements IEventListener {
         gameData.setRenderCycles(gameData.getRenderCycles() + 1);
         this.gameData.getEventManager().dispatchEvents(gameData, getEventListeners());
         if (gameData.getGrid() == null){
-            gameData.setGrid(new Grid(20, gameData.getDisplayWidth(), gameData.getDisplayHeight()));
+            gameData.setGrid(new Grid(nodeSize, gameData.getDisplayWidth(), gameData.getDisplayHeight()));
         }
 
         renderGUI();
@@ -188,8 +189,8 @@ public class SpaceGame implements IEventListener {
             }
         }
         if (showGrid){
-            for (int i = 0; i < gameData.getDisplayWidth()/20; i++) {
-                for (int j = 0; j < gameData.getDisplayHeight()/20; j++) {
+            for (int i = 0; i < gameData.getDisplayWidth()/nodeSize; i++) {
+                for (int j = 0; j < gameData.getDisplayHeight()/nodeSize; j++) {
                     Node node = gameData.getGrid().getNode(i,j);
                     float nodeX = gameData.getGrid().getCoordsFromNode(node)[0];
                     float nodeY = gameData.getGrid().getCoordsFromNode(node)[1];
@@ -208,7 +209,7 @@ public class SpaceGame implements IEventListener {
                         // Draw the stroke (edge) of the rectangle
                         nvgStrokeColor(nvgContext, rgba(255, 0, 0, 0.3f));
                     }
-                    nvgStrokeWidth(nvgContext, 1.0f);
+                    nvgStrokeWidth(nvgContext, 1f);
                     nvgStroke(nvgContext);
 
                 }
@@ -227,7 +228,7 @@ public class SpaceGame implements IEventListener {
                 }
 
                 nvgStrokeColor(nvgContext, rgba(0, 255, 0, 0.3f));
-                nvgStrokeWidth(nvgContext, 1.0f);
+                nvgStrokeWidth(nvgContext, 3f);
                 nvgStroke(nvgContext);
             }
 

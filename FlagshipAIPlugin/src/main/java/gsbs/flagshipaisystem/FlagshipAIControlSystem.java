@@ -2,10 +2,7 @@ package gsbs.flagshipaisystem;
 
 import java.util.*;
 
-import gsbs.common.components.Movement;
-import gsbs.common.components.Position;
-import gsbs.common.components.Team;
-import gsbs.common.components.Weapon;
+import gsbs.common.components.*;
 import gsbs.common.data.*;
 import gsbs.common.data.enums.Teams;
 import gsbs.common.entities.Entity;
@@ -14,8 +11,7 @@ import gsbs.common.entities.Flagship;
 import gsbs.common.services.IProcess;
 import java.util.List;
 
-import static java.lang.Math.atan;
-import static java.lang.Math.random;
+import static java.lang.Math.*;
 
 public class FlagshipAIControlSystem implements IProcess {
     private Entity thisFlagship;
@@ -24,6 +20,8 @@ public class FlagshipAIControlSystem implements IProcess {
     private static Map<Node, Node> parent = new HashMap<>();
 
     private Grid grid;
+
+    private final float maxSpeed = 50;
 
 
 
@@ -60,18 +58,16 @@ public class FlagshipAIControlSystem implements IProcess {
     private void handlePathfinding(GameData gameData, World world, Entity thisFlagship, Entity targetFlagship){
         var positionAIShip = thisFlagship.getComponent(Position.class);
         var positionTarget = targetFlagship.getComponent(Position.class);
+        var spriteAIShip = thisFlagship.getComponent(Sprite.class);
+        var spriteTarget = targetFlagship.getComponent(Sprite.class);
 
-        Node start = grid.getNodeFromCoords((int) positionAIShip.getX(), (int) positionAIShip.getY());
-        Node goal = grid.getNodeFromCoords((int) positionTarget.getX(), (int) positionTarget.getY());
-
+        Node start = grid.getNodeFromCoords((int) positionAIShip.getX() + spriteAIShip.getWidth()/2, (int) positionAIShip.getY() + spriteAIShip.getHeight()/2);
+        Node goal = grid.getNodeFromCoords((int) positionTarget.getX() + spriteTarget.getWidth()/2, (int) positionTarget.getY() + spriteTarget.getHeight()/2);
         var movementAIShip = thisFlagship.getComponent(Movement.class);
         if(heuristic(start, goal) > 10){
-            movementAIShip.setMaxSpeed(50);
             movementAIShip.setUp(true);
-        }
-        else if (heuristic(start, goal) > 2){
+        } else if (heuristic(start, goal) > heuristic(start,goal)*10){
             handleOffensiveAction(gameData, world, false);
-            movementAIShip.setMaxSpeed(50);
             movementAIShip.setUp(true);
         } else {
             handleOffensiveAction(gameData, world, true);
@@ -103,12 +99,15 @@ public class FlagshipAIControlSystem implements IProcess {
         double currUnit = convertToUnitCircle(positionAIShip.getRadians());
         double dirDiff = ((2*Math.PI - currUnit) + desiredAngle) % (2*Math.PI);
 
-        if(dirDiff > Math.PI){
-            movementAIShip.setMaxSpeed(25);
-            movementAIShip.setLeft(true);
+        // Set the threshold angle for slowing down
+        double thresholdAngle = Math.PI / 4;
+        if (dirDiff > thresholdAngle) {
+            // Slow down the flagship
+            movementAIShip.setMaxSpeed(maxSpeed * 0.5f); // Adjust the slowdown factor as needed
         }
-        else {
-            movementAIShip.setMaxSpeed(25);
+        if(dirDiff > Math.PI){
+            movementAIShip.setLeft(true);
+        } else {
             movementAIShip.setRight(true);
         }
 

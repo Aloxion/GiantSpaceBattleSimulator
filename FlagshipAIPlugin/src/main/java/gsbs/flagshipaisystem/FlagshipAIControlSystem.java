@@ -6,10 +6,7 @@ import gsbs.common.components.Movement;
 import gsbs.common.components.Position;
 import gsbs.common.components.Team;
 import gsbs.common.components.Weapon;
-import gsbs.common.data.GameData;
-import gsbs.common.data.Grid;
-import gsbs.common.data.Node;
-import gsbs.common.data.World;
+import gsbs.common.data.*;
 import gsbs.common.data.enums.Teams;
 import gsbs.common.entities.Entity;
 import gsbs.common.entities.Flagship;
@@ -47,9 +44,16 @@ public class FlagshipAIControlSystem implements IProcess {
 
     }
 
-    private void handleOffensiveAction(GameData gameData, World world){
+    private void handleOffensiveAction(GameData gameData, World world, boolean close){
         Weapon weapon = thisFlagship.getComponent(Weapon.class);
-        weapon.fire(thisFlagship, gameData, world);
+        weapon.changeWeapon();
+        if (close){
+            weapon.fire(thisFlagship, gameData, world);
+        } else {
+            weapon.changeWeapon();
+            weapon.fire(thisFlagship, gameData, world);
+        }
+
     }
 
     private void handlePathfinding(GameData gameData, World world, Entity thisFlagship, Entity targetFlagship){
@@ -60,11 +64,16 @@ public class FlagshipAIControlSystem implements IProcess {
         Node goal = grid.getNodeFromCoords((int) positionTarget.getX(), (int) positionTarget.getY());
 
         var movementAIShip = thisFlagship.getComponent(Movement.class);
-        if(heuristic(start, goal) > 2){
+        if(heuristic(start, goal) > 10){
+            movementAIShip.setMaxSpeed(50);
             movementAIShip.setUp(true);
         }
-        else{
-            handleOffensiveAction(gameData, world);
+        else if (heuristic(start, goal) > 2){
+            handleOffensiveAction(gameData, world, false);
+            movementAIShip.setMaxSpeed(50);
+            movementAIShip.setUp(true);
+        } else {
+            handleOffensiveAction(gameData, world, true);
             movementAIShip.setUp(false);
         }
 
@@ -73,8 +82,14 @@ public class FlagshipAIControlSystem implements IProcess {
 
         List<Node> thetaStarList = thetaStar(start, goal);
         int[] desiredLocation = new int[2];
+        System.out.println(thetaStarList);
         if (thetaStarList.size() > 1){
             desiredLocation = grid.getCoordsFromNode(thetaStarList.get(thetaStarList.size()-2));
+        }
+
+
+        if (grid.getNodeFromCoords(desiredLocation[0], desiredLocation[1]).isBlocked()){
+            System.out.println("THIS NODE IS BLOCKED: " + grid.getNodeFromCoords(desiredLocation[0], desiredLocation[1]));
         }
 
         gameData.setTarget(desiredLocation[0], desiredLocation[1]);
@@ -84,9 +99,11 @@ public class FlagshipAIControlSystem implements IProcess {
         double dirDiff = ((2*Math.PI - currUnit) + desiredAngle) % (2*Math.PI);
 
         if(dirDiff > Math.PI){
+            movementAIShip.setMaxSpeed(25);
             movementAIShip.setLeft(true);
         }
         else {
+            movementAIShip.setMaxSpeed(25);
             movementAIShip.setRight(true);
         }
 

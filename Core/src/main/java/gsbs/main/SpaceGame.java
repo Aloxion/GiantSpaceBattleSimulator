@@ -196,16 +196,22 @@ public class SpaceGame implements IEventListener {
 
                     // Draw the filled rectangle with transparency
                     nvgBeginPath(nvgContext);
-                    nvgRect(nvgContext,nodeX, nodeY,2, 2);
+                    nvgRect(nvgContext,nodeX, nodeY,20, 20);
                     nvgFillColor(nvgContext, rgba(255, 255, 255, 0));
                     nvgFill(nvgContext);
 
 
-                    // Draw the stroke (edge) of the rectangle
-                    nvgStrokeColor(nvgContext, rgba(255, 255, 255, 0.3f));
-                    nvgStrokeWidth(nvgContext, 1.0f);
-                    nvgStroke(nvgContext);
-
+                    if (!node.isBlocked()) {
+                        // Draw the stroke (edge) of the rectangle
+                        nvgStrokeColor(nvgContext, rgba(255, 255, 255, 0.3f));
+                        nvgStrokeWidth(nvgContext, 1.0f);
+                        nvgStroke(nvgContext);
+                    } else {
+                        // Draw the stroke (edge) of the rectangle
+                        nvgStrokeColor(nvgContext, rgba(255, 0, 0, 0.3f));
+                        nvgStrokeWidth(nvgContext, 1.0f);
+                        nvgStroke(nvgContext);
+                    }
 
                 }
             }

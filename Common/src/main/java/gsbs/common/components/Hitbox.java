@@ -2,9 +2,10 @@ package gsbs.common.components;
 
 public class Hitbox extends Component{
 
-    private double width, height;
-    private double x, y;
-    private double hitboxPadding;
+    private float width;
+    private float height;
+    private float x, y;
+    private float hitboxPadding;
 
     public Hitbox(float width, float height, float x, float y) {
         hitboxPadding = Math.min(width, height) * 0.35f;
@@ -15,10 +16,10 @@ public class Hitbox extends Component{
     }
 
     public void set(float x, float y){
-        double spriteWidth = this.width * 2.0f;
-        double spriteHeight = this.height * 2.0f;
-        double offsetX = (spriteWidth - (width + hitboxPadding)) / 2.0f;
-        double offsetY = (spriteHeight - (height + hitboxPadding)) / 2.0f;
+        float spriteWidth = this.width * 2.0f;
+        float spriteHeight = this.height * 2.0f;
+        float offsetX = (spriteWidth - (width + hitboxPadding)) / 2.0f;
+        float offsetY = (spriteHeight - (height + hitboxPadding)) / 2.0f;
         this.x = x + offsetX;
         this.y = y + offsetY;
     }
@@ -36,19 +37,19 @@ public class Hitbox extends Component{
         return right && left && bottom && top;
     }
 
-    public double getWidth(){
+    public float getWidth(){
         return width;
     }
 
-    public double getHeight(){
+    public float getHeight(){
         return height;
     }
 
-    public double getX(){
+    public float getX(){
         return x;
     }
 
-    public double getY(){
+    public float getY(){
         return y;
     }
 }

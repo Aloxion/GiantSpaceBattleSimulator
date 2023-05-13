@@ -32,31 +32,40 @@ public class Grid {
         }
     }
 
-    public void updateGrid(World world){
+    public void updateGrid(World world) {
         for (Entity asteroid : world.getEntities(Asteroid.class)) {
             var position = asteroid.getComponent(Position.class);
             var hitbox = asteroid.getComponent(Hitbox.class);
-            if (position != null) {
+
+            if (position != null && hitbox != null) {
+                float asteroidCenterX = position.getX() + hitbox.getWidth() / 2;
+                float asteroidCenterY = position.getY() + hitbox.getHeight() / 2;
+
                 for (Node node : grid) {
                     int nodeX = getCoordsFromNode(node)[0];
                     int nodeY = getCoordsFromNode(node)[1];
-                    var hitbox2 = new Hitbox(nodeSize, nodeSize, nodeX,nodeY);
+                    float nodeCenterX = nodeX + nodeSize / 2;
+                    float nodeCenterY = nodeY + nodeSize / 2;
 
-                    //Check if any asteroids would collide with given nodeSize and (x ,y)
-                    if (hitbox2.intersects(hitbox)){
-                        node.setBlocked(true);
-                    }
+                    // Calculate the distance between the node center and the asteroid's center
+                    float distance = calculateDistance(nodeCenterX, nodeCenterY, asteroidCenterX, asteroidCenterY);
 
-                    // Check if the asteroid's position is within the boundaries of the node
-                    if (position.getX()+hitbox.getWidth() >= nodeX && position.getX()+hitbox.getWidth() < nodeX + nodeSize &&
-                            position.getY()+hitbox.getHeight() >= nodeY && position.getY()+hitbox.getHeight() < nodeY + nodeSize) {
-                        // The asteroid is inside the current node
+                    // Adjust the blocking radius based on the desired value
+                    float radius = hitbox.getWidth() / 2 + 25f;
+
+                    if (distance <= radius) {
                         node.setBlocked(true);
                     }
                 }
-//                getNode(16,8).setBlocked(true);
             }
         }
+    }
+
+    // Helper method to calculate the distance between two points
+    private float calculateDistance(float x1, float y1, float x2, float y2) {
+        float dx = x2 - x1;
+        float dy = y2 - y1;
+        return (float) Math.sqrt(dx * dx + dy * dy);
     }
 
     public void printGrid() {

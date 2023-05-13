@@ -18,7 +18,7 @@ public class GameData {
     private GameState gameState = GameState.START;
     private float deltaTime;
     private int renderCycles;
-    private int target[] = new int[2];
+    private List<Node> path;
 
     private Grid grid;
 
@@ -30,13 +30,12 @@ public class GameData {
         this.grid = grid;
     }
 
-    public void setTarget(int x, int y){
-        target[0] = x;
-        target[1] = y;
+    public void setPath(List<Node> path){
+        this.path = path;
     }
 
-    public int[] getTarget(){
-        return target;
+    public List<Node> getPath(){
+        return path;
     }
 
     /**

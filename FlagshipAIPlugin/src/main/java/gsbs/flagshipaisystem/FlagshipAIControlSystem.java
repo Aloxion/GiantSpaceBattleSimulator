@@ -15,6 +15,7 @@ import gsbs.common.services.IProcess;
 import java.util.List;
 
 import static java.lang.Math.atan;
+import static java.lang.Math.random;
 
 public class FlagshipAIControlSystem implements IProcess {
     private Entity thisFlagship;
@@ -82,17 +83,21 @@ public class FlagshipAIControlSystem implements IProcess {
 
         List<Node> thetaStarList = thetaStar(start, goal);
         int[] desiredLocation = new int[2];
-        System.out.println(thetaStarList);
+        if (thetaStarList == null){
+            movementAIShip.setUp(false);
+            return;
+        }
         if (thetaStarList.size() > 1){
             desiredLocation = grid.getCoordsFromNode(thetaStarList.get(thetaStarList.size()-2));
         }
 
 
+
+
         if (grid.getNodeFromCoords(desiredLocation[0], desiredLocation[1]).isBlocked()){
             System.out.println("THIS NODE IS BLOCKED: " + grid.getNodeFromCoords(desiredLocation[0], desiredLocation[1]));
         }
-
-        gameData.setTarget(desiredLocation[0], desiredLocation[1]);
+        gameData.setPath(thetaStarList);
 
         double desiredAngle = convertToUnitCircle(getDirection(positionAIShip.getX(), positionAIShip.getY(), desiredLocation[0], desiredLocation[1]));
         double currUnit = convertToUnitCircle(positionAIShip.getRadians());

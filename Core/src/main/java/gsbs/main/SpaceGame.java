@@ -175,12 +175,12 @@ public class SpaceGame implements IEventListener {
 
             if (showHitbox) {
                 nvgSave(nvgContext);
-                nvgTranslate(nvgContext, (float) (hitbox.getX() + hitbox.getWidth() / 2.0f), (float) (hitbox.getY() + hitbox.getHeight() / 2.0f));
+                nvgTranslate(nvgContext, (hitbox.getX() + hitbox.getWidth() / 2.0f), (hitbox.getY() + hitbox.getHeight() / 2.0f));
                 nvgRotate(nvgContext, position.getRadians());
-                nvgTranslate(nvgContext, (float) (-hitbox.getWidth() / 2.0f), (float) (-hitbox.getHeight() / 2.0f));
+                nvgTranslate(nvgContext, (-hitbox.getWidth() / 2.0f), (-hitbox.getHeight() / 2.0f));
 
                 nvgBeginPath(nvgContext);
-                nvgRect(nvgContext, 0,0, (float) hitbox.getWidth(), (float) hitbox.getHeight());
+                nvgRect(nvgContext, 0,0, hitbox.getWidth(), hitbox.getHeight());
                 nvgFillColor(nvgContext, rgba(255, 0, 0, 1));
                 nvgFill(nvgContext);
                 nvgRestore(nvgContext);
@@ -204,33 +204,48 @@ public class SpaceGame implements IEventListener {
                     if (!node.isBlocked()) {
                         // Draw the stroke (edge) of the rectangle
                         nvgStrokeColor(nvgContext, rgba(255, 255, 255, 0.3f));
-                        nvgStrokeWidth(nvgContext, 1.0f);
-                        nvgStroke(nvgContext);
                     } else {
                         // Draw the stroke (edge) of the rectangle
                         nvgStrokeColor(nvgContext, rgba(255, 0, 0, 0.3f));
-                        nvgStrokeWidth(nvgContext, 1.0f);
-                        nvgStroke(nvgContext);
                     }
+                    nvgStrokeWidth(nvgContext, 1.0f);
+                    nvgStroke(nvgContext);
 
                 }
             }
-            int [] target = gameData.getTarget();
-            nvgBeginPath(nvgContext);
-            nvgCircle(nvgContext, target[0], target[1], 10);
-            nvgFillColor(nvgContext, rgba(255, 255, 255, 0));
-            nvgFill(nvgContext);
-            nvgStrokeColor(nvgContext, rgba(0, 255, 0, 0.3f));
-            nvgStrokeWidth(nvgContext, 1.0f);
-            nvgStroke(nvgContext);
+            List<Node> nodes = gameData.getPath();
+            if (nodes != null && nodes.size() > 1) {
+                nvgBeginPath(nvgContext);
+                Node firstNode = nodes.get(0);
+                int[] firstCoords = gameData.getGrid().getCoordsFromNode(firstNode);
+                nvgMoveTo(nvgContext, firstCoords[0], firstCoords[1]);
 
-            nvgBeginPath(nvgContext);
-            nvgFontSize(nvgContext, 25);
-            nvgCreateFont(nvgContext, "Aaarg", "C:\\Users\\Anton Sandbye\\Documents\\GitHub\\GiantSpaceBattleSimulator\\Core\\src\\main\\resources\\Aaargh.ttf");
-            nvgFontFace(nvgContext, "Aaarg");
-            nvgFillColor(nvgContext, rgba(0, 255, 0, 1)); // Adjust the alpha value if needed
-            nvgText(nvgContext, target[0], target[1]+35, "x: " + target[0] + " y: " + target[1]);
-            nvgText(nvgContext, target[0], target[1]+55, "row: " + gameData.getGrid().getNodeFromCoords(target[0],target[1]).getRow()+ " col: " + gameData.getGrid().getNodeFromCoords(target[0],target[1]).getColumn());
+                for (int i = 1; i < nodes.size(); i++) {
+                    Node node = nodes.get(i);
+                    int[] coords = gameData.getGrid().getCoordsFromNode(node);
+                    nvgLineTo(nvgContext, coords[0], coords[1]);
+                }
+
+                nvgStrokeColor(nvgContext, rgba(0, 255, 0, 0.3f));
+                nvgStrokeWidth(nvgContext, 1.0f);
+                nvgStroke(nvgContext);
+            }
+
+// Draw circles for each node
+            if (nodes != null){
+                for (Node node : nodes) {
+                    nvgBeginPath(nvgContext);
+                    int[] coords = gameData.getGrid().getCoordsFromNode(node);
+                    nvgCircle(nvgContext, coords[0], coords[1], 10);
+                    nvgFillColor(nvgContext, rgba(255, 255, 255, 0));
+                    nvgFill(nvgContext);
+                    nvgStrokeColor(nvgContext, rgba(0, 255, 0, 0.3f));
+                    nvgStrokeWidth(nvgContext, 1.0f);
+                    nvgStroke(nvgContext);
+                }
+            }
+
+
         }
     }
 

@@ -48,9 +48,9 @@ public class ShotgunPlugin implements IWeapon {
         Sprite sprite = new Sprite(ShotgunPlugin.class.getResource("/default-bullet.png"), 10, 10);
 
         bullet.add(new Movement(deacceleration, acceleration, maxSpeed, rotationSpeed));
-        bullet.add(new Position(position.getX(), position.getY(), position.getRadians()));
+        bullet.add(new Position(position.getX() + (sprite.getWidth()/2), position.getY() + (sprite.getHeight()/2), position.getRadians()));
         bullet.add(sprite);
-        bullet.add(new Hitbox(sprite.getWidth(),sprite.getHeight(),position.getX(),position.getY()));
+        bullet.add(new Hitbox(sprite.getWidth(),sprite.getHeight(),position.getX() + (sprite.getWidth()/2),position.getY() + (sprite.getHeight()/2)));
         bullet.add(new Team(source.getComponent(Team.class).getTeam()));
 
         bullet.add(new Health(duration));

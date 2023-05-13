@@ -20,11 +20,7 @@ public class FlagshipAIControlSystem implements IProcess {
     private static Map<Node, Node> parent = new HashMap<>();
 
     private Grid grid;
-
     private final float maxSpeed = 50;
-
-
-
 
     public void process(GameData gameData, World world) {
         grid = gameData.getGrid();

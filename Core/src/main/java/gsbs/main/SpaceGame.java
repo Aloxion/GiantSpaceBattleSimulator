@@ -1,9 +1,6 @@
 package gsbs.main;
 
-import gsbs.common.components.Graphics;
-import gsbs.common.components.Hitbox;
-import gsbs.common.components.Position;
-import gsbs.common.components.Sprite;
+import gsbs.common.components.*;
 import gsbs.common.data.*;
 import gsbs.common.entities.Entity;
 import gsbs.common.events.Event;
@@ -26,7 +23,6 @@ import org.lwjgl.glfw.GLFW;
 import org.lwjgl.nanovg.NVGPaint;
 
 import java.net.URL;
-import java.nio.ByteBuffer;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
@@ -75,7 +71,6 @@ public class SpaceGame implements IEventListener {
         draw();
 
         gameData.getKeys().update();
-
     }
 
     private void update() {
@@ -160,7 +155,6 @@ public class SpaceGame implements IEventListener {
 
             try (NVGPaint img = NVGPaint.calloc()) {
                 nvgImagePattern(nvgContext, 0, 0, sprite.getWidth(), sprite.getHeight(), (float) (Math.PI / 2.0f), sprite.getSpriteId(nvgContext), 1, img);
-
                 nvgBeginPath(nvgContext);
                 nvgRect(nvgContext, 0, 0, sprite.getWidth(), sprite.getHeight());
                 nvgFillPaint(nvgContext, img);

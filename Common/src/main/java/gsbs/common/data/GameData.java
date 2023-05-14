@@ -18,6 +18,25 @@ public class GameData {
     private GameState gameState = GameState.START;
     private float deltaTime;
     private int renderCycles;
+    private List<Node> path;
+
+    private Grid grid;
+
+    public Grid getGrid() {
+        return grid;
+    }
+
+    public void setGrid(Grid grid) {
+        this.grid = grid;
+    }
+
+    public void setPath(List<Node> path){
+        this.path = path;
+    }
+
+    public List<Node> getPath(){
+        return path;
+    }
 
     /**
      * Get the number of milliseconds between frames.

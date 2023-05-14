@@ -1,9 +1,6 @@
 package gsbs.main;
 
-import gsbs.common.components.Graphics;
-import gsbs.common.components.Hitbox;
-import gsbs.common.components.Position;
-import gsbs.common.components.Sprite;
+import gsbs.common.components.*;
 import gsbs.common.data.*;
 import gsbs.common.entities.Entity;
 import gsbs.common.events.Event;
@@ -47,6 +44,8 @@ public class SpaceGame implements IEventListener {
     private boolean paused = false;
     private Entity selectedEntity = null;
     private boolean showHitbox = false;
+    private boolean showGrid = false;
+    private int nodeSize = 10;
 
     public SpaceGame(Configuration config) {
         this.window = new Window(config, this::run);
@@ -61,6 +60,9 @@ public class SpaceGame implements IEventListener {
         gameData.setDeltaTime(ImGui.getIO().getDeltaTime());
         gameData.setRenderCycles(gameData.getRenderCycles() + 1);
         this.gameData.getEventManager().dispatchEvents(gameData, getEventListeners());
+        if (gameData.getGrid() == null){
+            gameData.setGrid(new Grid(nodeSize, gameData.getDisplayWidth(), gameData.getDisplayHeight()));
+        }
 
         renderGUI();
 
@@ -73,6 +75,10 @@ public class SpaceGame implements IEventListener {
 
     private void update() {
         // Handle input
+
+        if (paused){
+            return;
+        }
         try {
             for (var key : GameKeys.Keys.class.getDeclaredFields()) {
                 if (ImGui.isKeyPressed(key.getInt(key))) {
@@ -104,6 +110,7 @@ public class SpaceGame implements IEventListener {
 
                 for (IPostProcess postEntityProcessorService : getPostProcessingServices()) {
                     postEntityProcessorService.process(gameData, world);
+                    gameData.getGrid().updateGrid(world);
                 }
 
                 break;
@@ -148,7 +155,6 @@ public class SpaceGame implements IEventListener {
 
             try (NVGPaint img = NVGPaint.calloc()) {
                 nvgImagePattern(nvgContext, 0, 0, sprite.getWidth(), sprite.getHeight(), (float) (Math.PI / 2.0f), sprite.getSpriteId(nvgContext), 1, img);
-
                 nvgBeginPath(nvgContext);
                 nvgRect(nvgContext, 0, 0, sprite.getWidth(), sprite.getHeight());
                 nvgFillPaint(nvgContext, img);
@@ -164,16 +170,77 @@ public class SpaceGame implements IEventListener {
 
             if (showHitbox) {
                 nvgSave(nvgContext);
-                nvgTranslate(nvgContext, hitbox.getX() + hitbox.getWidth() / 2.0f, hitbox.getY() + hitbox.getHeight() / 2.0f);
+                nvgTranslate(nvgContext, (hitbox.getX() + hitbox.getWidth() / 2.0f), (hitbox.getY() + hitbox.getHeight() / 2.0f));
                 nvgRotate(nvgContext, position.getRadians());
-                nvgTranslate(nvgContext, -hitbox.getWidth() / 2.0f, -hitbox.getHeight() / 2.0f);
+                nvgTranslate(nvgContext, (-hitbox.getWidth() / 2.0f), (-hitbox.getHeight() / 2.0f));
 
                 nvgBeginPath(nvgContext);
-                nvgRect(nvgContext, 0, 0, hitbox.getWidth(), hitbox.getHeight());
+                nvgRect(nvgContext, 0,0, hitbox.getWidth(), hitbox.getHeight());
                 nvgFillColor(nvgContext, rgba(255, 0, 0, 1));
                 nvgFill(nvgContext);
                 nvgRestore(nvgContext);
+
             }
+        }
+        if (showGrid){
+            for (int i = 0; i < gameData.getDisplayWidth()/nodeSize; i++) {
+                for (int j = 0; j < gameData.getDisplayHeight()/nodeSize; j++) {
+                    Node node = gameData.getGrid().getNode(i,j);
+                    float nodeX = gameData.getGrid().getCoordsFromNode(node)[0];
+                    float nodeY = gameData.getGrid().getCoordsFromNode(node)[1];
+
+                    // Draw the filled rectangle with transparency
+                    nvgBeginPath(nvgContext);
+                    nvgRect(nvgContext,nodeX, nodeY,20, 20);
+                    nvgFillColor(nvgContext, rgba(255, 255, 255, 0));
+                    nvgFill(nvgContext);
+
+
+                    if (!node.isBlocked()) {
+                        // Draw the stroke (edge) of the rectangle
+                        nvgStrokeColor(nvgContext, rgba(255, 255, 255, 0.3f));
+                    } else {
+                        // Draw the stroke (edge) of the rectangle
+                        nvgStrokeColor(nvgContext, rgba(255, 0, 0, 0.3f));
+                    }
+                    nvgStrokeWidth(nvgContext, 1f);
+                    nvgStroke(nvgContext);
+
+                }
+            }
+            List<Node> nodes = gameData.getPath();
+            if (nodes != null && nodes.size() > 1) {
+                nvgBeginPath(nvgContext);
+                Node firstNode = nodes.get(0);
+                int[] firstCoords = gameData.getGrid().getCoordsFromNode(firstNode);
+                nvgMoveTo(nvgContext, firstCoords[0], firstCoords[1]);
+
+                for (int i = 1; i < nodes.size(); i++) {
+                    Node node = nodes.get(i);
+                    int[] coords = gameData.getGrid().getCoordsFromNode(node);
+                    nvgLineTo(nvgContext, coords[0], coords[1]);
+                }
+
+                nvgStrokeColor(nvgContext, rgba(0, 255, 0, 0.3f));
+                nvgStrokeWidth(nvgContext, 3f);
+                nvgStroke(nvgContext);
+            }
+
+// Draw circles for each node
+            if (nodes != null){
+                for (Node node : nodes) {
+                    nvgBeginPath(nvgContext);
+                    int[] coords = gameData.getGrid().getCoordsFromNode(node);
+                    nvgCircle(nvgContext, coords[0], coords[1], 10);
+                    nvgFillColor(nvgContext, rgba(255, 255, 255, 0));
+                    nvgFill(nvgContext);
+                    nvgStrokeColor(nvgContext, rgba(0, 255, 0, 0.3f));
+                    nvgStrokeWidth(nvgContext, 1.0f);
+                    nvgStroke(nvgContext);
+                }
+            }
+
+
         }
     }
 
@@ -321,8 +388,12 @@ public class SpaceGame implements IEventListener {
         ImDrawList drawList2 = ImGui.getWindowDrawList();
 
         drawList2.addText(ImGui.getCursorScreenPosX() + 6, ImGui.getCursorScreenPosY() + 4, ImGui.getColorU32(ImGuiCol.Text), "Hitbox");
-        if (ImGui.button("## hitbox", 60, 20)) {
+        if (ImGui.button("## hitbox", 50, 20)) {
             showHitbox = !showHitbox;
+        }
+        drawList2.addText(ImGui.getCursorScreenPosX() + 6, ImGui.getCursorScreenPosY() + 4, ImGui.getColorU32(ImGuiCol.Text), "Grid");
+        if (ImGui.button("## grid", 50, 20)) {
+            showGrid = !showGrid;
         }
 
         if (ImGui.button("Restart")) {

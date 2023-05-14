@@ -8,6 +8,7 @@ dependencies {
 
     implementation project(':AsteroidPlugin')
     implementation project(':FlagshipPlugin')
+    implementation project(':FlagshipAIPlugin')
     implementation project(':PlayerControllerPlugin')
     implementation project(':WeaponPlugin')
     implementation project(':CollisionPlugin')

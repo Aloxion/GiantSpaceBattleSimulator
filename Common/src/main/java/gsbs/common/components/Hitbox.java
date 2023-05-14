@@ -2,7 +2,8 @@ package gsbs.common.components;
 
 public class Hitbox extends Component{
 
-    private float width, height;
+    private float width;
+    private float height;
     private float x, y;
     private float hitboxPadding;
 

@@ -32,13 +32,13 @@ public class ShotgunPlugin implements IWeapon {
         for(int i = -2; i < 3; i++){
             float radians = (float) (startPosition.getRadians() + i * Math.PI / 6);
             Position position = new Position(startPosition.getX(), startPosition.getY(), radians);
-            world.addEntity(createBullet(position, duration));
+            world.addEntity(createBullet(source, position, duration));
         }
 
     }
 
 
-    private Entity createBullet(Position position, int duration){
+    private Entity createBullet(Entity source,Position position, int duration){
         float acceleration = 10000;
         float deacceleration = 20;
         float maxSpeed = 300;
@@ -48,10 +48,10 @@ public class ShotgunPlugin implements IWeapon {
         Sprite sprite = new Sprite(ShotgunPlugin.class.getResource("/default-bullet.png"), 10, 10);
 
         bullet.add(new Movement(deacceleration, acceleration, maxSpeed, rotationSpeed));
-        bullet.add(new Position(position.getX(), position.getY(), position.getRadians()));
+        bullet.add(new Position(position.getX() + (sprite.getWidth()/2), position.getY() + (sprite.getHeight()/2), position.getRadians()));
         bullet.add(sprite);
-        bullet.add(new Hitbox(sprite.getWidth(),sprite.getHeight(),position.getX(),position.getY()));
-        bullet.add(new Team(Teams.PLAYER));
+        bullet.add(new Hitbox(sprite.getWidth(),sprite.getHeight(),position.getX() + (sprite.getWidth()/2),position.getY() + (sprite.getHeight()/2)));
+        bullet.add(new Team(source.getComponent(Team.class).getTeam()));
 
         bullet.add(new Health(duration));
         return bullet;

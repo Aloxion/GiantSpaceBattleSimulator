@@ -14,13 +14,13 @@ import java.util.List;
 public class GameData {
     private final GameKeys keys = new GameKeys();
     private final EventManager eventManager = new EventManager();
+    private final int nodeSize = 10;
     private long nvgContext;
     private List<IPlugin> initializedPlugins = new ArrayList<>();
     private GameState gameState = GameState.START;
     private float deltaTime;
     private int renderCycles;
     private List<Node> path;
-
     private Grid grid;
 
     public Grid getGrid() {
@@ -118,5 +118,9 @@ public class GameData {
 
     public void setNvgContext(long nvgContext) {
         this.nvgContext = nvgContext;
+    }
+
+    public int getNodeSize() {
+        return nodeSize;
     }
 }

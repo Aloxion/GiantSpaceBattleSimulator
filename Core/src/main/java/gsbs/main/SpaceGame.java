@@ -5,6 +5,7 @@ import gsbs.common.components.Position;
 import gsbs.common.components.Sprite;
 import gsbs.common.data.GameData;
 import gsbs.common.data.GameKeys;
+import gsbs.common.data.Grid;
 import gsbs.common.data.World;
 import gsbs.common.entities.Entity;
 import gsbs.common.events.Event;
@@ -47,9 +48,11 @@ public class SpaceGame implements IEventListener {
         gameData.setNvgContext(nvgContext);
         this.gameData.getEventManager().dispatchEvents(gameData, getEventListeners());
 
-        update();
+        if (gameData.getGrid() == null) {
+            gameData.setGrid(new Grid(gameData.getNodeSize(), gameData.getDisplayWidth(), gameData.getDisplayHeight()));
+        }
 
-        draw();
+        update();
 
         gameData.getKeys().update();
     }
@@ -95,11 +98,16 @@ public class SpaceGame implements IEventListener {
                 GLFW.glfwSetWindowShouldClose(window.getHandle(), true);
                 break;
         }
+
+        draw();
+
+        for (ISystemPostProcess systemProcess : getSystemPostProcessingServices()) {
+            systemProcess.process(gameData, world);
+        }
     }
 
     private void draw() {
         // Draw vector graphics
-
         for (Entity entity : world.getEntitiesWithComponent(Graphics.class)) {
             var graphics = entity.getComponent(Graphics.class);
 
@@ -155,6 +163,10 @@ public class SpaceGame implements IEventListener {
 
     private Collection<? extends ISystemProcess> getSystemProcessingServices() {
         return PluginManager.locateAll(ISystemProcess.class);
+    }
+
+    private Collection<? extends ISystemPostProcess> getSystemPostProcessingServices() {
+        return PluginManager.locateAll(ISystemPostProcess.class);
     }
 
     private Collection<? extends IEventListener> getEventListeners() {

@@ -77,10 +77,10 @@ public class DebugProcessor implements ISystemPostProcess {
 
                     if (!node.isBlocked()) {
                         // Draw the stroke (edge) of the rectangle
-                        nvgStrokeColor(nvgContext, rgba(255, 255, 255, 0.3f));
+                        nvgStrokeColor(nvgContext, rgba(255, 255, 255, 0.1f));
                     } else {
                         // Draw the stroke (edge) of the rectangle
-                        nvgStrokeColor(nvgContext, rgba(255, 0, 0, 0.3f));
+                        nvgStrokeColor(nvgContext, rgba(255, 0, 0, 0.1f));
                     }
                     nvgStrokeWidth(nvgContext, 1f);
                     nvgStroke(nvgContext);
@@ -100,7 +100,7 @@ public class DebugProcessor implements ISystemPostProcess {
                     nvgLineTo(nvgContext, coords[0], coords[1]);
                 }
 
-                nvgStrokeColor(nvgContext, rgba(0, 255, 0, 0.3f));
+                nvgStrokeColor(nvgContext, rgba(0, 255, 0, 0.1f));
                 nvgStrokeWidth(nvgContext, 3f);
                 nvgStroke(nvgContext);
             }

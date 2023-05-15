@@ -1,7 +1,5 @@
 package gsbs.util;
 
-import gsbs.common.util.Color;
-
 public class Configuration {
     private String title;
     private int width;

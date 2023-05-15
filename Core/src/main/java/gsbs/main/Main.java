@@ -1,6 +1,6 @@
 package gsbs.main;
 
-import gsbs.common.util.Color;
+import gsbs.util.Color;
 import gsbs.util.Configuration;
 
 public class Main {

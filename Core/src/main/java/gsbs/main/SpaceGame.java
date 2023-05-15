@@ -1,26 +1,35 @@
 package gsbs.main;
 
-import gsbs.common.components.Graphics;
-import gsbs.common.components.Position;
-import gsbs.common.components.Sprite;
-import gsbs.common.data.GameData;
-import gsbs.common.data.GameKeys;
-import gsbs.common.data.World;
+import gsbs.common.components.*;
+import gsbs.common.data.*;
 import gsbs.common.entities.Entity;
 import gsbs.common.events.Event;
 import gsbs.common.events.GameLoseEvent;
 import gsbs.common.events.GameWinEvent;
 import gsbs.common.services.*;
+import gsbs.common.util.Plugin;
 import gsbs.common.util.PluginManager;
 import gsbs.util.Configuration;
+import gsbs.util.PciIdParser;
 import gsbs.util.Window;
+import imgui.ImDrawList;
+import imgui.flag.ImGuiCol;
+import imgui.flag.ImGuiCond;
+import imgui.flag.ImGuiTableFlags;
+import imgui.flag.ImGuiWindowFlags;
 import imgui.internal.ImGui;
+import org.lwjgl.bgfx.BGFX;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.nanovg.NVGPaint;
 
+import java.net.URL;
+import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-import static gsbs.common.util.Color.rgba;
+import static gsbs.util.Color.rgba;
 import static org.lwjgl.nanovg.NanoVG.*;
 
 /**
@@ -29,8 +38,14 @@ import static org.lwjgl.nanovg.NanoVG.*;
 public class SpaceGame implements IEventListener {
     private final Window window;
     private final long nvgContext;
+    PciIdParser pciParser = new PciIdParser("/pci.ids.txt");
     private GameData gameData = new GameData();
     private World world = new World();
+    private boolean paused = false;
+    private Entity selectedEntity = null;
+    private boolean showHitbox = false;
+    private boolean showGrid = false;
+    private int nodeSize = 10;
 
     public SpaceGame(Configuration config) {
         this.window = new Window(config, this::run);
@@ -44,8 +59,12 @@ public class SpaceGame implements IEventListener {
     private void run(Window window) {
         gameData.setDeltaTime(ImGui.getIO().getDeltaTime());
         gameData.setRenderCycles(gameData.getRenderCycles() + 1);
-        gameData.setNvgContext(nvgContext);
         this.gameData.getEventManager().dispatchEvents(gameData, getEventListeners());
+        if (gameData.getGrid() == null){
+            gameData.setGrid(new Grid(nodeSize, gameData.getDisplayWidth(), gameData.getDisplayHeight()));
+        }
+
+        renderGUI();
 
         update();
 
@@ -56,6 +75,10 @@ public class SpaceGame implements IEventListener {
 
     private void update() {
         // Handle input
+
+        if (paused){
+            return;
+        }
         try {
             for (var key : GameKeys.Keys.class.getDeclaredFields()) {
                 if (ImGui.isKeyPressed(key.getInt(key))) {
@@ -139,6 +162,86 @@ public class SpaceGame implements IEventListener {
                 nvgRestore(nvgContext);
             }
         }
+
+        //Draw hitbox
+        for (Entity entity : world.getEntitiesWithComponents(Position.class, Hitbox.class)) {
+            var hitbox = entity.getComponent(Hitbox.class);
+            var position = entity.getComponent(Position.class);
+
+            if (showHitbox) {
+                nvgSave(nvgContext);
+                nvgTranslate(nvgContext, (hitbox.getX() + hitbox.getWidth() / 2.0f), (hitbox.getY() + hitbox.getHeight() / 2.0f));
+                nvgRotate(nvgContext, position.getRadians());
+                nvgTranslate(nvgContext, (-hitbox.getWidth() / 2.0f), (-hitbox.getHeight() / 2.0f));
+
+                nvgBeginPath(nvgContext);
+                nvgRect(nvgContext, 0,0, hitbox.getWidth(), hitbox.getHeight());
+                nvgFillColor(nvgContext, rgba(255, 0, 0, 1));
+                nvgFill(nvgContext);
+                nvgRestore(nvgContext);
+
+            }
+        }
+        if (showGrid){
+            for (int i = 0; i < gameData.getDisplayWidth()/nodeSize; i++) {
+                for (int j = 0; j < gameData.getDisplayHeight()/nodeSize; j++) {
+                    Node node = gameData.getGrid().getNode(i,j);
+                    float nodeX = gameData.getGrid().getCoordsFromNode(node)[0];
+                    float nodeY = gameData.getGrid().getCoordsFromNode(node)[1];
+
+                    // Draw the filled rectangle with transparency
+                    nvgBeginPath(nvgContext);
+                    nvgRect(nvgContext,nodeX, nodeY,20, 20);
+                    nvgFillColor(nvgContext, rgba(255, 255, 255, 0));
+                    nvgFill(nvgContext);
+
+
+                    if (!node.isBlocked()) {
+                        // Draw the stroke (edge) of the rectangle
+                        nvgStrokeColor(nvgContext, rgba(255, 255, 255, 0.3f));
+                    } else {
+                        // Draw the stroke (edge) of the rectangle
+                        nvgStrokeColor(nvgContext, rgba(255, 0, 0, 0.3f));
+                    }
+                    nvgStrokeWidth(nvgContext, 1f);
+                    nvgStroke(nvgContext);
+
+                }
+            }
+            List<Node> nodes = gameData.getPath();
+            if (nodes != null && nodes.size() > 1) {
+                nvgBeginPath(nvgContext);
+                Node firstNode = nodes.get(0);
+                int[] firstCoords = gameData.getGrid().getCoordsFromNode(firstNode);
+                nvgMoveTo(nvgContext, firstCoords[0], firstCoords[1]);
+
+                for (int i = 1; i < nodes.size(); i++) {
+                    Node node = nodes.get(i);
+                    int[] coords = gameData.getGrid().getCoordsFromNode(node);
+                    nvgLineTo(nvgContext, coords[0], coords[1]);
+                }
+
+                nvgStrokeColor(nvgContext, rgba(0, 255, 0, 0.3f));
+                nvgStrokeWidth(nvgContext, 3f);
+                nvgStroke(nvgContext);
+            }
+
+// Draw circles for each node
+            if (nodes != null){
+                for (Node node : nodes) {
+                    nvgBeginPath(nvgContext);
+                    int[] coords = gameData.getGrid().getCoordsFromNode(node);
+                    nvgCircle(nvgContext, coords[0], coords[1], 10);
+                    nvgFillColor(nvgContext, rgba(255, 255, 255, 0));
+                    nvgFill(nvgContext);
+                    nvgStrokeColor(nvgContext, rgba(0, 255, 0, 0.3f));
+                    nvgStrokeWidth(nvgContext, 1.0f);
+                    nvgStroke(nvgContext);
+                }
+            }
+
+
+        }
     }
 
     private Collection<? extends IPlugin> getPluginServices() {
@@ -163,6 +266,151 @@ public class SpaceGame implements IEventListener {
         return eventListeners;
     }
 
+    private void renderGUI() {
+        ImGui.setNextWindowPos(0, 0);
+        ImGui.setNextWindowSize(gameData.getDisplayWidth() * 0.3f, gameData.getDisplayHeight());
+        ImGui.setNextWindowCollapsed(true, ImGuiCond.FirstUseEver);
+
+        ImGui.begin("Debug Menu", ImGuiWindowFlags.NoResize);
+
+        if (ImGui.collapsingHeader("Inspector")) {
+            if (selectedEntity == null) {
+                ImGui.text("No entity selected.");
+            } else {
+                ImGui.text("ID: " + selectedEntity.getID());
+
+                if (ImGui.treeNode("Components")) {
+                    for (var component : selectedEntity.getComponents()) {
+                        if (ImGui.treeNode(component.getClass().getSimpleName() + "##" + component)) {
+                            for (var field : component.getClass().getDeclaredFields()) {
+                                field.setAccessible(true);
+                                try {
+                                    ImGui.text(field.getName() + ": " + field.get(component));
+                                } catch (IllegalAccessException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }
+                            ImGui.treePop();
+                        }
+                    }
+                    ImGui.treePop();
+                }
+            }
+        }
+
+        if (ImGui.collapsingHeader("World")) {
+            if (ImGui.beginListBox("## entities", Float.MIN_VALUE, 5 * ImGui.getTextLineHeightWithSpacing())) {
+                Map<Class<? extends Entity>, List<Entity>> entitiesGrouped =
+                        world.getEntities().stream().collect(Collectors.groupingBy(Entity::getClass));
+
+                for (var entityType : entitiesGrouped.keySet()) {
+                    if (ImGui.treeNode(entityType.getSimpleName() + " ## " + entityType.getName())) {
+                        for (var entity : entitiesGrouped.get(entityType)) {
+                            boolean isSelected = selectedEntity != null && selectedEntity.equals(entity);
+
+                            if (ImGui.selectable(entity.getID(), isSelected)) {
+                                selectedEntity = entity;
+                            }
+
+                            if (isSelected) {
+                                ImGui.setItemDefaultFocus();
+                            }
+                        }
+                        ImGui.treePop();
+                    }
+                }
+                ImGui.endListBox();
+            }
+        }
+
+        if (ImGui.collapsingHeader("Plugins")) {
+            if (ImGui.beginTable("plugins_table", 1, ImGuiTableFlags.Borders + ImGuiTableFlags.Resizable)) {
+                for (Map.Entry<URL, Plugin> plugin : PluginManager.getPlugins().entrySet()) {
+                    ImGui.tableNextRow();
+                    ImGui.tableSetColumnIndex(0);
+                    ImGui.text(Paths.get(plugin.getKey().getFile()).getFileName().toString());
+                }
+            }
+            ImGui.endTable();
+
+            if (ImGui.button("Update")) {
+                var pluginsToBeUnloaded = PluginManager.updatePluginLayers();
+
+                for (var pluginURL : pluginsToBeUnloaded) {
+                    PluginManager.getPlugins().get(pluginURL).getServices(IPlugin.class).forEach(s -> {
+                        s.stop(gameData, world);
+                    });
+                }
+
+                PluginManager.reloadPlugins();
+            }
+        }
+
+        if (ImGui.collapsingHeader("Stats")) {
+            ImGui.text("FPS: " + (int) (1 / gameData.getDeltaTime()));
+            String vendorId = Integer.toHexString(BGFX.bgfx_get_caps().vendorId() & 0xffff);
+            String deviceId = Integer.toHexString(BGFX.bgfx_get_caps().deviceId() & 0xffff);
+            ImGui.text("GPU: " + pciParser.lookupName(vendorId, deviceId));
+            ImGui.text("Graphics API: " + BGFX.bgfx_get_renderer_name(BGFX.bgfx_get_renderer_type()));
+        }
+
+        ImDrawList drawList = ImGui.getWindowDrawList();
+
+        drawList.addRectFilled(ImGui.getCursorScreenPosX() + 4, ImGui.getCursorScreenPosY() + 4, ImGui.getCursorScreenPosX() + 8, ImGui.getCursorScreenPosY() + 16, ImGui.getColorU32(paused ? ImGuiCol.TextDisabled : ImGuiCol.Text));
+        drawList.addRectFilled(ImGui.getCursorScreenPosX() + 12, ImGui.getCursorScreenPosY() + 4, ImGui.getCursorScreenPosX() + 16, ImGui.getCursorScreenPosY() + 16, ImGui.getColorU32(paused ? ImGuiCol.TextDisabled : ImGuiCol.Text));
+
+        ImGui.beginDisabled(paused);
+        if (ImGui.button("## pause", 20, 20)) {
+            paused = true;
+        }
+        ImGui.endDisabled();
+
+        ImGui.sameLine();
+
+        drawList.addTriangleFilled(ImGui.getCursorScreenPosX() + 4, ImGui.getCursorScreenPosY() + 4, ImGui.getCursorScreenPosX() + 16, ImGui.getCursorScreenPosY() + 10, ImGui.getCursorScreenPosX() + 4, ImGui.getCursorScreenPosY() + 16, ImGui.getColorU32(paused ? ImGuiCol.Text : ImGuiCol.TextDisabled));
+
+        ImGui.beginDisabled(!paused);
+        if (ImGui.button("## play", 20, 20)) {
+            paused = false;
+        }
+        ImGui.endDisabled();
+
+
+        ImGui.sameLine();
+
+
+        drawList.addRectFilled(ImGui.getCursorScreenPosX() + 4, ImGui.getCursorScreenPosY() + 4, ImGui.getCursorScreenPosX() + 16, ImGui.getCursorScreenPosY() + 16, ImGui.getColorU32(ImGuiCol.Text));
+
+        if (ImGui.button("## stop", 20, 20)) {
+            GLFW.glfwSetWindowShouldClose(window.getHandle(), true);
+        }
+
+        ImDrawList drawList2 = ImGui.getWindowDrawList();
+
+        drawList2.addText(ImGui.getCursorScreenPosX() + 6, ImGui.getCursorScreenPosY() + 4, ImGui.getColorU32(ImGuiCol.Text), "Hitbox");
+        if (ImGui.button("## hitbox", 50, 20)) {
+            showHitbox = !showHitbox;
+        }
+        drawList2.addText(ImGui.getCursorScreenPosX() + 6, ImGui.getCursorScreenPosY() + 4, ImGui.getColorU32(ImGuiCol.Text), "Grid");
+        if (ImGui.button("## grid", 50, 20)) {
+            showGrid = !showGrid;
+        }
+
+        if (ImGui.button("Restart")) {
+            this.gameData.setGameState(GameState.START);
+        }
+
+        if (ImGui.button("Win")) {
+            this.gameData.getEventManager().addEvent(new GameWinEvent(null));
+        }
+
+        if (ImGui.button("Lose")) {
+            this.gameData.getEventManager().addEvent(new GameLoseEvent(null));
+        }
+
+        ImGui.end();
+    }
+
     @Override
     public void onEvent(Event event, GameData gameData) {
         // Handle events
@@ -173,5 +421,28 @@ public class SpaceGame implements IEventListener {
             this.world = new World();
             this.gameData = new GameData();
         }
+    }
+
+
+    public void drawGrid(GameData gameData) {
+        int cellSize = 128;
+        int numRows = gameData.getDisplayHeight() / cellSize;
+        int numCols = (gameData.getDisplayWidth() - (2 * (gameData.getDisplayWidth() / 6))) / cellSize;
+        int startCol = (gameData.getDisplayWidth() / 2 - (numCols * cellSize) / 2) / cellSize;
+
+        nvgBeginPath(nvgContext);
+        nvgStrokeWidth(nvgContext, 1.0f);
+        nvgStrokeColor(nvgContext, rgba(0, 0, 0, 255));
+
+        for (int row = 0; row < numRows; row++) {
+            for (int col = 0; col < numCols; col++) {
+                nvgRect(nvgContext, (col + startCol) * cellSize, row * cellSize, cellSize, cellSize);
+            }
+        }
+
+        nvgFillColor(nvgContext, rgba(255, 255, 255, 128));
+        nvgFill(nvgContext);
+        nvgStroke(nvgContext);
+        nvgRestore(nvgContext);
     }
 }

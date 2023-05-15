@@ -14,7 +14,6 @@ import java.util.List;
 public class GameData {
     private final GameKeys keys = new GameKeys();
     private final EventManager eventManager = new EventManager();
-    private long nvgContext;
     private List<IPlugin> initializedPlugins = new ArrayList<>();
     private GameState gameState = GameState.START;
     private float deltaTime;
@@ -31,12 +30,12 @@ public class GameData {
         this.grid = grid;
     }
 
-    public List<Node> getPath() {
-        return path;
+    public void setPath(List<Node> path){
+        this.path = path;
     }
 
-    public void setPath(List<Node> path) {
-        this.path = path;
+    public List<Node> getPath(){
+        return path;
     }
 
     /**
@@ -110,13 +109,5 @@ public class GameData {
      */
     public EventManager getEventManager() {
         return eventManager;
-    }
-
-    public long getNvgContext() {
-        return nvgContext;
-    }
-
-    public void setNvgContext(long nvgContext) {
-        this.nvgContext = nvgContext;
     }
 }

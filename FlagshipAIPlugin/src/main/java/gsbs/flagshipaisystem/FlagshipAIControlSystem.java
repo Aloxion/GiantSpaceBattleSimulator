@@ -17,11 +17,9 @@ import java.util.List;
 public class FlagshipAIControlSystem implements IProcess {
     private Entity thisFlagship;
     private Entity targetFlagship;
-    private Grid grid;
+    private  List<Node> path;
 
     public void process(GameData gameData, World world) {
-        grid = gameData.getGrid();
-
         for (Entity flagship : world.getEntities(Flagship.class)) {
             var team = flagship.getComponent(Team.class);
             if (team.getTeam() == Teams.ENEMY) {
@@ -33,22 +31,25 @@ public class FlagshipAIControlSystem implements IProcess {
             }
         }
         handlePathfinding(gameData, world, thisFlagship, targetFlagship);
-
     }
 
-    private void handleOffensiveAction(GameData gameData, World world, boolean close){
+    private void handleOffensiveAction(GameData gameData, World world, double directionDifference){
         Weapon weapon = thisFlagship.getComponent(Weapon.class);
-        weapon.changeWeapon();
-        if (close){
+        // FIX! change weapon correctly
+        // shoot pistol when facing player, shoot shotgun when at a larger angle
+        if(directionDifference > 2 * Math.PI - 0.3 || directionDifference < 0.3){
+            // Pistol
             weapon.fire(thisFlagship, gameData, world);
+            System.out.println("shoot pistol");
         } else {
-            weapon.changeWeapon();
+            // Shotgun
             weapon.fire(thisFlagship, gameData, world);
+            System.out.println("shoot shot gun");
         }
-
     }
 
     private void handlePathfinding(GameData gameData, World world, Entity thisFlagship, Entity targetFlagship){
+        Grid grid = gameData.getGrid();
         var positionAIShip = thisFlagship.getComponent(Position.class);
         var positionTarget = targetFlagship.getComponent(Position.class);
         var spriteAIShip = thisFlagship.getComponent(Sprite.class);
@@ -58,46 +59,67 @@ public class FlagshipAIControlSystem implements IProcess {
         Node start = grid.getNodeFromCoords((int) positionAIShip.getX() + spriteAIShip.getWidth()/2, (int) positionAIShip.getY() + spriteAIShip.getHeight()/2);
         Node goal = grid.getNodeFromCoords((int) positionTarget.getX() + spriteTarget.getWidth()/2, (int) positionTarget.getY() + spriteTarget.getHeight()/2);
         var movementAIShip = thisFlagship.getComponent(Movement.class);
-        if(euclideanDistance > 500) {
-            movementAIShip.setUp(true);
-        }
-        else {
-            handleOffensiveAction(gameData, world, true);
-            movementAIShip.setUp(false);
-        }
 
         movementAIShip.setLeft(false);
         movementAIShip.setRight(false);
+        movementAIShip.setUp(true);
 
-
-        List<Node> thetaStarList = new ThetaStar().findPath(start, goal, grid);
+        ThetaStar thetaStar = new ThetaStar();
+        List<Node> newPath = thetaStar.findPath(start, goal, grid);
+        if (newPath != null){
+            path = newPath;
+        }
+        else{
+            return;
+            //path = thetaStar.findPath(start, path.get(0), grid);
+        }
 
         // For debug (Assumed)
-        gameData.setPath(thetaStarList);
+        gameData.setPath(path);
 
-        int[] desiredLocation = new int[2];
-        if (thetaStarList == null){
-            movementAIShip.setUp(true);
-            return;
-        }
-        if (thetaStarList.size() > 1){
-            desiredLocation = grid.getCoordsFromNode(thetaStarList.get(thetaStarList.size()-2));
-        }
+        // Handle turning towards target node
+        if (path.size() > 1){
+            int[] desiredLocation = grid.getCoordsFromNode(path.get(path.size()-2));
+            if (grid.getNodeFromCoords(desiredLocation[0], desiredLocation[1]).isBlocked()){
+                System.out.println("THIS NODE IS BLOCKED: " + grid.getNodeFromCoords(desiredLocation[0], desiredLocation[1]));
+            }
+            double directionDifferenceNode1 = getDirectionDifference(positionAIShip.getX(), positionAIShip.getY(), desiredLocation[0], desiredLocation[1], positionAIShip.getRadians());
 
-        if (grid.getNodeFromCoords(desiredLocation[0], desiredLocation[1]).isBlocked()){
-            System.out.println("THIS NODE IS BLOCKED: " + grid.getNodeFromCoords(desiredLocation[0], desiredLocation[1]));
-        }
+            if(directionDifferenceNode1 > Math.PI){
+                movementAIShip.setLeft(true);
+            } else {
+                movementAIShip.setRight(true);
+            }
 
-        double desiredAngle = convertToUnitCircle(getDirection(positionAIShip.getX(), positionAIShip.getY(), desiredLocation[0], desiredLocation[1]));
-        double currUnit = convertToUnitCircle(positionAIShip.getRadians());
-        double dirDiff = ((2*Math.PI - currUnit) + desiredAngle) % (2*Math.PI);
-
-        if(dirDiff > Math.PI){
-            movementAIShip.setLeft(true);
-        } else {
-            movementAIShip.setRight(true);
+            if(euclideanDistance < 500) {
+                handleOffensiveAction(gameData, world, directionDifferenceNode1);
+            }
         }
 
+        // Handle Tokyo Drift error (drifting into asteroids when turning after reaching target node)
+        if(path.size() > 2){
+            int[] desiredLocation = grid.getCoordsFromNode(path.get(path.size()-2));
+            int[] NextDesiredLocation = grid.getCoordsFromNode(path.get(path.size()-3));
+            double directionDifferenceNode2 = getDirectionDifference(positionAIShip.getX(), positionAIShip.getY(), NextDesiredLocation[0], NextDesiredLocation[1], positionAIShip.getRadians());
+
+            float distanceFromDesiredLocation = Distance.euclideanDistance(positionAIShip.getX(), positionAIShip.getY(), desiredLocation[0], desiredLocation[1]);
+            // Check all conditions that cause a need to slow down the AI ship
+            System.out.println(movementAIShip.getVelocity());
+            if (distanceFromDesiredLocation < 200 && movementAIShip.getVelocity() > 30 && (directionDifferenceNode2 < 2 * Math.PI - 0.3 || directionDifferenceNode2 > 0.3)){
+                movementAIShip.setUp(false);
+                System.out.println("********************");
+                System.out.println("SLOW DOWN!");
+                System.out.println(distanceFromDesiredLocation);
+                System.out.println(movementAIShip.getVelocity());
+                System.out.println(directionDifferenceNode2);
+            }
+        }
+    }
+
+    private double getDirectionDifference(float x1, float y1, float x2, float y2, float radians){
+        double desiredAngle = convertToUnitCircle(getDirection(x1, y1, x2, y2));
+        double currentUnit = convertToUnitCircle(radians);
+        return  ((2*Math.PI - currentUnit) + desiredAngle) % (2*Math.PI);
     }
 
     private double getDirection(float x1, float y1, float x2, float y2){

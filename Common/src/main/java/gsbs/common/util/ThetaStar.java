@@ -12,6 +12,9 @@ public class ThetaStar {
     private Grid grid;
 
     public List<Node> findPath(Node start, Node goal, Grid grid) {
+        if(!initPathCheck(start, goal)){
+            return null;
+        }
         this.grid = grid;
         gScore.put(start, 0.0);
         parent.put(start, start);
@@ -44,6 +47,12 @@ public class ThetaStar {
         return null;
     }
 
+    private boolean initPathCheck(Node start, Node goal){
+        if(start.isBlocked()){
+            return false;
+        }
+        else return true;
+    }
     private  void updateVertex(Node currentNode, Node neighbor, Map<Node, Double> open, Node goal) {
         if (lineOfSight(parent.get(currentNode), neighbor)) {
             if (gScore.get(parent.get(currentNode)) + cost(parent.get(currentNode), neighbor) < gScore.get(neighbor)) {
@@ -151,6 +160,7 @@ public class ThetaStar {
         // Euclidean distance cost function
         int deltaRow = currentNode.getRow() - neighbor.getRow();
         int deltaColumn = currentNode.getColumn() - neighbor.getColumn();
+        // add " + neighbor.getWeight()" to make it weighted Theta Star
         return Math.sqrt(deltaRow * deltaRow + deltaColumn * deltaColumn);
     }
 

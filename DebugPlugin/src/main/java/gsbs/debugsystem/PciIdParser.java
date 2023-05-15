@@ -1,4 +1,4 @@
-package gsbs.util;
+package gsbs.debugsystem;
 
 import java.io.BufferedReader;
 import java.io.IOException;

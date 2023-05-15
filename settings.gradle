@@ -6,4 +6,4 @@ include 'PistolPlugin'
 include 'ShotgunPlugin'
 include 'StartMenuPlugin'
 include 'CollisionPlugin'
-
+include 'DebugPlugin'

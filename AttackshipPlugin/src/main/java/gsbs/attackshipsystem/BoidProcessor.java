@@ -5,6 +5,7 @@ import gsbs.attackshipsystem.entities.Attackship;
 import gsbs.common.components.Hitbox;
 import gsbs.common.components.Position;
 import gsbs.common.components.Team;
+import gsbs.common.components.Weapon;
 import gsbs.common.data.GameData;
 import gsbs.common.data.World;
 import gsbs.common.entities.Entity;
@@ -15,6 +16,7 @@ import imgui.ImGui;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 
 public class BoidProcessor implements IProcess {
@@ -108,6 +110,17 @@ public class BoidProcessor implements IProcess {
             if (leaderDistance > 500) {
                 world.removeEntity(boidEntity);
                 gameData.addEvent(new SpawnAttackships(boid.leader, world, 1));
+            }
+        }
+
+        // Fire weapons
+        float firingRate = 0.01f;
+        Random random = new Random();
+        for (var entity : world.getEntities(Attackship.class)) {
+            if (random.nextFloat() < firingRate) {
+                var weapon = entity.getComponent(Weapon.class);
+                weapon.changeWeapon();
+                weapon.fire(entity, gameData, world);
             }
         }
     }

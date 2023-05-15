@@ -45,6 +45,14 @@ public class AttackshipSpawner implements IEventListener {
                 attackship.add(new Health(1));
                 attackship.add(new Hitbox(10, 10, 0, 0));
                 attackship.add(new Team(leader.getComponent(Team.class).getTeam()));
+                switch (leader.getComponent(Team.class).getTeam()) {
+                    case PLAYER:
+                        attackship.add(new Weapon(List.of(new Laser("/player_laser.png"))));
+                        break;
+                    case ENEMY:
+                        attackship.add(new Weapon(List.of(new Laser("/enemy_laser.png"))));
+                        break;
+                }
 
                 Boid boid = new Boid(leader);
                 boid.velocity = new Vector2(random.nextFloat() * 2 - 1, random.nextFloat() * 4 - 2);

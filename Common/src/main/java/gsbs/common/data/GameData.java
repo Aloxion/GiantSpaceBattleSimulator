@@ -23,6 +23,10 @@ public class GameData {
     private List<Node> path;
     private Grid grid;
 
+    public GameData(long nvgContext) {
+        this.nvgContext = nvgContext;
+    }
+
     public Grid getGrid() {
         return grid;
     }

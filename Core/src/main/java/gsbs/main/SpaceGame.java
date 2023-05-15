@@ -30,12 +30,14 @@ import static org.lwjgl.nanovg.NanoVG.*;
 public class SpaceGame implements IEventListener {
     private final Window window;
     private final long nvgContext;
-    private GameData gameData = new GameData();
-    private World world = new World();
+    private GameData gameData;
+    private World world;
 
     public SpaceGame(Configuration config) {
         this.window = new Window(config, this::run);
         this.nvgContext = this.window.getNvgContext();
+        this.gameData = new GameData(nvgContext);
+        this.world = new World();
     }
 
     public void start() {
@@ -180,10 +182,10 @@ public class SpaceGame implements IEventListener {
         // Handle events
         if (event instanceof GameWinEvent) {
             this.world = new World();
-            this.gameData = new GameData();
+            this.gameData = new GameData(nvgContext);
         } else if (event instanceof GameLoseEvent) {
             this.world = new World();
-            this.gameData = new GameData();
+            this.gameData = new GameData(nvgContext);
         }
     }
 }

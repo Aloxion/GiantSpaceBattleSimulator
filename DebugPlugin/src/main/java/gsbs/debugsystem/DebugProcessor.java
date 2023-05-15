@@ -2,12 +2,15 @@ package gsbs.debugsystem;
 
 import gsbs.common.components.Hitbox;
 import gsbs.common.components.Position;
-import gsbs.common.data.*;
+import gsbs.common.data.GameData;
+import gsbs.common.data.GameState;
+import gsbs.common.data.Node;
+import gsbs.common.data.World;
 import gsbs.common.entities.Entity;
 import gsbs.common.events.GameLoseEvent;
 import gsbs.common.events.GameWinEvent;
 import gsbs.common.services.IPlugin;
-import gsbs.common.services.ISystemProcess;
+import gsbs.common.services.ISystemPostProcess;
 import gsbs.common.util.Plugin;
 import gsbs.common.util.PluginManager;
 import imgui.ImDrawList;
@@ -27,8 +30,7 @@ import java.util.stream.Collectors;
 import static gsbs.common.util.Color.rgba;
 import static org.lwjgl.nanovg.NanoVG.*;
 
-public class DebugProcessor implements ISystemProcess {
-    private final int nodeSize = 10;
+public class DebugProcessor implements ISystemPostProcess {
     PciIdParser pciParser = new PciIdParser("/pci.ids.txt");
     private Entity selectedEntity = null;
     private boolean showHitbox = false;
@@ -39,17 +41,12 @@ public class DebugProcessor implements ISystemProcess {
     public void process(GameData gameData, World world) {
         long nvgContext = gameData.getNvgContext();
 
-        if (gameData.getGrid() == null) {
-            gameData.setGrid(new Grid(nodeSize, gameData.getDisplayWidth(), gameData.getDisplayHeight()));
-        }
-
-
         //Draw hitbox
-        for (Entity entity : world.getEntitiesWithComponents(Position.class, Hitbox.class)) {
-            var hitbox = entity.getComponent(Hitbox.class);
-            var position = entity.getComponent(Position.class);
+        if (showHitbox) {
+            for (Entity entity : world.getEntitiesWithComponents(Position.class, Hitbox.class)) {
+                var hitbox = entity.getComponent(Hitbox.class);
+                var position = entity.getComponent(Position.class);
 
-            if (showHitbox) {
                 nvgSave(nvgContext);
                 nvgTranslate(nvgContext, (hitbox.getX() + hitbox.getWidth() / 2.0f), (hitbox.getY() + hitbox.getHeight() / 2.0f));
                 nvgRotate(nvgContext, position.getRadians());
@@ -63,9 +60,10 @@ public class DebugProcessor implements ISystemProcess {
 
             }
         }
+
         if (showGrid) {
-            for (int i = 0; i < gameData.getDisplayWidth() / nodeSize; i++) {
-                for (int j = 0; j < gameData.getDisplayHeight() / nodeSize; j++) {
+            for (int i = 0; i < gameData.getDisplayWidth() / gameData.getNodeSize(); i++) {
+                for (int j = 0; j < gameData.getDisplayHeight() / gameData.getNodeSize(); j++) {
                     Node node = gameData.getGrid().getNode(i, j);
                     float nodeX = gameData.getGrid().getCoordsFromNode(node)[0];
                     float nodeY = gameData.getGrid().getCoordsFromNode(node)[1];
@@ -120,8 +118,6 @@ public class DebugProcessor implements ISystemProcess {
                     nvgStroke(nvgContext);
                 }
             }
-
-
         }
 
         renderGUI(gameData, world);
@@ -236,7 +232,7 @@ public class DebugProcessor implements ISystemProcess {
             paused = false;
         }
         ImGui.endDisabled();
-        
+
         ImDrawList drawList2 = ImGui.getWindowDrawList();
 
         drawList2.addText(ImGui.getCursorScreenPosX() + 6, ImGui.getCursorScreenPosY() + 4, ImGui.getColorU32(ImGuiCol.Text), "Hitbox");

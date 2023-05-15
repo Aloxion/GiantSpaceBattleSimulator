@@ -6,5 +6,5 @@ module DebugPlugin {
     requires org.lwjgl.nanovg;
     requires org.lwjgl.bgfx;
 
-    provides gsbs.common.services.ISystemProcess with DebugProcessor;
+    provides gsbs.common.services.ISystemPostProcess with DebugProcessor;
 }

@@ -15,9 +15,12 @@ public class Weapon extends Component {
     private int index = 0;
     private int swap_cooldown = 100;
 
+    private int lastFire;// To make sure the player can shoot as the game starts
+
     private boolean weapon_changed = false;
 
     public Weapon(List<IWeapon> weapons){
+        lastFire = -1000;
         this.weapons = weapons;
         try {
             weapon = weapons.get(index);
@@ -38,12 +41,26 @@ public class Weapon extends Component {
     }
 
     public void fire(Entity source, GameData gameData, World world) {
-        if (weapon != null) {
-            weapon.fire(source, gameData, world);
-            weapon_changed = false;
-        } else {
+        if(!canFire(gameData)) return;
+
+        weapon.fire(source, world);
+        weapon_changed = false;
+        lastFire = gameData.getRenderCycles();
+    }
+
+    public boolean canFire(GameData gameData){
+        int gameTime = gameData.getRenderCycles();
+        if (weapon == null) {
             System.out.println("No weapon available");
+            return false;
         }
+
+       if (lastFire + weapon.getReloadTime() > gameTime) {
+           System.out.println(lastFire + " " + weapon.getReloadTime() + " " + gameTime);
+           System.out.println("Weapon on cooldown");
+           return false;
+       }
+       return true;
     }
 
     public void decreaseSwapCooldown(){

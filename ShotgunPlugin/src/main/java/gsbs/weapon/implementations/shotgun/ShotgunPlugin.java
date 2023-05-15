@@ -12,18 +12,17 @@ public class ShotgunPlugin implements IWeapon {
     private final int reloadTime = 100;
     private final int duration = 50;
 
-    private int lastFire = -reloadTime; // To make sure the player can shoot as the game starts
-
 
     @Override
-    public void fire(Entity source, GameData gameData, World world) {
-        int gameTime = gameData.getRenderCycles();
-        if(lastFire + reloadTime < gameTime){
-
-            addBullet(source, world);
-            lastFire = gameTime;
-        }
+    public void fire(Entity source, World world) {
+        addBullet(source, world);
     }
+
+    @Override
+    public int getReloadTime() {
+        return reloadTime;
+    }
+
 
     private void addBullet(Entity source, World world){
         Position startPosition = source.getComponent(Position.class);

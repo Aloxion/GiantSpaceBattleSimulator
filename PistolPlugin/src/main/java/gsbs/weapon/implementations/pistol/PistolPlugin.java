@@ -11,16 +11,15 @@ import gsbs.common.services.IWeapon;
 public class PistolPlugin implements IWeapon {
     private final int reloadTime = 25;
     private final int duration = 200;
-    private int lastFire = -reloadTime; // To make sure the player can shoot as the game starts
 
     @Override
-    public void fire(Entity source, GameData gameData, World world) {
-        int gameTime = gameData.getRenderCycles();
-        if(lastFire + reloadTime < gameTime){
+    public void fire(Entity source, World world) {
+        addBullet(source, world);
+    }
 
-            addBullet(source, world);
-            lastFire = gameTime;
-        }
+    @Override
+    public int getReloadTime() {
+        return reloadTime;
     }
 
     private void addBullet(Entity source, World world){

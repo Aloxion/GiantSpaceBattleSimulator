@@ -17,7 +17,7 @@ public class GameData {
     private final int nodeSize = 10;
     private long nvgContext;
     private List<IPlugin> initializedPlugins = new ArrayList<>();
-    private GameState gameState = GameState.START;
+    private GameState gameState = GameState.IN_GAME;
     private float deltaTime;
     private int renderCycles;
     private List<Node> path;

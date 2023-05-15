@@ -2,7 +2,7 @@ package gsbs.common.events;
 
 import gsbs.common.entities.Entity;
 
-public class PlayerControlEvent extends Event{
+public class PlayerControlEvent extends Event {
     private final int keyCode;
     private final boolean keyPressed;
 
@@ -13,11 +13,11 @@ public class PlayerControlEvent extends Event{
         this.keyPressed = keyPressed;
     }
 
-    public int getKeyCode(){
+    public int getKeyCode() {
         return keyCode;
     }
 
-    public boolean isKeyPressed(){
+    public boolean isKeyPressed() {
         return keyPressed;
     }
 }

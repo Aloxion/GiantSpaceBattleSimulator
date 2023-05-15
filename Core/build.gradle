@@ -15,6 +15,7 @@ dependencies {
     implementation project(':PistolPlugin')
     implementation project(':ShotgunPlugin')
     implementation project(':StartMenuPlugin')
+    implementation project(':AttackshipPlugin')
     implementation project(':DebugPlugin')
 
     // Dependencies

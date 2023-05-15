@@ -32,6 +32,11 @@ public class Weapon extends Component {
 
     public void changeWeapon(){
         //Get the weapon from weapons with modulus
+        if(weapons.size() == 0){
+            System.out.println("No weapons available");
+            return;
+        }
+
         if(!weapon_changed && swap_cooldown < 0) {
             index++;
             weapon = weapons.get(index % weapons.size());
@@ -51,13 +56,10 @@ public class Weapon extends Component {
     public boolean canFire(GameData gameData){
         int gameTime = gameData.getRenderCycles();
         if (weapon == null) {
-            System.out.println("No weapon available");
             return false;
         }
 
        if (lastFire + weapon.getReloadTime() > gameTime) {
-           System.out.println(lastFire + " " + weapon.getReloadTime() + " " + gameTime);
-           System.out.println("Weapon on cooldown");
            return false;
        }
        return true;

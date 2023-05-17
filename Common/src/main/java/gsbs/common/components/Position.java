@@ -1,5 +1,7 @@
 package gsbs.common.components;
 
+import gsbs.common.math.Vector2;
+
 public class Position extends Component {
     private float x;
     private float y;
@@ -33,5 +35,9 @@ public class Position extends Component {
 
     public void setRadians(float radians) {
         this.radians = radians;
+    }
+
+    public Vector2 asVector() {
+        return new Vector2(getX(), getY());
     }
 }

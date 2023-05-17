@@ -13,10 +13,19 @@ public class Vector2 {
         this.x = x;
         this.y = y;
     }
-
     public boolean equals(Vector2 other) {
         return (this.x == other.x && this.y == other.y);
     }
+
+
+    public double dot(Vector2 other) {
+        return this.x * other.x + this.y * other.y;
+    }
+
+    public double magnitude() {
+        return Math.sqrt(this.x * this.x + this.y * this.y);
+    }
+
 
     public Vector2 add(Vector2 other) {
         return new Vector2(this.x + other.x, this.y + other.y);
@@ -60,4 +69,5 @@ public class Vector2 {
     public float length() {
         return (float) Math.sqrt(x * x + y * y);
     }
+
 }

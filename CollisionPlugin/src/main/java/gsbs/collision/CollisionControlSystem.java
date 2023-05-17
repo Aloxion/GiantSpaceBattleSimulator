@@ -18,6 +18,7 @@ public class CollisionControlSystem implements IPostProcess {
     @Override
     public void process(GameData gameData, World world) {
         // Process collisions
+
         for (Entity entity : world.getEntities()) {
             for (Entity collisionEntity : world.getEntities()) {
                 if (entity.getComponent(Health.class) == null) {
@@ -30,6 +31,7 @@ public class CollisionControlSystem implements IPostProcess {
                 if (entity.getID().equals(collisionEntity.getID())) {
                     continue;
                 }
+
 
                 if (entityHealth.isDead()) {
                     entity.remove(Sprite.class);
@@ -59,16 +61,27 @@ public class CollisionControlSystem implements IPostProcess {
 
                     }
 
-
-                    } else if (collisionEntity instanceof Asteroid) {
-                        entityHealth.removeHealthPoints(1);
-                    } else {
-                        entityHealth.removeHealthPoints(1);
-                    }
+                } else if (collisionEntity instanceof Asteroid) {
+                    entityHealth.removeHealthPoints(1);
+                } else {
+                    entityHealth.removeHealthPoints(1);
                 }
             }
         }
 
+        // Bounce back
+        for (Entity flagship : world.getEntities(Flagship.class)) {
+            var grid = gameData.getGrid();
+            var position = flagship.getComponent(Position.class);
+            if(grid.getNodeFromCoords((int)position.getX(), (int)position.getY()).isBlocked()){
+                var movement = flagship.getComponent(Movement.class);
+                var health = flagship.getComponent(Health.class);
+                movement.setDx(movement.getDx() * -3.1f);
+                movement.setDy((movement.getDy() * -3.1f));
+                health.removeHealthPoints(1);
+            }
+        }
+    }
 
     private Boolean isCollided(Entity entity1, Entity entity2) {
         Hitbox hitbox = entity1.getComponent(Hitbox.class);

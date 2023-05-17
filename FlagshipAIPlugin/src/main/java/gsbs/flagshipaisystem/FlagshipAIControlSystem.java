@@ -39,10 +39,12 @@ public class FlagshipAIControlSystem implements IProcess {
         // shoot pistol when facing player, shoot shotgun when at a larger angle
         if(directionDifference > 2 * Math.PI - 0.3 || directionDifference < 0.3){
             // Pistol
+            weapon.changeWeapon();
             weapon.fire(thisFlagship, gameData, world);
             System.out.println("shoot pistol");
         } else {
             // Shotgun
+            weapon.changeWeapon();
             weapon.fire(thisFlagship, gameData, world);
             System.out.println("shoot shot gun");
         }
@@ -62,7 +64,7 @@ public class FlagshipAIControlSystem implements IProcess {
 
         movementAIShip.setLeft(false);
         movementAIShip.setRight(false);
-        movementAIShip.setUp(true);
+
 
         ThetaStar thetaStar = new ThetaStar();
         List<Node> newPath = thetaStar.findPath(start, goal, grid);
@@ -70,12 +72,15 @@ public class FlagshipAIControlSystem implements IProcess {
             path = newPath;
         }
         else{
-            return;
-            //path = thetaStar.findPath(start, path.get(0), grid);
+            newPath = new ArrayList<>();
+            newPath.add(goal);
+            newPath.add(start);
+            path = newPath;
         }
 
         // For debug (Assumed)
         gameData.setPath(path);
+        System.out.println("Path: " + path);
 
         // Handle turning towards target node
         if (path.size() > 1){
@@ -114,6 +119,7 @@ public class FlagshipAIControlSystem implements IProcess {
                 System.out.println(directionDifferenceNode2);
             }
         }
+        movementAIShip.setUp(true);
     }
 
     private double getDirectionDifference(float x1, float y1, float x2, float y2, float radians){

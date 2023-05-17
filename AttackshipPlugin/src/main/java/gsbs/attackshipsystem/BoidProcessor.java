@@ -224,7 +224,7 @@ public class BoidProcessor implements IProcess {
 
     private Vector2 collisionAvoidance(Boid boid, World world) {
         // Only consider collidables within this distance
-        float collisionAvoidanceDistance = 5;
+        float collisionAvoidanceDistance = 2;
 
         Vector2 steering = new Vector2();
         int total = 0;

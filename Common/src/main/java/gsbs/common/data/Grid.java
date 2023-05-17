@@ -55,8 +55,20 @@ public class Grid {
             entitiesToBlock.addAll(world.getEntities(Asteroid.class));
             blockNodesFromEntities(entitiesToBlock.toArray(new Entity[0]));
             addWeightsToNodes(entitiesToBlock.toArray(new Entity[0]));
-            System.out.println("YEEHAW");
+
+            System.out.println(maxRow);
+            System.out.println(maxColumn);
+            // Block the rim
+            for (int i = 0; i < maxRow; i++) {
+                getNode(i, 0).setBlocked(true);
+                getNode(i, maxColumn - 1).setBlocked(true);
+            }
+            for (int i = 0; i < maxColumn; i++) {
+                getNode(0, i).setBlocked(true);
+                getNode(maxRow - 1, i).setBlocked(true);
+            }
         }
+
 
         updateGridFlag = false;
         if (!printedGrid)

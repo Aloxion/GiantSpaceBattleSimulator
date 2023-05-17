@@ -105,7 +105,7 @@ public class FlagshipAIControlSystem implements IProcess {
             float distanceFromDesiredLocation = Distance.euclideanDistance(positionAIShip.getX(), positionAIShip.getY(), desiredLocation[0], desiredLocation[1]);
             // Check all conditions that cause a need to slow down the AI ship
             System.out.println(movementAIShip.getVelocity());
-            if (distanceFromDesiredLocation < 200 && movementAIShip.getVelocity() > 30 && (directionDifferenceNode2 < 2 * Math.PI - 0.3 || directionDifferenceNode2 > 0.3)){
+            if (distanceFromDesiredLocation < 300 && movementAIShip.getVelocity() > 20 && (directionDifferenceNode2 < 2 * Math.PI - 0.3 || directionDifferenceNode2 > 0.3)){
                 movementAIShip.setUp(false);
                 System.out.println("********************");
                 System.out.println("SLOW DOWN!");

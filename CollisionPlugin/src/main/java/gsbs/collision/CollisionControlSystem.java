@@ -19,6 +19,7 @@ public class CollisionControlSystem implements IPostProcess {
 
     @Override
     public void process(GameData gameData, World world) {
+        // Process collisions
         for (Entity entity : world.getEntities()) {
             for (Entity collisionEntity : world.getEntities()) {
                 if (entity.getComponent(Health.class) == null) {
@@ -57,9 +58,9 @@ public class CollisionControlSystem implements IPostProcess {
                             collisionHealth.removeHealthPoints(1);
                         }
                         world.removeEntity(entity);
-                    }
-
-                    if (collisionEntity instanceof Asteroid) {
+                    } else if (collisionEntity instanceof Asteroid) {
+                        entityHealth.removeHealthPoints(1);
+                    } else {
                         entityHealth.removeHealthPoints(1);
                     }
                 }

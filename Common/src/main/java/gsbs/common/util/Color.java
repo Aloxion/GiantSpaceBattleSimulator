@@ -1,4 +1,4 @@
-package gsbs.util;
+package gsbs.common.util;
 
 import org.lwjgl.nanovg.NVGColor;
 

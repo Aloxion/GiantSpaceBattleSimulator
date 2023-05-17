@@ -14,10 +14,34 @@ import java.util.List;
 public class GameData {
     private final GameKeys keys = new GameKeys();
     private final EventManager eventManager = new EventManager();
+    private final int nodeSize = 10;
+    private long nvgContext;
     private List<IPlugin> initializedPlugins = new ArrayList<>();
-    private GameState gameState = GameState.START;
+    private GameState gameState = GameState.IN_GAME;
     private float deltaTime;
     private int renderCycles;
+    private List<Node> path;
+    private Grid grid;
+
+    public GameData(long nvgContext) {
+        this.nvgContext = nvgContext;
+    }
+
+    public Grid getGrid() {
+        return grid;
+    }
+
+    public void setGrid(Grid grid) {
+        this.grid = grid;
+    }
+
+    public List<Node> getPath() {
+        return path;
+    }
+
+    public void setPath(List<Node> path) {
+        this.path = path;
+    }
 
     /**
      * Get the number of milliseconds between frames.
@@ -90,5 +114,17 @@ public class GameData {
      */
     public EventManager getEventManager() {
         return eventManager;
+    }
+
+    public long getNvgContext() {
+        return nvgContext;
+    }
+
+    public void setNvgContext(long nvgContext) {
+        this.nvgContext = nvgContext;
+    }
+
+    public int getNodeSize() {
+        return nodeSize;
     }
 }

@@ -18,6 +18,7 @@ module Common {
     uses gsbs.common.services.IProcess;
     uses gsbs.common.services.IPostProcess;
     uses gsbs.common.services.ISystemProcess;
+    uses gsbs.common.services.ISystemPostProcess;
     uses gsbs.common.services.IEventListener;
     uses gsbs.common.services.IWeapon;
 

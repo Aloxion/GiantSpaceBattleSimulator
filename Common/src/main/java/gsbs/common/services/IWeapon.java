@@ -5,5 +5,7 @@ import gsbs.common.data.World;
 import gsbs.common.entities.Entity;
 
 public interface IWeapon {
-    void fire(Entity entity, GameData gameData, World world);
+    void fire(Entity entity, World world);
+
+    int getReloadTime();
 }

@@ -13,8 +13,16 @@ public class Vector2 {
         this.x = x;
         this.y = y;
     }
-
     public boolean equals(Vector2 other) {
         return (this.x == other.x && this.y == other.y);
     }
+
+    public double dot(Vector2 other) {
+        return this.x * other.x + this.y * other.y;
+    }
+
+    public double magnitude() {
+        return Math.sqrt(this.x * this.x + this.y * this.y);
+    }
+
 }

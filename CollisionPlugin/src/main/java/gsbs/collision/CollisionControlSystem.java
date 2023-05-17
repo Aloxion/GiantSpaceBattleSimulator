@@ -1,9 +1,6 @@
 package gsbs.collision;
 
-import gsbs.common.components.Health;
-import gsbs.common.components.Hitbox;
-import gsbs.common.components.Sprite;
-import gsbs.common.components.Team;
+import gsbs.common.components.*;
 import gsbs.common.data.GameData;
 import gsbs.common.data.World;
 import gsbs.common.data.enums.Teams;
@@ -13,6 +10,7 @@ import gsbs.common.entities.Entity;
 import gsbs.common.entities.Flagship;
 import gsbs.common.events.GameLoseEvent;
 import gsbs.common.events.GameWinEvent;
+import gsbs.common.math.Vector2;
 import gsbs.common.services.IPostProcess;
 
 public class CollisionControlSystem implements IPostProcess {
@@ -59,6 +57,10 @@ public class CollisionControlSystem implements IPostProcess {
                         world.removeEntity(entity);
                     }
 
+                    if(collisionEntity instanceof Flagship && entity instanceof Asteroid ||
+                            collisionEntity instanceof Asteroid && entity instanceof Flagship){
+                        rebound(collisionEntity, entity);
+                    }
                     if (collisionEntity instanceof Asteroid) {
                         entityHealth.removeHealthPoints(1);
                     }
@@ -80,6 +82,45 @@ public class CollisionControlSystem implements IPostProcess {
         }
 
         return hitbox.intersects(hitbox2);
+    }
+
+    private void rebound(Entity flagship, Entity asteroid){
+        System.out.println("Rebound");
+        if(flagship instanceof Flagship){
+            System.out.println("FLAAG");
+        float flagX = flagship.getComponent(Position.class).getX();
+        float flagY = flagship.getComponent(Position.class).getY();
+
+        float astX = asteroid.getComponent(Position.class).getX();
+        float astY = asteroid.getComponent(Position.class).getY();
+
+        Vector2 flagVector = new Vector2(flagX,flagY);
+        Vector2 astVector = new Vector2(astX,astY);
+
+        double dotProduct = flagVector.dot(astVector);
+        double magnitudeProduct = flagVector.magnitude() * astVector.magnitude();
+        float angle = (float)Math.acos(dotProduct / magnitudeProduct);
+
+        flagship.getComponent(Position.class).setRadians(angle*2);
+        flagship.getComponent(Movement.class).setAcceleration(-100);
+        }
+        else{
+            float astX = flagship.getComponent(Position.class).getX();
+            float astY = flagship.getComponent(Position.class).getY();
+
+            float flagX = asteroid.getComponent(Position.class).getX();
+            float flagY = asteroid.getComponent(Position.class).getY();
+
+            Vector2 flagVector = new Vector2(flagX,flagY);
+            Vector2 astVector = new Vector2(astX,astY);
+
+            double dotProduct = flagVector.dot(astVector);
+            double magnitudeProduct = flagVector.magnitude() * astVector.magnitude();
+            float angle = (float)Math.acos(dotProduct / magnitudeProduct);
+
+            flagship.getComponent(Position.class).setRadians(angle*2);
+            flagship.getComponent(Movement.class).setAcceleration(-flagship.getComponent(Movement.class).getAcceleration());
+        }
     }
 }
 

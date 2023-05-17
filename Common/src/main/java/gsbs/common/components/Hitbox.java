@@ -23,6 +23,7 @@ public class Hitbox extends Component{
         this.y = y + offsetY;
     }
 
+
     public boolean intersects(Hitbox h){
         //Checks if entity1 right side intersects with entity2 left side
         boolean right = x + width >= h.x;

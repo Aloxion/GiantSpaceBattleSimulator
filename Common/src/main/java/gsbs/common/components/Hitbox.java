@@ -1,11 +1,11 @@
 package gsbs.common.components;
 
-public class Hitbox extends Component{
+public class Hitbox extends Component {
 
-    private float width;
-    private float height;
+    private final float width;
+    private final float height;
     private float x, y;
-    private float hitboxPadding;
+    private final float hitboxPadding;
 
     public Hitbox(float width, float height, float x, float y) {
         hitboxPadding = Math.min(width, height) * 0.35f;
@@ -15,7 +15,7 @@ public class Hitbox extends Component{
         this.y = y + height / 2f;
     }
 
-    public void set(float x, float y){
+    public void set(float x, float y) {
         float spriteWidth = this.width * 2.0f;
         float spriteHeight = this.height * 2.0f;
         float offsetX = (spriteWidth - (width + hitboxPadding)) / 2.0f;
@@ -24,7 +24,10 @@ public class Hitbox extends Component{
         this.y = y + offsetY;
     }
 
-    public boolean intersects(Hitbox h){
+
+    public boolean intersects(Hitbox h) {
+        // TODO: THIS IS BROKEN, NOT TAKING ROTATED HITBOXES INTO ACCOUNT
+
         //Checks if entity1 right side intersects with entity2 left side
         boolean right = x + width >= h.x;
         //Checks if entity1 left side intersects with entity2 right side
@@ -37,19 +40,19 @@ public class Hitbox extends Component{
         return right && left && bottom && top;
     }
 
-    public float getWidth(){
+    public float getWidth() {
         return width;
     }
 
-    public float getHeight(){
+    public float getHeight() {
         return height;
     }
 
-    public float getX(){
+    public float getX() {
         return x;
     }
 
-    public float getY(){
+    public float getY() {
         return y;
     }
 }

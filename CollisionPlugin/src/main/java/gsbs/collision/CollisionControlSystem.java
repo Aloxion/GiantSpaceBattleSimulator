@@ -1,9 +1,6 @@
 package gsbs.collision;
 
-import gsbs.common.components.Health;
-import gsbs.common.components.Hitbox;
-import gsbs.common.components.Sprite;
-import gsbs.common.components.Team;
+import gsbs.common.components.*;
 import gsbs.common.data.GameData;
 import gsbs.common.data.World;
 import gsbs.common.data.enums.Teams;
@@ -13,12 +10,13 @@ import gsbs.common.entities.Entity;
 import gsbs.common.entities.Flagship;
 import gsbs.common.events.GameLoseEvent;
 import gsbs.common.events.GameWinEvent;
+import gsbs.common.math.Vector2;
 import gsbs.common.services.IPostProcess;
 
 public class CollisionControlSystem implements IPostProcess {
 
-    @Override
     public void process(GameData gameData, World world) {
+        // Process collisions
         for (Entity entity : world.getEntities()) {
             for (Entity collisionEntity : world.getEntities()) {
                 if (entity.getComponent(Health.class) == null) {
@@ -57,12 +55,25 @@ public class CollisionControlSystem implements IPostProcess {
                             collisionHealth.removeHealthPoints(1);
                         }
                         world.removeEntity(entity);
-                    }
-
-                    if (collisionEntity instanceof Asteroid) {
+                    } else if (collisionEntity instanceof Asteroid) {
+                        entityHealth.removeHealthPoints(1);
+                    } else {
                         entityHealth.removeHealthPoints(1);
                     }
                 }
+            }
+        }
+
+        // Bounce back
+        for (Entity flagship : world.getEntities(Flagship.class)) {
+            var grid = gameData.getGrid();
+            var position = flagship.getComponent(Position.class);
+            if(grid.getNodeFromCoords((int)position.getX(), (int)position.getY()).isBlocked()){
+                var movement = flagship.getComponent(Movement.class);
+                var health = flagship.getComponent(Health.class);
+                movement.setDx(movement.getDx() * -3.1f);
+                movement.setDy((movement.getDy() * -3.1f));
+                health.removeHealthPoints(1);
             }
         }
     }
@@ -80,6 +91,45 @@ public class CollisionControlSystem implements IPostProcess {
         }
 
         return hitbox.intersects(hitbox2);
+    }
+
+    private void rebound(Entity flagship, Entity asteroid){
+        System.out.println("Rebound");
+        if(flagship instanceof Flagship){
+            System.out.println("FLAAG");
+        float flagX = flagship.getComponent(Position.class).getX();
+        float flagY = flagship.getComponent(Position.class).getY();
+
+        float astX = asteroid.getComponent(Position.class).getX();
+        float astY = asteroid.getComponent(Position.class).getY();
+
+        Vector2 flagVector = new Vector2(flagX,flagY);
+        Vector2 astVector = new Vector2(astX,astY);
+
+        double dotProduct = flagVector.dot(astVector);
+        double magnitudeProduct = flagVector.magnitude() * astVector.magnitude();
+        float angle = (float)Math.acos(dotProduct / magnitudeProduct);
+
+        flagship.getComponent(Position.class).setRadians(angle*2);
+        flagship.getComponent(Movement.class).setAcceleration(-100);
+        }
+        else{
+            float astX = flagship.getComponent(Position.class).getX();
+            float astY = flagship.getComponent(Position.class).getY();
+
+            float flagX = asteroid.getComponent(Position.class).getX();
+            float flagY = asteroid.getComponent(Position.class).getY();
+
+            Vector2 flagVector = new Vector2(flagX,flagY);
+            Vector2 astVector = new Vector2(astX,astY);
+
+            double dotProduct = flagVector.dot(astVector);
+            double magnitudeProduct = flagVector.magnitude() * astVector.magnitude();
+            float angle = (float)Math.acos(dotProduct / magnitudeProduct);
+
+            flagship.getComponent(Position.class).setRadians(angle*2);
+            flagship.getComponent(Movement.class).setAcceleration(-flagship.getComponent(Movement.class).getAcceleration());
+        }
     }
 }
 

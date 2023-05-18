@@ -36,15 +36,14 @@ public class FlagshipAIControlSystem implements IProcess {
     private void handleOffensiveAction(GameData gameData, World world, double directionDifference){
         Weapon weapon = thisFlagship.getComponent(Weapon.class);
         // FIX! change weapon correctly
+        weapon.changeWeapon();
         // shoot pistol when facing player, shoot shotgun when at a larger angle
         if(directionDifference > 2 * Math.PI - 0.3 || directionDifference < 0.3){
             // Pistol
             weapon.fire(thisFlagship, gameData, world);
-            System.out.println("shoot pistol");
         } else {
             // Shotgun
             weapon.fire(thisFlagship, gameData, world);
-            System.out.println("shoot shot gun");
         }
     }
 
@@ -69,9 +68,18 @@ public class FlagshipAIControlSystem implements IProcess {
         if (newPath != null){
             path = newPath;
         }
-        else{
-            return;
-            //path = thetaStar.findPath(start, path.get(0), grid);
+        else if(path.size() > 2){
+            // Construct new path that starts at AI's current pos without pathfinding from it, granted there is not a straight path already
+            path = thetaStar.findPath(path.get(path.size()-2), path.get(0), grid);
+            if (grid.getNodeFromCoords((int) positionAIShip.getX(), (int) positionAIShip.getY()) == path.get(path.size()-1)){
+                path.remove(path.get(path.size()-1));
+            }
+            path.add(start);
+
+        } else {
+            // Straight path
+            path.add(goal);
+            path.add(start);
         }
 
         // For debug (Assumed)
@@ -104,14 +112,14 @@ public class FlagshipAIControlSystem implements IProcess {
 
             float distanceFromDesiredLocation = Distance.euclideanDistance(positionAIShip.getX(), positionAIShip.getY(), desiredLocation[0], desiredLocation[1]);
             // Check all conditions that cause a need to slow down the AI ship
-            System.out.println(movementAIShip.getVelocity());
             if (distanceFromDesiredLocation < 300 && movementAIShip.getVelocity() > 20 && (directionDifferenceNode2 < 2 * Math.PI - 0.3 || directionDifferenceNode2 > 0.3)){
                 movementAIShip.setUp(false);
+                /*
                 System.out.println("********************");
                 System.out.println("SLOW DOWN!");
                 System.out.println(distanceFromDesiredLocation);
                 System.out.println(movementAIShip.getVelocity());
-                System.out.println(directionDifferenceNode2);
+                System.out.println(directionDifferenceNode2); */
             }
         }
     }

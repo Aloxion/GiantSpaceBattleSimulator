@@ -71,17 +71,13 @@ public class CollisionControlSystem implements IPostProcess {
         for (Entity flagship : world.getEntities(Flagship.class)) {
             var grid = gameData.getGrid();
             var position = flagship.getComponent(Position.class);
-
             if(grid.getNodeFromCoords((int)position.getX(), (int)position.getY()).isBlocked()){
                 var movement = flagship.getComponent(Movement.class);
-                var health = flagship.getComponent(Health.class);
-                float dX = movement.getDx();
-                float dY = movement.getDy();
+                //var health = flagship.getComponent(Health.class);
                 Random rand = new Random();
-                movement.setDx(movement.getDx() * -1);
-                movement.setDy(movement.getDy() * -1);
-
-
+                movement.setDx(movement.getDx() * -3.1f + movement.getDx() * -1.3f * rand.nextFloat());
+                movement.setDy(movement.getDy() * -3.1f + movement.getDy() * -1.3f * rand.nextFloat());
+                //health.removeHealthPoints(1);
             }
         }
     }

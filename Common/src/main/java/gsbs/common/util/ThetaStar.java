@@ -48,7 +48,7 @@ public class ThetaStar {
     }
 
     private boolean initPathCheck(Node start, Node goal){
-        if(start.isBlocked()){
+        if(start.isBlocked() || goal.isBlocked()){
             return false;
         }
         else return true;

@@ -43,14 +43,13 @@ public class FlagshipPlugin implements IPlugin {
         List<IWeapon> weapons = loadWeapons();
 
         Entity Ship = new Flagship();
-        Ship.add(new Health(4));
+        Ship.add(new Health(30));
         Ship.add(new Movement(deacceleration, acceleration, maxSpeed, rotationSpeed));
         Ship.add(new Position(x, y, radians));
         Ship.add(new Sprite(FlagshipPlugin.class.getResource("/flagship.png"), 32, 32));
         Ship.add(new Hitbox(32, 32, x, y));
         Ship.add(new Team(team));
         Ship.add(new Weapon(weapons));
-
 
         return Ship;
     }

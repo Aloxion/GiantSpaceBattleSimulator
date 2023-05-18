@@ -5,6 +5,8 @@ public class Node {
     private int column;
     private boolean isBlocked;
 
+    private float weight = 0;
+
     public Node(int row, int column, boolean isBlocked) {
         this.row = row;
         this.column = column;
@@ -16,6 +18,13 @@ public class Node {
         return "(" + row + ", " + column + ")";
     }
 
+    public float getWeight() {
+        return weight;
+    }
+
+    public void setWeight(float weight) {
+        this.weight = weight;
+    }
     public int getRow() {
         return row;
     }

@@ -82,7 +82,7 @@ public class DebugProcessor implements ISystemPostProcess {
                         // Draw the stroke (edge) of the rectangle
                         nvgStrokeColor(nvgContext, rgba(255, 0, 0, 0.1f));
                     }
-                    nvgStrokeWidth(nvgContext, 1f);
+                    nvgStrokeWidth(nvgContext, 0.035f);
                     nvgStroke(nvgContext);
 
                 }

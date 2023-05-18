@@ -4,6 +4,7 @@ import gsbs.common.components.Position;
 import gsbs.common.components.Sprite;
 import gsbs.common.entities.Asteroid;
 import gsbs.common.entities.Entity;
+import gsbs.common.math.Distance;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +15,9 @@ public class Grid {
     int maxColumn;
     Node[] grid;
     boolean printedGrid = false;
+    boolean updateGridFlag = true;
+    float steepness = 2;
+    float tolerance = 20000;
 
 
     public Grid(int nodeSize, int displayWidth, int displayHeight) {
@@ -32,9 +36,68 @@ public class Grid {
     }
 
     public void updateGrid(World world) {
-        for (Entity asteroid : world.getEntities(Asteroid.class)) {
-            var position = asteroid.getComponent(Position.class);
-            var sprite = asteroid.getComponent(Sprite.class);
+        /* Debug for theta star
+        for (Entity flagship : world.getEntities(Flagship.class)) {
+            var team = flagship.getComponent(Team.class);
+            if (team.getTeam() == Teams.ENEMY) {
+                var positionAIShip = flagship.getComponent(Position.class);
+                Node tempNode = getNodeFromCoords((int) positionAIShip.getX(), (int) positionAIShip.getY());
+                tempNode.setBlocked(true);
+                Node[] tempArray = getNeighbors(tempNode);
+                for (Node node : tempArray){
+                    node.setBlocked(true);
+                }
+
+            }
+        }*/
+        if (updateGridFlag) {
+            List<Entity> entitiesToBlock = new ArrayList<>();
+            entitiesToBlock.addAll(world.getEntities(Asteroid.class));
+            blockNodesFromEntities(entitiesToBlock.toArray(new Entity[0]));
+            addWeightsToNodes(entitiesToBlock.toArray(new Entity[0]));
+            System.out.println("YEEHAW");
+        }
+
+        updateGridFlag = false;
+        if (!printedGrid)
+            printGridWeights();
+    }
+
+    private void addWeightsToNodes(Entity[] blockingEntities) {
+        float smallestDistanceFromBlockingEntity;
+        for (Node node : grid) {
+            if (node.isBlocked()){
+                node.setWeight(Float.MAX_VALUE);
+                continue;
+            }
+            smallestDistanceFromBlockingEntity = Float.MAX_VALUE;
+            int[] nodeCoords = getCoordsFromNode(node);
+            for (Entity entity : blockingEntities) {
+                var position = entity.getComponent(Position.class);
+                var sprite = entity.getComponent(Sprite.class);
+
+                if (position != null && sprite != null) {
+                    float asteroidCenterX = position.getX() + sprite.getWidth() / 2;
+                    float asteroidCenterY = position.getY() + sprite.getHeight() / 2;
+
+                    float radius = sprite.getWidth() / 2;
+                    float distance = Distance.euclideanDistance(nodeCoords[0], nodeCoords[1], asteroidCenterX, asteroidCenterY) - radius;;
+
+                    if (distance <= smallestDistanceFromBlockingEntity) {
+                        smallestDistanceFromBlockingEntity = distance;
+                    }
+                }
+            }
+            float weight = (float) (tolerance/Math.pow(smallestDistanceFromBlockingEntity, steepness));
+            if (weight > 999)
+                weight = 999;
+            node.setWeight(weight);
+        }
+    }
+    private void blockNodesFromEntities (Entity[] blockingEntities){
+        for (Entity entity : blockingEntities) {
+            var position = entity.getComponent(Position.class);
+            var sprite = entity.getComponent(Sprite.class);
 
             if (position != null && sprite != null) {
                 float asteroidCenterX = position.getX() + sprite.getWidth() / 2;
@@ -46,11 +109,10 @@ public class Grid {
                     float nodeCenterX = nodeX + nodeSize / 2;
                     float nodeCenterY = nodeY + nodeSize / 2;
 
-                    // Calculate the distance between the node center and the asteroid's center
-                    float distance = calculateDistance(nodeCenterX, nodeCenterY, asteroidCenterX, asteroidCenterY);
+                    // Calculate the distance between the node center and the entity's center
+                    float distance = Distance.euclideanDistance(nodeCenterX, nodeCenterY, asteroidCenterX, asteroidCenterY);
 
-                    // Adjust the blocking radius based on the desired value
-                    float radius = sprite.getWidth()/2 + 20f;
+                    float radius = sprite.getWidth() / 2 + 20;
 
                     if (distance <= radius) {
                         node.setBlocked(true);
@@ -58,13 +120,6 @@ public class Grid {
                 }
             }
         }
-    }
-
-    // Helper method to calculate the distance between two points
-    private float calculateDistance(float x1, float y1, float x2, float y2) {
-        float dx = x2 - x1;
-        float dy = y2 - y1;
-        return (float) Math.sqrt(dx * dx + dy * dy);
     }
 
     public void printGrid() {
@@ -81,12 +136,28 @@ public class Grid {
             System.out.println();  // Move to the next row
         }
     }
+    public void printGridWeights() {
+        printedGrid = true;
+        for (int j = 0; j < maxColumn; j++) {
+            for (int i = 0; i < maxRow; i++) {
+                Node node = getNode(i, j);
+                if (node.isBlocked()) {
+                    System.out.print("\033[31m[XXX]\033[0m");  // Blocked node marker in red
+                } else {
+                    String weightString = String.format("%3d", (int) node.getWeight());
+                    System.out.print("\033[32m[" + weightString + "]\033[0m");  // Empty node marker in green
+                }
+            }
+            System.out.println();  // Move to the next column
+        }
+    }
 
     public Node getNode(int row, int column){
         return this.grid[row * maxColumn + column];
     }
 
     public Node getNodeFromCoords(int x, int y){
+        // FIX! can hit out of bounds at the highest x and y value
         int row = x / nodeSize;
         int column = y / nodeSize;
         if (row > maxRow-1){

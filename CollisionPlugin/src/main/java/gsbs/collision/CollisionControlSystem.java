@@ -2,6 +2,7 @@ package gsbs.collision;
 
 import gsbs.common.components.*;
 import gsbs.common.data.GameData;
+import gsbs.common.data.Node;
 import gsbs.common.data.World;
 import gsbs.common.data.enums.Teams;
 import gsbs.common.entities.Asteroid;
@@ -12,6 +13,8 @@ import gsbs.common.events.GameLoseEvent;
 import gsbs.common.events.GameWinEvent;
 import gsbs.common.math.Vector2;
 import gsbs.common.services.IPostProcess;
+
+import java.util.Random;
 
 public class CollisionControlSystem implements IPostProcess {
 
@@ -68,12 +71,17 @@ public class CollisionControlSystem implements IPostProcess {
         for (Entity flagship : world.getEntities(Flagship.class)) {
             var grid = gameData.getGrid();
             var position = flagship.getComponent(Position.class);
+
             if(grid.getNodeFromCoords((int)position.getX(), (int)position.getY()).isBlocked()){
                 var movement = flagship.getComponent(Movement.class);
                 var health = flagship.getComponent(Health.class);
-                movement.setDx(movement.getDx() * -3.1f);
-                movement.setDy((movement.getDy() * -3.1f));
-                health.removeHealthPoints(1);
+                float dX = movement.getDx();
+                float dY = movement.getDy();
+                Random rand = new Random();
+                movement.setDx(movement.getDx() * -1);
+                movement.setDy(movement.getDy() * -1);
+
+
             }
         }
     }

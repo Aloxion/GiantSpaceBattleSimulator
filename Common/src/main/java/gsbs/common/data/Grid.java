@@ -56,8 +56,6 @@ public class Grid {
             blockNodesFromEntities(entitiesToBlock.toArray(new Entity[0]));
             addWeightsToNodes(entitiesToBlock.toArray(new Entity[0]));
 
-            System.out.println(maxRow);
-            System.out.println(maxColumn);
             // Block the rim
             for (int i = 0; i < maxRow; i++) {
                 getNode(i, 0).setBlocked(true);

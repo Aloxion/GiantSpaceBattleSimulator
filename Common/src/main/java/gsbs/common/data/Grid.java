@@ -30,7 +30,7 @@ public class Grid {
             index = i * maxColumn - 1;
             for (int j = 0; j < maxColumn; j++) {
                 index += 1;
-                this.grid[index] = new Node(i, j, false);
+                this.grid[index] = new Node(i, j, false, false);
             }
         }
     }
@@ -54,6 +54,7 @@ public class Grid {
             List<Entity> entitiesToBlock = new ArrayList<>();
             entitiesToBlock.addAll(world.getEntities(Asteroid.class));
             blockNodesFromEntities(entitiesToBlock.toArray(new Entity[0]));
+            setNodeCollisions(entitiesToBlock.toArray(new Entity[0]));
             addWeightsToNodes(entitiesToBlock.toArray(new Entity[0]));
 
             // Block the rim
@@ -126,6 +127,34 @@ public class Grid {
 
                     if (distance <= radius) {
                         node.setBlocked(true);
+                    }
+                }
+            }
+        }
+    }
+
+    private void setNodeCollisions (Entity[] collisionEntities){
+        for (Entity entity : collisionEntities) {
+            var position = entity.getComponent(Position.class);
+            var sprite = entity.getComponent(Sprite.class);
+
+            if (position != null && sprite != null) {
+                float asteroidCenterX = position.getX() + sprite.getWidth() / 2;
+                float asteroidCenterY = position.getY() + sprite.getHeight() / 2;
+
+                for (Node node : grid) {
+                    int nodeX = getCoordsFromNode(node)[0];
+                    int nodeY = getCoordsFromNode(node)[1];
+                    float nodeCenterX = nodeX + nodeSize / 2;
+                    float nodeCenterY = nodeY + nodeSize / 2;
+
+                    // Calculate the distance between the node center and the entity's center
+                    float distance = Distance.euclideanDistance(nodeCenterX, nodeCenterY, asteroidCenterX, asteroidCenterY);
+
+                    float radius = sprite.getWidth() / 2 + 10;
+
+                    if (distance <= radius) {
+                        node.setCollidable(true);
                     }
                 }
             }

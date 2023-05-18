@@ -71,7 +71,7 @@ public class CollisionControlSystem implements IPostProcess {
         for (Entity flagship : world.getEntities(Flagship.class)) {
             var grid = gameData.getGrid();
             var position = flagship.getComponent(Position.class);
-            if(grid.getNodeFromCoords((int)position.getX(), (int)position.getY()).isBlocked()){
+            if(grid.getNodeFromCoords((int)position.getX(), (int)position.getY()).isCollidable()){
                 var movement = flagship.getComponent(Movement.class);
                 //var health = flagship.getComponent(Health.class);
                 Random rand = new Random();

@@ -168,7 +168,7 @@ public class ThetaStar {
         // Euclidean distance heuristic
         int deltaRow = node.getRow() - goal.getRow();
         int deltaColumn = node.getColumn() - goal.getColumn();
-        return Math.sqrt(deltaRow * deltaRow + deltaColumn * deltaColumn);
+        return Math.sqrt(deltaRow * deltaRow + deltaColumn * deltaColumn) + node.getWeight();
     }
 
     public static <T, E> T getKeyByValue(Map<T, E> map, E value) {

@@ -59,12 +59,12 @@ public class Grid {
 
             // Block the rim
             for (int i = 0; i < maxRow; i++) {
-                getNode(i, 0).setBlocked(true);
-                getNode(i, maxColumn - 1).setBlocked(true);
+                getNode(i, 0).setCollidable(true);
+                getNode(i, maxColumn - 1).setCollidable(true);
             }
             for (int i = 0; i < maxColumn; i++) {
-                getNode(0, i).setBlocked(true);
-                getNode(maxRow - 1, i).setBlocked(true);
+                getNode(0, i).setCollidable(true);
+                getNode(maxRow - 1, i).setCollidable(true);
             }
         }
 

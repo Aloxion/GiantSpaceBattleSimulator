@@ -17,6 +17,9 @@ dependencies {
     implementation project(':StartMenuPlugin')
     implementation project(':AttackshipPlugin')
     implementation project(':DebugPlugin')
+    implementation project(':HUDPlugin')
+    implementation project(':CarrierPlugin')
+    implementation project(':CarrierAIPlugin')
 
     // Dependencies
     implementation "io.github.spair:imgui-java-binding:$imguiVersion"

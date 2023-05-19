@@ -4,13 +4,14 @@ public class Node {
     private int row;
     private int column;
     private boolean isBlocked;
-
+    private boolean isCollidable;
     private float weight = 0;
 
-    public Node(int row, int column, boolean isBlocked) {
+    public Node(int row, int column, boolean isBlocked, boolean isCollidable) {
         this.row = row;
         this.column = column;
         this.isBlocked = isBlocked;
+        this.isCollidable = isCollidable;
     }
 
     @Override
@@ -24,6 +25,12 @@ public class Node {
 
     public void setWeight(float weight) {
         this.weight = weight;
+    }
+    public void setCollidable(boolean collidable) {
+        isCollidable = collidable;
+    }
+    public boolean isCollidable(){
+        return isCollidable;
     }
     public int getRow() {
         return row;

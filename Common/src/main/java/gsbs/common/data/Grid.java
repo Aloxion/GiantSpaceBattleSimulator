@@ -15,7 +15,7 @@ public class Grid {
     int maxColumn;
     Node[] grid;
     boolean printedGrid = false;
-    boolean updateGridFlag = true;
+    boolean updateGridFlag = false;
     float steepness = 2;
     float tolerance = 20000;
 
@@ -36,20 +36,6 @@ public class Grid {
     }
 
     public void updateGrid(World world) {
-        /* Debug for theta star
-        for (Entity flagship : world.getEntities(Flagship.class)) {
-            var team = flagship.getComponent(Team.class);
-            if (team.getTeam() == Teams.ENEMY) {
-                var positionAIShip = flagship.getComponent(Position.class);
-                Node tempNode = getNodeFromCoords((int) positionAIShip.getX(), (int) positionAIShip.getY());
-                tempNode.setBlocked(true);
-                Node[] tempArray = getNeighbors(tempNode);
-                for (Node node : tempArray){
-                    node.setBlocked(true);
-                }
-
-            }
-        }*/
         if (updateGridFlag) {
             List<Entity> entitiesToBlock = new ArrayList<>();
             entitiesToBlock.addAll(world.getEntities(Asteroid.class));
@@ -57,14 +43,22 @@ public class Grid {
             setNodeCollisions(entitiesToBlock.toArray(new Entity[0]));
             addWeightsToNodes(entitiesToBlock.toArray(new Entity[0]));
 
-            // Block the rim
+            // Block the rim and make it collidable
             for (int i = 0; i < maxRow; i++) {
-                getNode(i, 0).setCollidable(true);
-                getNode(i, maxColumn - 1).setCollidable(true);
+                Node topNode = getNode(i, 0);
+                Node bottomNode = getNode(i, maxColumn - 1);
+                topNode.setCollidable(true);
+                topNode.setBlocked(true);
+                bottomNode.setCollidable(true);
+                bottomNode.setBlocked(true);
             }
             for (int i = 0; i < maxColumn; i++) {
-                getNode(0, i).setCollidable(true);
-                getNode(maxRow - 1, i).setCollidable(true);
+                Node leftNode = getNode(0, i);
+                Node rightNode = getNode(maxRow - 1, i);
+                leftNode.setCollidable(true);
+                leftNode.setBlocked(true);
+                rightNode.setCollidable(true);
+                rightNode.setBlocked(true);
             }
         }
 

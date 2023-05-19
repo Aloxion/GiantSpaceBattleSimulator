@@ -6,12 +6,15 @@ import gsbs.common.services.IPlugin;
 import imgui.ImGui;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A simple data object, containing all the game data, that doesn't fit into the World.
  */
 public class GameData {
+    private final Map<Class<?>, Long> profilingData = new HashMap<>();
     private final GameKeys keys = new GameKeys();
     private final EventManager eventManager = new EventManager();
     private final int nodeSize = 10;
@@ -126,5 +129,9 @@ public class GameData {
 
     public int getNodeSize() {
         return nodeSize;
+    }
+
+    public Map<Class<?>, Long> getProfilingData() {
+        return profilingData;
     }
 }

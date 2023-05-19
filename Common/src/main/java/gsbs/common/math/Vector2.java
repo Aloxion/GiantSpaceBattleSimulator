@@ -13,6 +13,7 @@ public class Vector2 {
         this.x = x;
         this.y = y;
     }
+
     public boolean equals(Vector2 other) {
         return (this.x == other.x && this.y == other.y);
     }
@@ -70,4 +71,7 @@ public class Vector2 {
         return (float) Math.sqrt(x * x + y * y);
     }
 
+    public float direction() {
+        return (float) Math.atan2(this.y, this.x);
+    }
 }

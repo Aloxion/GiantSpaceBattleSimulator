@@ -28,6 +28,7 @@ public class HUDProcessor implements ISystemPostProcess {
         var healthBarHeight = 8;
         var healthBarWidth = 40;
 
+        nvgReset(gameData.getNvgContext());
         nvgBeginPath(vg);
         nvgRect(vg, position.x - healthBarWidth / 2f + 10, topMargin, healthBarWidth * health / (float) maxHealth, healthBarHeight);
         nvgFillColor(vg, rgba(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()));

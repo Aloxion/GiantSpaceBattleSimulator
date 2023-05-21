@@ -1,15 +1,13 @@
 package gsbs.attackshipsystem;
 
 import gsbs.attackshipsystem.components.Boid;
-import gsbs.attackshipsystem.entities.Attackship;
-import gsbs.common.components.Hitbox;
-import gsbs.common.components.Position;
-import gsbs.common.components.Team;
-import gsbs.common.components.Weapon;
+import gsbs.common.components.*;
 import gsbs.common.data.GameData;
 import gsbs.common.data.World;
+import gsbs.common.entities.Attackship;
 import gsbs.common.entities.Entity;
 import gsbs.common.events.SpawnAttackships;
+import gsbs.common.math.KDTree;
 import gsbs.common.math.Vector2;
 import gsbs.common.services.IProcess;
 import imgui.ImGui;
@@ -17,6 +15,7 @@ import imgui.ImGui;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 
 public class BoidProcessor implements IProcess {
@@ -34,6 +33,9 @@ public class BoidProcessor implements IProcess {
     private float leaderFactor = 5f;
     private float leaderDistance = 50;
 
+    private KDTree.Euclidean<Entity> boids = null;
+    private List<Entity> worldCollidables = null;
+
     private static float floatSlider(float value, float min, float max, String name) {
         float[] flt = new float[1];
         flt[0] = value;
@@ -47,19 +49,33 @@ public class BoidProcessor implements IProcess {
             debugMenu();
         }
 
-        // Fix position
-        for (var entity : world.getEntities(Attackship.class)) {
-            var hitbox = entity.getComponent(Hitbox.class);
-            var position = entity.getComponent(Position.class);
-            hitbox.set(position.getX() + hitbox.getWidth() * 0.5f, position.getY() + hitbox.getHeight() * 0.5f);
-        }
-
+        // Sync boid position
         for (var boidEntity : world.getEntitiesWithComponent(Boid.class)) {
             // Sync boid position
             Position boidPosition = boidEntity.getComponent(Position.class);
             Boid boid = boidEntity.getComponent(Boid.class);
             boid.position.x = boidPosition.getX();
             boid.position.y = boidPosition.getY();
+        }
+
+        // Create a kd-tree of all the boids
+        boids = new KDTree.Euclidean<>(2);
+        for (var boidEntity : world.getEntitiesWithComponent(Boid.class)) {
+            Position boidPosition = boidEntity.getComponent(Position.class);
+            boids.addPoint(new double[]{boidPosition.getX(), boidPosition.getY()}, boidEntity);
+        }
+
+        // Cache all collidables in the world
+        worldCollidables = new ArrayList<>();
+        for (Entity collidable : world.getEntitiesWithComponent(Collider.class)) {
+            if (collidable.getComponent(Team.class) != null)
+                continue;
+            worldCollidables.add(collidable);
+        }
+
+        for (var boidEntity : world.getEntitiesWithComponent(Boid.class)) {
+            Position boidPosition = boidEntity.getComponent(Position.class);
+            Boid boid = boidEntity.getComponent(Boid.class);
 
             // Flocking
             var alignment = align(boid, world);
@@ -228,14 +244,11 @@ public class BoidProcessor implements IProcess {
 
         Vector2 steering = new Vector2();
         int total = 0;
-        for (Entity collidable : world.getEntitiesWithComponent(Hitbox.class)) {
-            if (collidable.getComponent(Team.class) != null)
-                continue;
-
-            var hitbox = collidable.getComponent(Hitbox.class);
-            var hitboxRadius = Math.max(hitbox.getHeight(), hitbox.getWidth()) * Math.sqrt(2);
-            var hitboxPosition = new Vector2(hitbox.getX(), hitbox.getY());
-
+        for (Entity collidable : worldCollidables) {
+            var collider = collidable.getComponent(RectangleCollider.class);
+            var position = collidable.getComponent(Position.class);
+            var hitboxRadius = Math.max(collider.getHeight(), collider.getWidth()) * Math.sqrt(2);
+            var hitboxPosition = position.asVector();
 
             if (boid.position.subtract(hitboxPosition).length() < collisionAvoidanceDistance + hitboxRadius) {
                 Vector2 diff = boid.position.subtract(hitboxPosition);
@@ -256,21 +269,7 @@ public class BoidProcessor implements IProcess {
     }
 
     private List<Boid> getBoidsWithinRange(Boid boid, World world, float range) {
-        List<Boid> boidList = new ArrayList<>();
-
-        for (var otherBoidEntity : world.getEntitiesWithComponent(Boid.class)) {
-            var otherBoid = otherBoidEntity.getComponent(Boid.class);
-            if (otherBoid.equals(boid))
-                continue;
-
-            var distance = boid.position.subtract(otherBoid.position).length();
-
-            if (distance < range) {
-                boidList.add(otherBoid);
-            }
-        }
-
-        return boidList;
+        return boids.ballSearch(new double[]{boid.position.x, boid.position.y}, range).stream().map(b -> b.getComponent(Boid.class)).filter(b -> !b.equals(boid)).collect(Collectors.toList());
     }
 
     private void debugMenu() {

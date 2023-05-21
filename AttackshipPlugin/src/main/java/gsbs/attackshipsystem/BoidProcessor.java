@@ -1,7 +1,10 @@
 package gsbs.attackshipsystem;
 
 import gsbs.attackshipsystem.components.Boid;
-import gsbs.common.components.*;
+import gsbs.common.components.Hitbox;
+import gsbs.common.components.Position;
+import gsbs.common.components.Team;
+import gsbs.common.components.Weapon;
 import gsbs.common.data.GameData;
 import gsbs.common.data.World;
 import gsbs.common.entities.Attackship;
@@ -67,7 +70,7 @@ public class BoidProcessor implements IProcess {
 
         // Cache all collidables in the world
         worldCollidables = new ArrayList<>();
-        for (Entity collidable : world.getEntitiesWithComponent(Collider.class)) {
+        for (Entity collidable : world.getEntitiesWithComponent(Hitbox.class)) {
             if (collidable.getComponent(Team.class) != null)
                 continue;
             worldCollidables.add(collidable);
@@ -245,7 +248,7 @@ public class BoidProcessor implements IProcess {
         Vector2 steering = new Vector2();
         int total = 0;
         for (Entity collidable : worldCollidables) {
-            var collider = collidable.getComponent(RectangleCollider.class);
+            var collider = collidable.getComponent(Hitbox.class);
             var position = collidable.getComponent(Position.class);
             var hitboxRadius = Math.max(collider.getHeight(), collider.getWidth()) * Math.sqrt(2);
             var hitboxPosition = position.asVector();

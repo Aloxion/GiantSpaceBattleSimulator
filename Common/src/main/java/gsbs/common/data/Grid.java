@@ -234,7 +234,6 @@ public class Grid {
         }
         return nodes.toArray(new Node[0]);
     }
-
 }
 
 

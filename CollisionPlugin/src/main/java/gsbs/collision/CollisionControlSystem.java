@@ -5,10 +5,7 @@ import gsbs.common.data.GameData;
 import gsbs.common.data.Node;
 import gsbs.common.data.World;
 import gsbs.common.data.enums.Teams;
-import gsbs.common.entities.Asteroid;
-import gsbs.common.entities.Bullet;
-import gsbs.common.entities.Entity;
-import gsbs.common.entities.Flagship;
+import gsbs.common.entities.*;
 import gsbs.common.events.GameLoseEvent;
 import gsbs.common.events.GameWinEvent;
 import gsbs.common.math.Vector2;
@@ -67,13 +64,28 @@ public class CollisionControlSystem implements IPostProcess {
                 }
             }
         }
-
-        // Bounce back
+        var grid = gameData.getGrid();
+        // Bounce back for flagship
         for (Entity flagship : world.getEntities(Flagship.class)) {
-            var grid = gameData.getGrid();
             var position = flagship.getComponent(Position.class);
             if(grid.getNodeFromCoords((int)position.getX(), (int)position.getY()).isCollidable()){
                 var movement = flagship.getComponent(Movement.class);
+
+                Vector2 direction = new Vector2(movement.getDx(), movement.getDy());
+                Vector2 collisionForce = grid.getNodeFromCoords((int)position.getX(), (int)position.getY()).getCollisionVector();
+                Vector2 newDirection = collisionForce.multiply(2 * (float) collisionForce.dot(direction)).subtract(direction).multiply(-1);
+                float dT = gameData.getDeltaTime();
+                position.setX(position.getX() + newDirection.x * dT);
+                position.setY(position.getY() + newDirection.y * dT);
+                movement.setDx(newDirection.x);
+                movement.setDy(newDirection.y);
+            }
+        }
+        // Bounce back for flagship
+        for (Entity carrier : world.getEntities(Carrier.class)) {
+            var position = carrier.getComponent(Position.class);
+            if(grid.getNodeFromCoords((int)position.getX(), (int)position.getY()).isCollidable()){
+                var movement = carrier.getComponent(Movement.class);
 
                 Vector2 direction = new Vector2(movement.getDx(), movement.getDy());
                 Vector2 collisionForce = grid.getNodeFromCoords((int)position.getX(), (int)position.getY()).getCollisionVector();

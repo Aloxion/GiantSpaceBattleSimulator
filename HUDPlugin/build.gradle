@@ -5,5 +5,4 @@ plugins {
 dependencies {
     implementation project(':Common')
     implementation "org.lwjgl:lwjgl-nanovg:$lwjglVersion"
-    implementation "io.github.spair:imgui-java-binding:$imguiVersion"
 }

@@ -1,10 +1,16 @@
 package gsbs.common.components;
 
 public class Health extends Component {
+    private final int initialHealth;
     private int healthPoints;
 
     public Health(int healthPoints) {
+        this.initialHealth = healthPoints;
         this.healthPoints = healthPoints;
+    }
+
+    public int getInitialHealth() {
+        return initialHealth;
     }
 
     public int getHealthPoints() {

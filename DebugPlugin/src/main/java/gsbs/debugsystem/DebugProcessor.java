@@ -204,6 +204,15 @@ public class DebugProcessor implements ISystemPostProcess {
             }
         }
 
+        if (ImGui.collapsingHeader("Profiling")) {
+            if (ImGui.beginListBox("## profiling", Float.MIN_VALUE, 15 * ImGui.getTextLineHeightWithSpacing())) {
+                for (var profilingData : gameData.getProfilingData().entrySet()) {
+                    ImGui.text(profilingData.getKey().getSimpleName() + ": " + profilingData.getValue() / 1000000.f + "ms");
+                }
+                ImGui.endListBox();
+            }
+        }
+
         if (ImGui.collapsingHeader("Stats")) {
             ImGui.text("FPS: " + (int) (1 / gameData.getDeltaTime()));
             String vendorId = Integer.toHexString(BGFX.bgfx_get_caps().vendorId() & 0xffff);

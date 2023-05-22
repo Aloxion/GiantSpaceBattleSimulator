@@ -1,10 +1,10 @@
 package gsbs.attackshipsystem;
 
 import gsbs.attackshipsystem.components.Boid;
-import gsbs.attackshipsystem.entities.Attackship;
 import gsbs.common.components.*;
 import gsbs.common.data.GameData;
 import gsbs.common.data.World;
+import gsbs.common.entities.Attackship;
 import gsbs.common.entities.Entity;
 import gsbs.common.events.Event;
 import gsbs.common.events.SpawnAttackships;
@@ -43,7 +43,7 @@ public class AttackshipSpawner implements IEventListener {
                 attackship.add(new Position(attackshipPosition.x, attackshipPosition.y, 0));
                 attackship.add(new Sprite(getClass().getResource("/assets2/flagship.png"), 20, 20));
                 attackship.add(new Health(1));
-                attackship.add(new Hitbox(10, 10, 0, 0));
+                attackship.add(new Hitbox(10, 10, attackshipPosition.x, attackshipPosition.y));
                 attackship.add(new Team(leader.getComponent(Team.class).getTeam()));
                 switch (leader.getComponent(Team.class).getTeam()) {
                     case PLAYER:

@@ -11,6 +11,8 @@ import gsbs.common.services.ISystemProcess;
 import imgui.flag.ImGuiWindowFlags;
 import imgui.internal.ImGui;
 
+import static org.lwjgl.nanovg.NanoVG.*;
+
 public class StartMenuProcessor implements ISystemProcess, IEventListener {
     private static String gameResult = "";
 
@@ -21,6 +23,14 @@ public class StartMenuProcessor implements ISystemProcess, IEventListener {
         }
 
         float windowWidth = gameData.getDisplayWidth() * 0.3f;
+
+        var vg = gameData.getNvgContext();
+        nvgReset(vg);
+        nvgBeginPath(vg);
+        nvgFontSize(vg, 50);
+        nvgTextAlign(vg, NVG_ALIGN_CENTER | NVG_ALIGN_BOTTOM);
+        nvgText(vg, gameData.getDisplayWidth() / 2.f, 150, "Giant Space Battle Simulator (GSBS)");
+
 
         ImGui.setNextWindowSize(windowWidth, gameData.getDisplayHeight());
         ImGui.setNextWindowPos((float) (gameData.getDisplayWidth() * 0.5 - windowWidth * 0.5), 0);

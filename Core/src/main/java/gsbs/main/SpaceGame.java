@@ -74,7 +74,9 @@ public class SpaceGame implements IEventListener {
         }
 
         for (ISystemProcess systemProcess : getSystemProcessingServices()) {
+            long startTime = System.nanoTime();
             systemProcess.process(gameData, world);
+            gameData.getProfilingData().put(systemProcess.getClass(), System.nanoTime() - startTime);
         }
 
         switch (this.gameData.getGameState()) {
@@ -87,11 +89,15 @@ public class SpaceGame implements IEventListener {
                 }
 
                 for (IProcess entityProcessorService : getProcessingServices()) {
+                    long startTime = System.nanoTime();
                     entityProcessorService.process(gameData, world);
+                    gameData.getProfilingData().put(entityProcessorService.getClass(), System.nanoTime() - startTime);
                 }
 
                 for (IPostProcess postEntityProcessorService : getPostProcessingServices()) {
+                    long startTime = System.nanoTime();
                     postEntityProcessorService.process(gameData, world);
+                    gameData.getProfilingData().put(postEntityProcessorService.getClass(), System.nanoTime() - startTime);
                     gameData.getGrid().updateGrid(world);
                 }
 
@@ -104,7 +110,9 @@ public class SpaceGame implements IEventListener {
         draw();
 
         for (ISystemPostProcess systemProcess : getSystemPostProcessingServices()) {
+            long startTime = System.nanoTime();
             systemProcess.process(gameData, world);
+            gameData.getProfilingData().put(systemProcess.getClass(), System.nanoTime() - startTime);
         }
     }
 

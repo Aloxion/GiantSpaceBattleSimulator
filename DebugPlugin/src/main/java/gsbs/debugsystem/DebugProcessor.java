@@ -174,6 +174,7 @@ public class DebugProcessor implements ISystemPostProcess {
         }
 
         if (ImGui.collapsingHeader("World")) {
+            ImGui.text("Entities: " + world.getEntities().size());
             if (ImGui.beginListBox("## entities", Float.MIN_VALUE, 5 * ImGui.getTextLineHeightWithSpacing())) {
                 Map<Class<? extends Entity>, List<Entity>> entitiesGrouped =
                         world.getEntities().stream().collect(Collectors.groupingBy(Entity::getClass));

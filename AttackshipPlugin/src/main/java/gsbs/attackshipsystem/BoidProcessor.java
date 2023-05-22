@@ -52,6 +52,13 @@ public class BoidProcessor implements IProcess {
             debugMenu();
         }
 
+        // Fix position
+        for (var entity : world.getEntities(Attackship.class)) {
+            var hitbox = entity.getComponent(Hitbox.class);
+            var position = entity.getComponent(Position.class);
+            hitbox.set(position.getX() + hitbox.getWidth() * 0.5f, position.getY() + hitbox.getHeight() * 0.5f);
+        }
+
         // Sync boid position
         for (var boidEntity : world.getEntitiesWithComponent(Boid.class)) {
             // Sync boid position

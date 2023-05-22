@@ -2,6 +2,7 @@ package gsbs.collision;
 
 import gsbs.common.components.*;
 import gsbs.common.data.GameData;
+import gsbs.common.data.Node;
 import gsbs.common.data.World;
 import gsbs.common.data.enums.Teams;
 import gsbs.common.entities.Asteroid;
@@ -12,6 +13,9 @@ import gsbs.common.events.GameLoseEvent;
 import gsbs.common.events.GameWinEvent;
 import gsbs.common.math.Vector2;
 import gsbs.common.services.IPostProcess;
+
+import java.util.Random;
+import java.util.Vector;
 
 public class CollisionControlSystem implements IPostProcess {
 
@@ -68,12 +72,18 @@ public class CollisionControlSystem implements IPostProcess {
         for (Entity flagship : world.getEntities(Flagship.class)) {
             var grid = gameData.getGrid();
             var position = flagship.getComponent(Position.class);
-            if(grid.getNodeFromCoords((int)position.getX(), (int)position.getY()).isBlocked()){
+            if(grid.getNodeFromCoords((int)position.getX(), (int)position.getY()).isCollidable()){
                 var movement = flagship.getComponent(Movement.class);
-                var health = flagship.getComponent(Health.class);
-                movement.setDx(movement.getDx() * -3.1f);
-                movement.setDy((movement.getDy() * -3.1f));
-                health.removeHealthPoints(1);
+
+                Vector2 direction = new Vector2(movement.getDx(), movement.getDy());
+                System.out.println(flagship.getComponent(Team.class).getTeam());
+                Vector2 collisionForce = grid.getNodeFromCoords((int)position.getX(), (int)position.getY()).getCollisionVector();
+                Vector2 newDirection = collisionForce.multiply(2 * (float) collisionForce.dot(direction)).subtract(direction).multiply(-1);
+                float dT = gameData.getDeltaTime();
+                position.setX(position.getX() + newDirection.x * dT);
+                position.setY(position.getY() + newDirection.y * dT);
+                movement.setDx(newDirection.x);
+                movement.setDy(newDirection.y);
             }
         }
     }

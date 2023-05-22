@@ -14,6 +14,10 @@ public class Vector2 {
         this.y = y;
     }
 
+    public String toString() {
+        return "(" + this.x + ", " + this.y + ")";
+    }
+
     public boolean equals(Vector2 other) {
         return (this.x == other.x && this.y == other.y);
     }

@@ -5,6 +5,7 @@ import gsbs.common.components.Sprite;
 import gsbs.common.entities.Asteroid;
 import gsbs.common.entities.Entity;
 import gsbs.common.math.Distance;
+import gsbs.common.math.Vector2;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +15,7 @@ public class Grid {
     int maxRow;
     int maxColumn;
     Node[] grid;
-    boolean printedGrid = false;
+    boolean printGrid = false;
     boolean updateGridFlag = true;
     float steepness = 2;
     float tolerance = 20000;
@@ -30,36 +31,50 @@ public class Grid {
             index = i * maxColumn - 1;
             for (int j = 0; j < maxColumn; j++) {
                 index += 1;
-                this.grid[index] = new Node(i, j, false);
+                this.grid[index] = new Node(i, j, false, false);
             }
         }
     }
 
     public void updateGrid(World world) {
-        /* Debug for theta star
-        for (Entity flagship : world.getEntities(Flagship.class)) {
-            var team = flagship.getComponent(Team.class);
-            if (team.getTeam() == Teams.ENEMY) {
-                var positionAIShip = flagship.getComponent(Position.class);
-                Node tempNode = getNodeFromCoords((int) positionAIShip.getX(), (int) positionAIShip.getY());
-                tempNode.setBlocked(true);
-                Node[] tempArray = getNeighbors(tempNode);
-                for (Node node : tempArray){
-                    node.setBlocked(true);
-                }
-
-            }
-        }*/
         if (updateGridFlag) {
             List<Entity> entitiesToBlock = new ArrayList<>();
             entitiesToBlock.addAll(world.getEntities(Asteroid.class));
             blockNodesFromEntities(entitiesToBlock.toArray(new Entity[0]));
+            setNodeCollisions(entitiesToBlock.toArray(new Entity[0]));
             addWeightsToNodes(entitiesToBlock.toArray(new Entity[0]));
-            System.out.println("YEEHAW");
+
+            // Block the rim and make it collidable
+            for (int i = 0; i < maxRow; i++) {
+                for (int j = 0; j < 1; j++) {
+                    Node topNode = getNode(i, j);
+                    Node bottomNode = getNode(i, maxColumn - 1 - j);
+                    topNode.setCollidable(true);
+                    topNode.setBlocked(true);
+                    topNode.setCollisionVector(new Vector2(0,1f));
+
+                    bottomNode.setCollidable(true);
+                    bottomNode.setBlocked(true);
+                    bottomNode.setCollisionVector(new Vector2(0,-1f));
+                }
+            }
+            for (int i = 0; i < maxColumn; i++) {
+                for (int j = 0; j < 1; j++) {
+                    Node leftNode = getNode(j, i);
+                    Node rightNode = getNode(maxRow - 1 -j, i);
+                    leftNode.setCollidable(true);
+                    leftNode.setBlocked(true);
+                    leftNode.setCollisionVector(new Vector2(1,0));
+                    rightNode.setCollidable(true);
+                    rightNode.setBlocked(true);
+                    rightNode.setCollisionVector(new Vector2(-1,0));
+                }
+            }
         }
 
+
         updateGridFlag = false;
-        if (!printedGrid)
+        if (printGrid)
             printGridWeights();
     }
 
@@ -104,15 +119,14 @@ public class Grid {
                 float asteroidCenterY = position.getY() + sprite.getHeight() / 2;
 
                 for (Node node : grid) {
-                    int nodeX = getCoordsFromNode(node)[0];
-                    int nodeY = getCoordsFromNode(node)[1];
-                    float nodeCenterX = nodeX + nodeSize / 2;
-                    float nodeCenterY = nodeY + nodeSize / 2;
+                    int[] nodeCoords = getCoordsFromNode(node);
+                    float nodeCenterX = nodeCoords[0] + nodeSize * 1.5f;
+                    float nodeCenterY = nodeCoords[1] + nodeSize * 1.5f;
 
                     // Calculate the distance between the node center and the entity's center
                     float distance = Distance.euclideanDistance(nodeCenterX, nodeCenterY, asteroidCenterX, asteroidCenterY);
 
-                    float radius = sprite.getWidth() / 2 + 20;
+                    float radius = sprite.getWidth() / 2 + 15;
 
                     if (distance <= radius) {
                         node.setBlocked(true);
@@ -122,8 +136,38 @@ public class Grid {
         }
     }
 
+    private void setNodeCollisions (Entity[] collisionEntities){
+        for (Entity entity : collisionEntities) {
+            var position = entity.getComponent(Position.class);
+            var sprite = entity.getComponent(Sprite.class);
+
+            if (position != null && sprite != null) {
+                float asteroidCenterX = position.getX() + sprite.getWidth() / 2;
+                float asteroidCenterY = position.getY() + sprite.getHeight() / 2;
+
+                for (Node node : grid) {
+                    int[] nodeCoords = getCoordsFromNode(node);
+                    float nodeCenterX = nodeCoords[0] + nodeSize * 1.5f;
+                    float nodeCenterY = nodeCoords[1] + nodeSize * 1.5f;
+
+                    // Calculate the distance between the node center and the entity's center
+                    float distance = Distance.euclideanDistance(nodeCenterX, nodeCenterY, asteroidCenterX, asteroidCenterY);
+
+                    float radius = sprite.getWidth() / 2 + 20;
+
+                    if (distance <= radius) {
+                        float vectorX = nodeCoords[0] - asteroidCenterX;
+                        float vectorY = nodeCoords[1] - asteroidCenterY;
+                        node.setCollisionVector(new Vector2(vectorX, vectorY).normalize());
+                        node.setCollidable(true);
+                    }
+                }
+            }
+        }
+    }
+
     public void printGrid() {
-        printedGrid = true;
+        printGrid = true;
         for (int i = 0; i < maxRow; i++) {
             for (int j = 0; j < maxColumn; j++) {
                 Node node = getNode(i, j);
@@ -137,7 +181,7 @@ public class Grid {
         }
     }
     public void printGridWeights() {
-        printedGrid = true;
+        printGrid = true;
         for (int j = 0; j < maxColumn; j++) {
             for (int i = 0; i < maxRow; i++) {
                 Node node = getNode(i, j);

@@ -5,6 +5,7 @@ import gsbs.common.components.Sprite;
 import gsbs.common.entities.Asteroid;
 import gsbs.common.entities.Entity;
 import gsbs.common.math.Distance;
+import gsbs.common.math.Vector2;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,20 +46,29 @@ public class Grid {
 
             // Block the rim and make it collidable
             for (int i = 0; i < maxRow; i++) {
-                Node topNode = getNode(i, 0);
-                Node bottomNode = getNode(i, maxColumn - 1);
-                topNode.setCollidable(true);
-                topNode.setBlocked(true);
-                bottomNode.setCollidable(true);
-                bottomNode.setBlocked(true);
+                for (int j = 0; j < 1; j++) {
+                    Node topNode = getNode(i, j);
+                    Node bottomNode = getNode(i, maxColumn - 1 - j);
+                    topNode.setCollidable(true);
+                    topNode.setBlocked(true);
+                    topNode.setCollisionVector(new Vector2(0,1f));
+
+                    bottomNode.setCollidable(true);
+                    bottomNode.setBlocked(true);
+                    bottomNode.setCollisionVector(new Vector2(0,-1f));
+                }
             }
             for (int i = 0; i < maxColumn; i++) {
-                Node leftNode = getNode(0, i);
-                Node rightNode = getNode(maxRow - 1, i);
-                leftNode.setCollidable(true);
-                leftNode.setBlocked(true);
-                rightNode.setCollidable(true);
-                rightNode.setBlocked(true);
+                for (int j = 0; j < 1; j++) {
+                    Node leftNode = getNode(j, i);
+                    Node rightNode = getNode(maxRow - 1 -j, i);
+                    leftNode.setCollidable(true);
+                    leftNode.setBlocked(true);
+                    leftNode.setCollisionVector(new Vector2(1,0));
+                    rightNode.setCollidable(true);
+                    rightNode.setBlocked(true);
+                    rightNode.setCollisionVector(new Vector2(-1,0));
+                }
             }
         }
 
@@ -146,6 +156,9 @@ public class Grid {
                     float radius = sprite.getWidth() / 2 + 20;
 
                     if (distance <= radius) {
+                        float vectorX = nodeCoords[0] - asteroidCenterX;
+                        float vectorY = nodeCoords[1] - asteroidCenterY;
+                        node.setCollisionVector(new Vector2(vectorX, vectorY).normalize());
                         node.setCollidable(true);
                     }
                 }

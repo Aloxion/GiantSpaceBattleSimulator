@@ -16,7 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CarrierPlugin implements IPlugin {
-    private int maxCarriersInOneTeam = 4;
+    private int maxCarriersInOneTeam = 10;
+    private int maxAttackshipsPerCarrier = 30;
+    private int maxHealthForCarrier = 50;
     private List<Entity> playerCarriers;
     private List<Entity> enemyCarriers;
 
@@ -32,7 +34,7 @@ public class CarrierPlugin implements IPlugin {
 
         for (Entity carrier : playerCarriers) {
             world.addEntity(carrier);
-            gameData.addEvent(new SpawnAttackships(carrier, world, 5));
+            gameData.addEvent(new SpawnAttackships(carrier, world, maxAttackshipsPerCarrier));
         }
 
         for (int i = 1; i < maxCarriersInOneTeam + 1; i++) {
@@ -42,7 +44,7 @@ public class CarrierPlugin implements IPlugin {
 
         for (Entity carrier : enemyCarriers) {
             world.addEntity(carrier);
-            gameData.addEvent(new SpawnAttackships(carrier, world, 5));
+            gameData.addEvent(new SpawnAttackships(carrier, world, maxAttackshipsPerCarrier));
         }
     }
 
@@ -61,7 +63,7 @@ public class CarrierPlugin implements IPlugin {
         List<IWeapon> weapons = loadWeapons();
 
         Entity Ship = new Carrier();
-        Ship.add(new Health(30));
+        Ship.add(new Health(maxHealthForCarrier));
         Ship.add(new Movement(deacceleration, acceleration, maxSpeed, rotationSpeed));
         Ship.add(new Position(x, y, radians));
         Ship.add(new Sprite(CarrierPlugin.class.getResource("/carrier.png"), 50, 50));

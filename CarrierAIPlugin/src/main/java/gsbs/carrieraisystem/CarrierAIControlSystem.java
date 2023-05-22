@@ -43,7 +43,7 @@ public class CarrierAIControlSystem implements IProcess {
             float playerCarrierX = playerCarrierPosition.getX();
             float playerCarrierY = playerCarrierPosition.getY();
             Entity targetCarrier = null;
-            float distanceFromTarget = 1000000000;
+            float distanceFromTarget = Float.MAX_VALUE;
             for (Entity enemyCarrier : enemyCarriers) {
                 var enemyCarrierPosition = playerCarrier.getComponent(Position.class);
                 float enemyCarrierX = enemyCarrierPosition.getX();
@@ -54,7 +54,9 @@ public class CarrierAIControlSystem implements IProcess {
                     targetCarrier = enemyCarrier;
                 }
             }
-            handlePathfinding(gameData, world, playerCarrier, targetCarrier);
+            if (targetCarrier != null) {
+                handlePathfinding(gameData, world, playerCarrier, targetCarrier);
+            }
         }
 
         // Do logic for each enemyCarrier
@@ -63,7 +65,7 @@ public class CarrierAIControlSystem implements IProcess {
             float playerCarrierX = playerCarrierPosition.getX();
             float playerCarrierY = playerCarrierPosition.getY();
             Entity targetCarrier = null;
-            float distanceFromTarget = 1000000000;
+            float distanceFromTarget = Float.MAX_VALUE;
             for (Entity playerCarrier : playerCarriers) {
                 var enemyCarrierPosition = enemyCarrier.getComponent(Position.class);
                 float enemyCarrierX = enemyCarrierPosition.getX();
@@ -71,10 +73,12 @@ public class CarrierAIControlSystem implements IProcess {
                 float newDistanceFromTarget = Distance.euclideanDistance(playerCarrierX, playerCarrierY, enemyCarrierX, enemyCarrierY);
                 if (distanceFromTarget > newDistanceFromTarget){
                     distanceFromTarget = newDistanceFromTarget;
-                    targetCarrier = enemyCarrier;
+                    targetCarrier = playerCarrier;
                 }
             }
-            handlePathfinding(gameData, world, enemyCarrier, targetCarrier);
+            if (targetCarrier != null) {
+                handlePathfinding(gameData, world, enemyCarrier, targetCarrier);
+            }
         }
     }
 
@@ -121,6 +125,9 @@ public class CarrierAIControlSystem implements IProcess {
             path.add(goal);
             path.add(start);
         }
+
+        // For debug (Assumed)
+        // gameData.setPath(path);
 
         // Handle turning towards target node
         if (path.size() > 1) {

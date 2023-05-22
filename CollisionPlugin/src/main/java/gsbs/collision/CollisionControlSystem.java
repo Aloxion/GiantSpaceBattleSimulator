@@ -73,7 +73,7 @@ public class CollisionControlSystem implements IPostProcess {
 
                 Vector2 direction = new Vector2(movement.getDx(), movement.getDy());
                 Vector2 collisionForce = grid.getNodeFromCoords((int)position.getX(), (int)position.getY()).getCollisionVector();
-                Vector2 newDirection = collisionForce.multiply(2 * (float) collisionForce.dot(direction)).subtract(direction).multiply(-1);
+                Vector2 newDirection = collisionForce.multiply(-Math.abs(2 * (float) collisionForce.dot(direction))).subtract(direction).multiply(-1);
                 float dT = gameData.getDeltaTime();
                 position.setX(position.getX() + newDirection.x * dT);
                 position.setY(position.getY() + newDirection.y * dT);
@@ -81,7 +81,7 @@ public class CollisionControlSystem implements IPostProcess {
                 movement.setDy(newDirection.y);
             }
         }
-        // Bounce back for flagship
+        // Bounce back for Carriers
         for (Entity carrier : world.getEntities(Carrier.class)) {
             var position = carrier.getComponent(Position.class);
             if(grid.getNodeFromCoords((int)position.getX(), (int)position.getY()).isCollidable()){
@@ -89,7 +89,7 @@ public class CollisionControlSystem implements IPostProcess {
 
                 Vector2 direction = new Vector2(movement.getDx(), movement.getDy());
                 Vector2 collisionForce = grid.getNodeFromCoords((int)position.getX(), (int)position.getY()).getCollisionVector();
-                Vector2 newDirection = collisionForce.multiply(2 * (float) collisionForce.dot(direction)).subtract(direction).multiply(-1);
+                Vector2 newDirection = collisionForce.multiply(-Math.abs(2 * (float) collisionForce.dot(direction))).subtract(direction).multiply(-1);
                 float dT = gameData.getDeltaTime();
                 position.setX(position.getX() + newDirection.x * dT);
                 position.setY(position.getY() + newDirection.y * dT);

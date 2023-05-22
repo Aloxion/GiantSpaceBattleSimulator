@@ -52,6 +52,13 @@ public class BoidProcessor implements IProcess {
             debugMenu();
         }
 
+        // If the leader is dead, then we are dead
+        for (var boidEntity : world.getEntitiesWithComponent(Boid.class)) {
+            if (world.getEntity(boidEntity.getComponent(Boid.class).leader.getID()) == null) {
+                world.removeEntity(boidEntity);
+            }
+        }
+
         // Fix position
         for (var entity : world.getEntities(Attackship.class)) {
             var hitbox = entity.getComponent(Hitbox.class);
@@ -106,8 +113,9 @@ public class BoidProcessor implements IProcess {
             boid.acceleration = boid.acceleration.add(alignment).add(cohesion).add(separation).add(edges).add(leader).add(collisionAvoidance);
 
             // Apply boid acceleration
-            boid.position = boid.position.add(boid.velocity);
-            boid.velocity = boid.velocity.add(boid.acceleration);
+            var timeScale = gameData.getDeltaTime() / 0.016f;
+            boid.position = boid.position.add(boid.velocity.multiply(timeScale));
+            boid.velocity = boid.velocity.add(boid.acceleration.multiply(timeScale));
             boid.velocity = boid.velocity.limit(this.maxSpeed);
             boid.acceleration.multiply(0);
 

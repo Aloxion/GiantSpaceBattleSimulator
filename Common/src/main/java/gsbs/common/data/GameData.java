@@ -1,5 +1,6 @@
 package gsbs.common.data;
 
+import gsbs.common.entities.Entity;
 import gsbs.common.events.Event;
 import gsbs.common.events.EventManager;
 import gsbs.common.services.IPlugin;
@@ -18,12 +19,12 @@ public class GameData {
     private final GameKeys keys = new GameKeys();
     private final EventManager eventManager = new EventManager();
     private final int nodeSize = 10;
+    private final Map<Entity, List<Node>> paths = new HashMap<>();
     private long nvgContext;
     private List<IPlugin> initializedPlugins = new ArrayList<>();
     private GameState gameState = GameState.START;
     private float deltaTime;
     private int renderCycles;
-    private List<Node> path;
     private Grid grid;
 
     public GameData(long nvgContext) {
@@ -38,12 +39,17 @@ public class GameData {
         this.grid = grid;
     }
 
-    public List<Node> getPath() {
-        return path;
+
+    public Map<Entity, List<Node>> getPaths() {
+        return paths;
     }
 
-    public void setPath(List<Node> path) {
-        this.path = path;
+    public List<Node> getPath(Entity entity) {
+        return paths.get(entity);
+    }
+
+    public void setPath(Entity entity, List<Node> path) {
+        this.paths.put(entity, path);
     }
 
     /**

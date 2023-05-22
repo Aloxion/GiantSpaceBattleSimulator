@@ -11,6 +11,7 @@ import gsbs.common.events.GameLoseEvent;
 import gsbs.common.events.GameWinEvent;
 import gsbs.common.services.IPlugin;
 import gsbs.common.services.ISystemPostProcess;
+import gsbs.common.util.Color;
 import gsbs.common.util.Plugin;
 import gsbs.common.util.PluginManager;
 import imgui.ImDrawList;
@@ -25,9 +26,11 @@ import java.net.URL;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import static gsbs.common.util.Color.rgba;
+import static java.awt.Color.getHSBColor;
 import static org.lwjgl.nanovg.NanoVG.*;
 
 public class DebugProcessor implements ISystemPostProcess {
@@ -87,39 +90,53 @@ public class DebugProcessor implements ISystemPostProcess {
 
                 }
             }
-            List<Node> nodes = gameData.getPath();
-            if (nodes != null && nodes.size() > 1) {
-                nvgBeginPath(nvgContext);
-                Node firstNode = nodes.get(0);
-                int[] firstCoords = gameData.getGrid().getCoordsFromNode(firstNode);
-                nvgMoveTo(nvgContext, firstCoords[0], firstCoords[1]);
 
-                for (int i = 1; i < nodes.size(); i++) {
-                    Node node = nodes.get(i);
-                    int[] coords = gameData.getGrid().getCoordsFromNode(node);
-                    nvgLineTo(nvgContext, coords[0], coords[1]);
+            for (var path : gameData.getPaths().entrySet()) {
+                if (world.getEntity(path.getKey().getID()) == null) {
+                    continue;
                 }
 
-                nvgStrokeColor(nvgContext, rgba(0, 255, 0, 0.1f));
-                nvgStrokeWidth(nvgContext, 3f);
-                nvgStroke(nvgContext);
-            }
+                List<Node> nodes = path.getValue();
+                Random random = new Random(path.getKey().getID().hashCode());
+                final float hue = random.nextFloat();
+                final float saturation = 0.9f;//1.0 for brilliant, 0.0 for dull
+                final float luminance = 1.0f; //1.0 for brighter, 0.0 for black
+                var color = getHSBColor(hue, saturation, luminance);
+                var pathColor = new Color(color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, 255);
 
-// Draw circles for each node
-            if (nodes != null) {
-                for (Node node : nodes) {
+                if (nodes != null && nodes.size() > 1) {
                     nvgBeginPath(nvgContext);
-                    int[] coords = gameData.getGrid().getCoordsFromNode(node);
-                    nvgCircle(nvgContext, coords[0], coords[1], 10);
-                    nvgFillColor(nvgContext, rgba(255, 255, 255, 0));
-                    nvgFill(nvgContext);
-                    nvgStrokeColor(nvgContext, rgba(0, 255, 0, 0.3f));
-                    nvgStrokeWidth(nvgContext, 1.0f);
+                    Node firstNode = nodes.get(0);
+                    int[] firstCoords = gameData.getGrid().getCoordsFromNode(firstNode);
+                    nvgMoveTo(nvgContext, firstCoords[0], firstCoords[1]);
+
+                    for (int i = 1; i < nodes.size(); i++) {
+                        Node node = nodes.get(i);
+                        int[] coords = gameData.getGrid().getCoordsFromNode(node);
+                        nvgLineTo(nvgContext, coords[0], coords[1]);
+                    }
+
+                    nvgStrokeColor(nvgContext, rgba(pathColor.getRed(), pathColor.getGreen(), pathColor.getBlue(), 1f));
+                    nvgStrokeWidth(nvgContext, 3f);
                     nvgStroke(nvgContext);
                 }
+
+                // Draw circles for each node
+                if (nodes != null) {
+                    for (Node node : nodes) {
+                        nvgBeginPath(nvgContext);
+                        int[] coords = gameData.getGrid().getCoordsFromNode(node);
+                        nvgCircle(nvgContext, coords[0], coords[1], 10);
+                        nvgFillColor(nvgContext, rgba(255, 255, 255, 0));
+                        nvgFill(nvgContext);
+                        nvgStrokeColor(nvgContext, rgba(pathColor.getRed(), pathColor.getGreen(), pathColor.getBlue(), 1f));
+                        nvgStrokeWidth(nvgContext, 1.0f);
+                        nvgStroke(nvgContext);
+                    }
+                }
+
             }
         }
-
         renderGUI(gameData, world);
     }
 

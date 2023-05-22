@@ -5,6 +5,7 @@ module DebugPlugin {
     requires imgui.binding;
     requires org.lwjgl.nanovg;
     requires org.lwjgl.bgfx;
+    requires java.desktop;
 
     provides gsbs.common.services.ISystemPostProcess with DebugProcessor;
 }

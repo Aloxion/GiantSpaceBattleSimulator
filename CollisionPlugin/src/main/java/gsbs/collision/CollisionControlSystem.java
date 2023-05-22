@@ -76,7 +76,6 @@ public class CollisionControlSystem implements IPostProcess {
                 var movement = flagship.getComponent(Movement.class);
 
                 Vector2 direction = new Vector2(movement.getDx(), movement.getDy());
-                System.out.println(flagship.getComponent(Team.class).getTeam());
                 Vector2 collisionForce = grid.getNodeFromCoords((int)position.getX(), (int)position.getY()).getCollisionVector();
                 Vector2 newDirection = collisionForce.multiply(2 * (float) collisionForce.dot(direction)).subtract(direction).multiply(-1);
                 float dT = gameData.getDeltaTime();

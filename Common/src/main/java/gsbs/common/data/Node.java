@@ -1,11 +1,14 @@
 package gsbs.common.data;
 
+import gsbs.common.math.Vector2;
+
 public class Node {
     private int row;
     private int column;
     private boolean isBlocked;
     private boolean isCollidable;
     private float weight = 0;
+    private Vector2 collisionVector = new Vector2(0,0);
 
     public Node(int row, int column, boolean isBlocked, boolean isCollidable) {
         this.row = row;
@@ -21,6 +24,14 @@ public class Node {
 
     public float getWeight() {
         return weight;
+    }
+
+    public Vector2 getCollisionVector() {
+        return collisionVector;
+    }
+
+    public void setCollisionVector(Vector2 collisionVector) {
+        this.collisionVector = collisionVector;
     }
 
     public void setWeight(float weight) {

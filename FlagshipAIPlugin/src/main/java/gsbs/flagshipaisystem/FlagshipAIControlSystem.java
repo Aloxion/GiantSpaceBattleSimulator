@@ -70,23 +70,12 @@ public class FlagshipAIControlSystem implements IProcess {
         List<Node> newPath = thetaStar.findPath(start, goal, grid);
         if (newPath != null) {
             path = newPath;
-        } else if(path.size() > 2){
-            // Construct new path that starts at AI's current pos without pathfinding from it, granted there is not a straight path already
-            path = thetaStar.findPath(path.get(path.size()-2), path.get(0), grid);
-            if (path != null && grid.getNodeFromCoords((int) positionAIShip.getX(), (int) positionAIShip.getY()) == path.get(path.size()-1)){
-                path.remove(path.get(path.size()-1));
-            }
-
-            if (path != null) {
-                path.add(start);
-            }
-
-        } else {
-            // Straight path
+        } else { //if the path is null, just stop and turn towards target
+            movementAIShip.setUp(false);
+            path.clear();
             path.add(goal);
             path.add(start);
         }
-
         // For debug (Assumed)
         gameData.setPath(path);
 

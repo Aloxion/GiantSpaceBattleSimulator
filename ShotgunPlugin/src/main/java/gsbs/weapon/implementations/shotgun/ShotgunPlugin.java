@@ -44,15 +44,25 @@ public class ShotgunPlugin implements IWeapon {
         float rotationSpeed = 0;
 
         Entity bullet = new Bullet();
-        Sprite sprite = new Sprite(ShotgunPlugin.class.getResource("/default-bullet.png"), 10, 10);
 
         bullet.add(new Movement(deacceleration, acceleration, maxSpeed, rotationSpeed));
-        bullet.add(new Position(position.getX() + (sprite.getWidth()/2), position.getY() + (sprite.getHeight()/2), position.getRadians()));
-        bullet.add(sprite);
-        bullet.add(new Hitbox(sprite.getWidth(),sprite.getHeight(),position.getX() + (sprite.getWidth()/2),position.getY() + (sprite.getHeight()/2)));
+        bullet.add(new Position(position.getX(), position.getY(), position.getRadians()));
         bullet.add(new Team(source.getComponent(Team.class).getTeam()));
 
         bullet.add(new Health(duration));
+
+        Sprite sprite = new Sprite(getClass().getResource("/default-bullet.png"), 10, 10);;
+        switch (source.getComponent(Team.class).getTeam()) {
+            case PLAYER:
+                sprite = new Sprite(getClass().getResource("/PlayerShotgunBullet.png"), 20, 20);
+                break;
+            case ENEMY:
+                sprite = new Sprite(getClass().getResource("/EnemyShotgunBullet.png"), 20, 20);
+                break;
+        }
+
+        bullet.add(sprite);
+        bullet.add(new Hitbox(sprite.getWidth(),sprite.getHeight(),position.getX(),position.getY()));
         return bullet;
     }
 

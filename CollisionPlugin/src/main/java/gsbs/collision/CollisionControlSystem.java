@@ -132,44 +132,6 @@ public class CollisionControlSystem implements IPostProcess {
 
         return hitbox.intersects(hitbox2);
     }
-
-    private void rebound(Entity flagship, Entity asteroid) {
-        System.out.println("Rebound");
-        if (flagship instanceof Flagship) {
-            System.out.println("FLAAG");
-            float flagX = flagship.getComponent(Position.class).getX();
-            float flagY = flagship.getComponent(Position.class).getY();
-
-            float astX = asteroid.getComponent(Position.class).getX();
-            float astY = asteroid.getComponent(Position.class).getY();
-
-            Vector2 flagVector = new Vector2(flagX, flagY);
-            Vector2 astVector = new Vector2(astX, astY);
-
-            double dotProduct = flagVector.dot(astVector);
-            double magnitudeProduct = flagVector.magnitude() * astVector.magnitude();
-            float angle = (float) Math.acos(dotProduct / magnitudeProduct);
-
-            flagship.getComponent(Position.class).setRadians(angle * 2);
-            flagship.getComponent(Movement.class).setAcceleration(-100);
-        } else {
-            float astX = flagship.getComponent(Position.class).getX();
-            float astY = flagship.getComponent(Position.class).getY();
-
-            float flagX = asteroid.getComponent(Position.class).getX();
-            float flagY = asteroid.getComponent(Position.class).getY();
-
-            Vector2 flagVector = new Vector2(flagX, flagY);
-            Vector2 astVector = new Vector2(astX, astY);
-
-            double dotProduct = flagVector.dot(astVector);
-            double magnitudeProduct = flagVector.magnitude() * astVector.magnitude();
-            float angle = (float) Math.acos(dotProduct / magnitudeProduct);
-
-            flagship.getComponent(Position.class).setRadians(angle * 2);
-            flagship.getComponent(Movement.class).setAcceleration(-flagship.getComponent(Movement.class).getAcceleration());
-        }
-    }
 }
 
 

@@ -26,7 +26,6 @@ public class ThetaStar {
         // Euclidean distance cost function
         int deltaRow = currentNode.getRow() - neighbor.getRow();
         int deltaColumn = currentNode.getColumn() - neighbor.getColumn();
-        // add " + neighbor.getWeight()" to make it weighted Theta Star
         return Math.sqrt(deltaRow * deltaRow + deltaColumn * deltaColumn);
     }
 
@@ -54,8 +53,7 @@ public class ThetaStar {
         gScore.put(start, 0.0);
         parent.put(start, start);
 
-        Map<Node, Double> open = new HashMap();
-        //Comparator.comparingDouble(node -> gScore.get(node) + heuristic(node, goal))
+        Map<Node, Double> open = new HashMap<>();
         open.put(start, gScore.get(start) + heuristic(start, goal));
         Set<Node> closed = new HashSet<>();
 

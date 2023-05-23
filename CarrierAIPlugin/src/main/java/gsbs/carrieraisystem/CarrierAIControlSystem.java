@@ -130,11 +130,9 @@ public class CarrierAIControlSystem implements IProcess {
         Grid grid = gameData.getGrid();
         var positionAIShip = thisCarrier.getComponent(Position.class);
         var positionTarget = targetCarrier.getComponent(Position.class);
-        var spriteAIShip = thisCarrier.getComponent(Sprite.class);
-        var spriteTarget = targetCarrier.getComponent(Sprite.class);
 
-        Node start = grid.getNodeFromCoords((int) positionAIShip.getX() + spriteAIShip.getWidth() / 2, (int) positionAIShip.getY() + spriteAIShip.getHeight() / 2);
-        Node goal = grid.getNodeFromCoords((int) positionTarget.getX() + spriteTarget.getWidth() / 2, (int) positionTarget.getY() + spriteTarget.getHeight() / 2);
+        Node start = grid.getNodeFromCoords((int) positionAIShip.getX(), (int) positionAIShip.getY());
+        Node goal = grid.getNodeFromCoords((int) positionTarget.getX(), (int) positionTarget.getY());
         var movementAIShip = thisCarrier.getComponent(Movement.class);
 
         movementAIShip.setLeft(false);

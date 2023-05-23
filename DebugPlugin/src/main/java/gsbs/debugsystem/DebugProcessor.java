@@ -38,42 +38,51 @@ public class DebugProcessor implements ISystemPostProcess {
     private Entity selectedEntity = null;
     private boolean showHitbox = false;
     private boolean showGrid = false;
+    private boolean showCenter = false;
     private boolean paused = false;
 
     @Override
     public void process(GameData gameData, World world) {
         long nvgContext = gameData.getNvgContext();
 
-        //Draw hitbox
         if (showHitbox) {
             for (Entity entity : world.getEntitiesWithComponents(Position.class, Hitbox.class)) {
                 var hitbox = entity.getComponent(Hitbox.class);
                 var position = entity.getComponent(Position.class);
 
                 nvgSave(nvgContext);
-                nvgTranslate(nvgContext, (hitbox.getX() + hitbox.getWidth() / 2.0f), (hitbox.getY() + hitbox.getHeight() / 2.0f));
+                nvgTranslate(nvgContext, (hitbox.getX()), (hitbox.getY()));
                 nvgRotate(nvgContext, position.getRadians());
-                nvgTranslate(nvgContext, (-hitbox.getWidth() / 2.0f), (-hitbox.getHeight() / 2.0f));
+                nvgTranslate(nvgContext, (-hitbox.getHalfWidth()/2), (-hitbox.getHalfHeight())/2);
 
                 nvgBeginPath(nvgContext);
-                nvgRect(nvgContext, 0, 0, hitbox.getWidth(), hitbox.getHeight());
+                nvgRect(nvgContext, 0, 0, hitbox.getHalfWidth(), hitbox.getHalfHeight());
                 nvgFillColor(nvgContext, rgba(255, 0, 0, 1));
                 nvgFill(nvgContext);
                 nvgRestore(nvgContext);
 
             }
         }
-
+        //Draw Center
+        if(showCenter){
+            for (Entity entity : world.getEntitiesWithComponents(Position.class)) {
+                var position = entity.getComponent(Position.class);
+                nvgBeginPath(nvgContext);
+                nvgCircle(nvgContext, position.getX(), position.getY(), 1);
+                nvgStroke(nvgContext);
+            }
+        }
         if (showGrid) {
             for (int i = 0; i < gameData.getDisplayWidth() / gameData.getNodeSize(); i++) {
                 for (int j = 0; j < gameData.getDisplayHeight() / gameData.getNodeSize(); j++) {
                     Node node = gameData.getGrid().getNode(i, j);
-                    float nodeX = gameData.getGrid().getCoordsFromNode(node)[0];
-                    float nodeY = gameData.getGrid().getCoordsFromNode(node)[1];
+                    int nodeSize = gameData.getGrid().getNodeSize();
+                    float nodeX = gameData.getGrid().getCoordsFromNode(node)[0] - nodeSize/2;
+                    float nodeY = gameData.getGrid().getCoordsFromNode(node)[1] - nodeSize/2;
 
                     // Draw the filled rectangle with transparency
                     nvgBeginPath(nvgContext);
-                    nvgRect(nvgContext, nodeX, nodeY, 20, 20);
+                    nvgRect(nvgContext, nodeX, nodeY, nodeSize, nodeSize);
                     nvgFillColor(nvgContext, rgba(255, 255, 255, 0));
                     nvgFill(nvgContext);
 
@@ -85,7 +94,7 @@ public class DebugProcessor implements ISystemPostProcess {
                         // Draw the stroke (edge) of the rectangle
                         nvgStrokeColor(nvgContext, rgba(255, 0, 0, 0.1f));
                     }
-                    nvgStrokeWidth(nvgContext, 0.035f);
+                    nvgStrokeWidth(nvgContext, 0.085f);
                     nvgStroke(nvgContext);
 
                 }
@@ -269,6 +278,11 @@ public class DebugProcessor implements ISystemPostProcess {
         drawList2.addText(ImGui.getCursorScreenPosX() + 6, ImGui.getCursorScreenPosY() + 4, ImGui.getColorU32(ImGuiCol.Text), "Grid");
         if (ImGui.button("## grid", 50, 20)) {
             showGrid = !showGrid;
+        }
+
+        drawList2.addText(ImGui.getCursorScreenPosX() + 6, ImGui.getCursorScreenPosY() + 4, ImGui.getColorU32(ImGuiCol.Text), "Show center");
+        if (ImGui.button("## center", 50, 20)) {
+            showCenter = !showCenter;
         }
 
         if (ImGui.button("Restart")) {

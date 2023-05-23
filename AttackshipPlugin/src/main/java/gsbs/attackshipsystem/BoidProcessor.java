@@ -63,7 +63,7 @@ public class BoidProcessor implements IProcess {
         for (var entity : world.getEntities(Attackship.class)) {
             var hitbox = entity.getComponent(Hitbox.class);
             var position = entity.getComponent(Position.class);
-            hitbox.set(position.getX() + hitbox.getWidth() * 0.5f, position.getY() + hitbox.getHeight() * 0.5f);
+            hitbox.set(position.getX(), position.getY());
         }
 
         // Sync boid position
@@ -258,19 +258,18 @@ public class BoidProcessor implements IProcess {
 
     private Vector2 collisionAvoidance(Boid boid, World world) {
         // Only consider collidables within this distance
-        float collisionAvoidanceDistance = 10;
+        float collisionAvoidanceDistance = 5;
 
         Vector2 steering = new Vector2();
         int total = 0;
         for (Entity collidable : worldCollidables) {
             var collider = collidable.getComponent(Hitbox.class);
             var position = collidable.getComponent(Position.class);
-            var hitboxRadius = Math.max(collider.getHeight(), collider.getWidth()) * Math.sqrt(2) / 2;
-            var hitboxPosition = position.asVector().add(new Vector2(collider.getWidth(), collider.getHeight()).multiply(0.5f));
+            var hitboxRadius = Math.max(collider.getHalfHeight() * 2, collider.getHalfWidth() * 2) * Math.sqrt(2) / 2;
 
 
-            if (boid.position.subtract(hitboxPosition).length() < collisionAvoidanceDistance + hitboxRadius) {
-                Vector2 diff = boid.position.subtract(hitboxPosition);
+            if (boid.position.subtract(position.asVector()).length() < collisionAvoidanceDistance + hitboxRadius) {
+                Vector2 diff = boid.position.subtract(position.asVector());
                 diff = diff.divide(diff.length() * diff.length());
                 steering = steering.add(diff);
                 total++;

@@ -36,6 +36,10 @@ public class Grid {
         }
     }
 
+    public int getNodeSize() {
+        return nodeSize;
+    }
+
     public void updateGrid(World world) {
         if (updateGridFlag) {
             List<Entity> entitiesToBlock = new ArrayList<>();
@@ -46,7 +50,7 @@ public class Grid {
 
             // Block the rim and make it collidable
             for (int i = 0; i < maxRow; i++) {
-                for (int j = 0; j < 1; j++) {
+                for (int j = 0; j < 2; j++) {
                     Node topNode = getNode(i, j);
                     Node bottomNode = getNode(i, maxColumn - 1 - j);
                     topNode.setCollidable(true);
@@ -59,7 +63,7 @@ public class Grid {
                 }
             }
             for (int i = 0; i < maxColumn; i++) {
-                for (int j = 0; j < 1; j++) {
+                for (int j = 0; j < 2; j++) {
                     Node leftNode = getNode(j, i);
                     Node rightNode = getNode(maxRow - 1 - j, i);
                     leftNode.setCollidable(true);
@@ -92,8 +96,8 @@ public class Grid {
                 var sprite = entity.getComponent(Sprite.class);
 
                 if (position != null && sprite != null) {
-                    float asteroidCenterX = position.getX() + sprite.getWidth() / 2;
-                    float asteroidCenterY = position.getY() + sprite.getHeight() / 2;
+                    float asteroidCenterX = position.getX();
+                    float asteroidCenterY = position.getY();
 
                     float radius = sprite.getWidth() / 2;
                     float distance = Distance.euclideanDistance(nodeCoords[0], nodeCoords[1], asteroidCenterX, asteroidCenterY) - radius;
@@ -116,18 +120,18 @@ public class Grid {
             var sprite = entity.getComponent(Sprite.class);
 
             if (position != null && sprite != null) {
-                float asteroidCenterX = position.getX() + sprite.getWidth() / 2;
-                float asteroidCenterY = position.getY() + sprite.getHeight() / 2;
+                float asteroidCenterX = position.getX();
+                float asteroidCenterY = position.getY();
 
                 for (Node node : grid) {
                     int[] nodeCoords = getCoordsFromNode(node);
-                    float nodeCenterX = nodeCoords[0] + nodeSize * 1.5f;
-                    float nodeCenterY = nodeCoords[1] + nodeSize * 1.5f;
+                    float nodeCenterX = nodeCoords[0];
+                    float nodeCenterY = nodeCoords[1];
 
                     // Calculate the distance between the node center and the entity's center
                     float distance = Distance.euclideanDistance(nodeCenterX, nodeCenterY, asteroidCenterX, asteroidCenterY);
 
-                    float radius = sprite.getWidth() / 2 + 15;
+                    float radius = sprite.getWidth() / 2 + 10;
 
                     if (distance <= radius) {
                         node.setBlocked(true);
@@ -143,18 +147,18 @@ public class Grid {
             var sprite = entity.getComponent(Sprite.class);
 
             if (position != null && sprite != null) {
-                float asteroidCenterX = position.getX() + sprite.getWidth() / 2;
-                float asteroidCenterY = position.getY() + sprite.getHeight() / 2;
+                float asteroidCenterX = position.getX();
+                float asteroidCenterY = position.getY();
 
                 for (Node node : grid) {
                     int[] nodeCoords = getCoordsFromNode(node);
-                    float nodeCenterX = nodeCoords[0] + nodeSize * 1.5f;
-                    float nodeCenterY = nodeCoords[1] + nodeSize * 1.5f;
+                    float nodeCenterX = nodeCoords[0];
+                    float nodeCenterY = nodeCoords[1];
 
                     // Calculate the distance between the node center and the entity's center
                     float distance = Distance.euclideanDistance(nodeCenterX, nodeCenterY, asteroidCenterX, asteroidCenterY);
 
-                    float radius = sprite.getWidth() / 2 + 20;
+                    float radius = sprite.getWidth() / 2 + 15;
 
                     if (distance <= radius) {
                         float vectorX = nodeCoords[0] - asteroidCenterX;

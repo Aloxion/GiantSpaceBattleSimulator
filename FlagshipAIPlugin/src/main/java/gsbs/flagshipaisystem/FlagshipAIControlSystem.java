@@ -57,8 +57,8 @@ public class FlagshipAIControlSystem implements IProcess {
         var spriteTarget = targetFlagship.getComponent(Sprite.class);
         float euclideanDistance = Distance.euclideanDistance(positionAIShip.getX(), positionAIShip.getY(), positionTarget.getX(), positionTarget.getY());
 
-        Node start = grid.getNodeFromCoords((int) positionAIShip.getX() + spriteAIShip.getWidth() / 2, (int) positionAIShip.getY() + spriteAIShip.getHeight() / 2);
-        Node goal = grid.getNodeFromCoords((int) positionTarget.getX() + spriteTarget.getWidth() / 2, (int) positionTarget.getY() + spriteTarget.getHeight() / 2);
+        Node start = grid.getNodeFromCoords((int) positionAIShip.getX(), (int) positionAIShip.getY());
+        Node goal = grid.getNodeFromCoords((int) positionTarget.getX(), (int) positionTarget.getY());
         var movementAIShip = thisFlagship.getComponent(Movement.class);
 
         movementAIShip.setLeft(false);

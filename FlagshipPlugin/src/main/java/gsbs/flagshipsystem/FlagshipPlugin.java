@@ -42,16 +42,24 @@ public class FlagshipPlugin implements IPlugin {
 
         List<IWeapon> weapons = loadWeapons();
 
-        Entity Ship = new Flagship();
-        Ship.add(new Health(30));
-        Ship.add(new Movement(deacceleration, acceleration, maxSpeed, rotationSpeed));
-        Ship.add(new Position(x, y, radians));
-        Ship.add(new Sprite(FlagshipPlugin.class.getResource("/flagship.png"), 32, 32));
-        Ship.add(new Hitbox(32, 32, x, y));
-        Ship.add(new Team(team));
-        Ship.add(new Weapon(weapons));
-
-        return Ship;
+        Entity ship = new Flagship();
+        ship.add(new Health(30));
+        ship.add(new Movement(deacceleration, acceleration, maxSpeed, rotationSpeed));
+        ship.add(new Position(x, y, radians));
+        ship.add(new Team(team));
+        ship.add(new Weapon(weapons));
+        Sprite sprite = null;
+        switch (team) {
+            case PLAYER:
+                sprite = new Sprite(getClass().getResource("/PlayerFlagship.png"), 70, 70);
+                break;
+            case ENEMY:
+                sprite = new Sprite(getClass().getResource("/EnemyFlagship.png"), 70, 70);
+                break;
+        }
+        ship.add(new Hitbox(sprite.getWidth()/2f, sprite.getHeight()/2f, x, y));
+        ship.add(sprite);
+        return ship;
     }
 
     private List<IWeapon> loadWeapons() {

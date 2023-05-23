@@ -1,16 +1,16 @@
 package gsbs.flagshipaisystem;
 
-import java.util.*;
-
 import gsbs.common.components.*;
-import gsbs.common.data.*;
+import gsbs.common.data.GameData;
+import gsbs.common.data.Grid;
+import gsbs.common.data.Node;
+import gsbs.common.data.World;
 import gsbs.common.data.enums.Teams;
 import gsbs.common.entities.Entity;
 import gsbs.common.entities.Flagship;
-
+import gsbs.common.math.Distance;
 import gsbs.common.services.IProcess;
 import gsbs.common.util.ThetaStar;
-import gsbs.common.math.Distance;
 
 import java.util.List;
 
@@ -77,7 +77,7 @@ public class FlagshipAIControlSystem implements IProcess {
             path.add(start);
         }
         // For debug (Assumed)
-        gameData.setPath(path);
+        gameData.setPath(thisFlagship, path);
 
         // Handle turning towards target node
         if (path.size() > 1) {
@@ -107,7 +107,7 @@ public class FlagshipAIControlSystem implements IProcess {
             float distanceFromDesiredLocation = Distance.euclideanDistance(positionAIShip.getX(), positionAIShip.getY(), desiredLocation[0], desiredLocation[1]);
             // Check all conditions that cause a need to slow down the AI ship
 
-            if (distanceFromDesiredLocation < 300 && movementAIShip.getVelocity() > 20 && (directionDifferenceNode2 < 2 * Math.PI - 0.3 || directionDifferenceNode2 > 0.3)){
+            if (distanceFromDesiredLocation < 300 && movementAIShip.getVelocity() > 20 && (directionDifferenceNode2 < 2 * Math.PI - 0.3 || directionDifferenceNode2 > 0.3)) {
                 movementAIShip.setUp(false);
                 /*
                 System.out.println("********************");

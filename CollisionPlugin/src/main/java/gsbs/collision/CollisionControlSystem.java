@@ -2,7 +2,6 @@ package gsbs.collision;
 
 import gsbs.common.components.*;
 import gsbs.common.data.GameData;
-import gsbs.common.data.Node;
 import gsbs.common.data.World;
 import gsbs.common.data.enums.Teams;
 import gsbs.common.entities.*;
@@ -11,68 +10,87 @@ import gsbs.common.events.GameWinEvent;
 import gsbs.common.math.Vector2;
 import gsbs.common.services.IPostProcess;
 
-import java.util.Random;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class CollisionControlSystem implements IPostProcess {
 
-    public void process(GameData gameData, World world) {
-        // Process collisions
-        for (Entity entity : world.getEntities()) {
-            for (Entity collisionEntity : world.getEntities()) {
-                if (entity.getComponent(Health.class) == null) {
-                    continue;
-                }
+    private void handleCollisionEntity(Entity entity, GameData gameData, World world) {
+        for (Entity collisionEntity : world.getEntities()) {
+            if (entity.getComponent(Health.class) == null) {
+                continue;
+            }
 
-                Health entityHealth = entity.getComponent(Health.class);
-                Health collisionHealth = collisionEntity.getComponent(Health.class);
+            Health entityHealth = entity.getComponent(Health.class);
+            Health collisionHealth = collisionEntity.getComponent(Health.class);
 
-                if (entity.getID().equals(collisionEntity.getID())) {
-                    continue;
-                }
+            if (entity.getID().equals(collisionEntity.getID())) {
+                continue;
+            }
 
-                if (entityHealth.isDead()) {
-                    entity.remove(Sprite.class);
-                    world.removeEntity(entity);
+            if (entityHealth.isDead()) {
+                entity.remove(Sprite.class);
+                world.removeEntity(entity);
 
-                    if (entity instanceof Flagship && entity.getComponent(Team.class) != null) {
-                        if (entity.getComponent(Team.class).getTeam() == Teams.PLAYER) {
-                            gameData.addEvent(new GameLoseEvent(null));
-                        }
-
-                        if (entity.getComponent(Team.class).getTeam() == Teams.ENEMY) {
-                            gameData.addEvent(new GameWinEvent(null));
-                        }
+                if (entity instanceof Flagship && entity.getComponent(Team.class) != null) {
+                    if (entity.getComponent(Team.class).getTeam() == Teams.PLAYER) {
+                        gameData.addEvent(new GameLoseEvent(null));
                     }
-                }
 
-                //Collides?
-                if (isCollided(entity, collisionEntity)) {
-                    if (collisionEntity instanceof Bullet) {
-                        entityHealth.removeHealthPoints(1);
-                        world.removeEntity(collisionEntity);
-                    } else if (entity instanceof Bullet) {
-                        if (collisionHealth != null) {
-                            collisionHealth.removeHealthPoints(1);
-                        }
-                        world.removeEntity(entity);
-                    } else if (collisionEntity instanceof Asteroid) {
-                        entityHealth.removeHealthPoints(1);
-                    } else {
-                        entityHealth.removeHealthPoints(1);
+                    if (entity.getComponent(Team.class).getTeam() == Teams.ENEMY) {
+                        gameData.addEvent(new GameWinEvent(null));
                     }
                 }
             }
+
+            //Collides?
+            if (isCollided(entity, collisionEntity)) {
+                if (collisionEntity instanceof Bullet) {
+                    entityHealth.removeHealthPoints(1);
+                    world.removeEntity(collisionEntity);
+                } else if (entity instanceof Bullet) {
+                    if (collisionHealth != null) {
+                        collisionHealth.removeHealthPoints(1);
+                    }
+                    world.removeEntity(entity);
+                } else if (collisionEntity instanceof Asteroid) {
+                    entityHealth.removeHealthPoints(1);
+                }
+            }
         }
+    }
+
+    public void process(GameData gameData, World world) {
+        ExecutorService executorService = Executors.newFixedThreadPool(10);
+
+        // Process collisions
+        List<Future<?>> tasks = new ArrayList<>();
+        for (Entity entity : world.getEntities()) {
+            tasks.add(executorService.submit(() -> handleCollisionEntity(entity, gameData, world)));
+        }
+
+        try {
+            for (var task : tasks) {
+                task.get();
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException("Collision tasks were interrupted");
+        }
+
+
         var grid = gameData.getGrid();
         // Bounce back for flagship
         for (Entity flagship : world.getEntities(Flagship.class)) {
             var position = flagship.getComponent(Position.class);
-            if(grid.getNodeFromCoords((int)position.getX(), (int)position.getY()).isCollidable()){
+            if (grid.getNodeFromCoords((int) position.getX(), (int) position.getY()).isCollidable()) {
                 var movement = flagship.getComponent(Movement.class);
 
                 Vector2 direction = new Vector2(movement.getDx(), movement.getDy());
-                Vector2 collisionForce = grid.getNodeFromCoords((int)position.getX(), (int)position.getY()).getCollisionVector();
+                Vector2 collisionForce = grid.getNodeFromCoords((int) position.getX(), (int) position.getY()).getCollisionVector();
                 Vector2 newDirection = collisionForce.multiply(-Math.abs(2 * (float) collisionForce.dot(direction))).subtract(direction).multiply(-1);
                 float dT = gameData.getDeltaTime();
                 position.setX(position.getX() + newDirection.x * dT);
@@ -81,14 +99,15 @@ public class CollisionControlSystem implements IPostProcess {
                 movement.setDy(newDirection.y);
             }
         }
+        executorService.shutdown();
         // Bounce back for Carriers
         for (Entity carrier : world.getEntities(Carrier.class)) {
             var position = carrier.getComponent(Position.class);
-            if(grid.getNodeFromCoords((int)position.getX(), (int)position.getY()).isCollidable()){
+            if (grid.getNodeFromCoords((int) position.getX(), (int) position.getY()).isCollidable()) {
                 var movement = carrier.getComponent(Movement.class);
 
                 Vector2 direction = new Vector2(movement.getDx(), movement.getDy());
-                Vector2 collisionForce = grid.getNodeFromCoords((int)position.getX(), (int)position.getY()).getCollisionVector();
+                Vector2 collisionForce = grid.getNodeFromCoords((int) position.getX(), (int) position.getY()).getCollisionVector();
                 Vector2 newDirection = collisionForce.multiply(-Math.abs(2 * (float) collisionForce.dot(direction))).subtract(direction).multiply(-1);
                 float dT = gameData.getDeltaTime();
                 position.setX(position.getX() + newDirection.x * dT);
@@ -114,41 +133,40 @@ public class CollisionControlSystem implements IPostProcess {
         return hitbox.intersects(hitbox2);
     }
 
-    private void rebound(Entity flagship, Entity asteroid){
+    private void rebound(Entity flagship, Entity asteroid) {
         System.out.println("Rebound");
-        if(flagship instanceof Flagship){
+        if (flagship instanceof Flagship) {
             System.out.println("FLAAG");
-        float flagX = flagship.getComponent(Position.class).getX();
-        float flagY = flagship.getComponent(Position.class).getY();
+            float flagX = flagship.getComponent(Position.class).getX();
+            float flagY = flagship.getComponent(Position.class).getY();
 
-        float astX = asteroid.getComponent(Position.class).getX();
-        float astY = asteroid.getComponent(Position.class).getY();
+            float astX = asteroid.getComponent(Position.class).getX();
+            float astY = asteroid.getComponent(Position.class).getY();
 
-        Vector2 flagVector = new Vector2(flagX,flagY);
-        Vector2 astVector = new Vector2(astX,astY);
+            Vector2 flagVector = new Vector2(flagX, flagY);
+            Vector2 astVector = new Vector2(astX, astY);
 
-        double dotProduct = flagVector.dot(astVector);
-        double magnitudeProduct = flagVector.magnitude() * astVector.magnitude();
-        float angle = (float)Math.acos(dotProduct / magnitudeProduct);
+            double dotProduct = flagVector.dot(astVector);
+            double magnitudeProduct = flagVector.magnitude() * astVector.magnitude();
+            float angle = (float) Math.acos(dotProduct / magnitudeProduct);
 
-        flagship.getComponent(Position.class).setRadians(angle*2);
-        flagship.getComponent(Movement.class).setAcceleration(-100);
-        }
-        else{
+            flagship.getComponent(Position.class).setRadians(angle * 2);
+            flagship.getComponent(Movement.class).setAcceleration(-100);
+        } else {
             float astX = flagship.getComponent(Position.class).getX();
             float astY = flagship.getComponent(Position.class).getY();
 
             float flagX = asteroid.getComponent(Position.class).getX();
             float flagY = asteroid.getComponent(Position.class).getY();
 
-            Vector2 flagVector = new Vector2(flagX,flagY);
-            Vector2 astVector = new Vector2(astX,astY);
+            Vector2 flagVector = new Vector2(flagX, flagY);
+            Vector2 astVector = new Vector2(astX, astY);
 
             double dotProduct = flagVector.dot(astVector);
             double magnitudeProduct = flagVector.magnitude() * astVector.magnitude();
-            float angle = (float)Math.acos(dotProduct / magnitudeProduct);
+            float angle = (float) Math.acos(dotProduct / magnitudeProduct);
 
-            flagship.getComponent(Position.class).setRadians(angle*2);
+            flagship.getComponent(Position.class).setRadians(angle * 2);
             flagship.getComponent(Movement.class).setAcceleration(-flagship.getComponent(Movement.class).getAcceleration());
         }
     }

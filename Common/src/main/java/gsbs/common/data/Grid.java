@@ -23,9 +23,9 @@ public class Grid {
 
     public Grid(int nodeSize, int displayWidth, int displayHeight) {
         this.nodeSize = nodeSize;
-        this.maxRow = displayWidth/nodeSize;
-        this.maxColumn = displayHeight/nodeSize;
-        this.grid = new Node[maxRow*maxColumn];
+        this.maxRow = displayWidth / nodeSize;
+        this.maxColumn = displayHeight / nodeSize;
+        this.grid = new Node[maxRow * maxColumn];
         int index = 0;
         for (int i = 0; i < maxRow; i++) {
             index = i * maxColumn - 1;
@@ -51,23 +51,23 @@ public class Grid {
                     Node bottomNode = getNode(i, maxColumn - 1 - j);
                     topNode.setCollidable(true);
                     topNode.setBlocked(true);
-                    topNode.setCollisionVector(new Vector2(0,1f));
+                    topNode.setCollisionVector(new Vector2(0, 1f));
 
                     bottomNode.setCollidable(true);
                     bottomNode.setBlocked(true);
-                    bottomNode.setCollisionVector(new Vector2(0,-1f));
+                    bottomNode.setCollisionVector(new Vector2(0, -1f));
                 }
             }
             for (int i = 0; i < maxColumn; i++) {
                 for (int j = 0; j < 1; j++) {
                     Node leftNode = getNode(j, i);
-                    Node rightNode = getNode(maxRow - 1 -j, i);
+                    Node rightNode = getNode(maxRow - 1 - j, i);
                     leftNode.setCollidable(true);
                     leftNode.setBlocked(true);
-                    leftNode.setCollisionVector(new Vector2(1,0));
+                    leftNode.setCollisionVector(new Vector2(1, 0));
                     rightNode.setCollidable(true);
                     rightNode.setBlocked(true);
-                    rightNode.setCollisionVector(new Vector2(-1,0));
+                    rightNode.setCollisionVector(new Vector2(-1, 0));
                 }
             }
         }
@@ -81,7 +81,7 @@ public class Grid {
     private void addWeightsToNodes(Entity[] blockingEntities) {
         float smallestDistanceFromBlockingEntity;
         for (Node node : grid) {
-            if (node.isBlocked()){
+            if (node.isBlocked()) {
                 node.setWeight(Float.MAX_VALUE);
                 continue;
             }
@@ -96,20 +96,21 @@ public class Grid {
                     float asteroidCenterY = position.getY() + sprite.getHeight() / 2;
 
                     float radius = sprite.getWidth() / 2;
-                    float distance = Distance.euclideanDistance(nodeCoords[0], nodeCoords[1], asteroidCenterX, asteroidCenterY) - radius;;
+                    float distance = Distance.euclideanDistance(nodeCoords[0], nodeCoords[1], asteroidCenterX, asteroidCenterY) - radius;
 
                     if (distance <= smallestDistanceFromBlockingEntity) {
                         smallestDistanceFromBlockingEntity = distance;
                     }
                 }
             }
-            float weight = (float) (tolerance/Math.pow(smallestDistanceFromBlockingEntity, steepness));
+            float weight = (float) (tolerance / Math.pow(smallestDistanceFromBlockingEntity, steepness));
             if (weight > 999)
                 weight = 999;
             node.setWeight(weight);
         }
     }
-    private void blockNodesFromEntities (Entity[] blockingEntities){
+
+    private void blockNodesFromEntities(Entity[] blockingEntities) {
         for (Entity entity : blockingEntities) {
             var position = entity.getComponent(Position.class);
             var sprite = entity.getComponent(Sprite.class);
@@ -136,7 +137,7 @@ public class Grid {
         }
     }
 
-    private void setNodeCollisions (Entity[] collisionEntities){
+    private void setNodeCollisions(Entity[] collisionEntities) {
         for (Entity entity : collisionEntities) {
             var position = entity.getComponent(Position.class);
             var sprite = entity.getComponent(Sprite.class);
@@ -180,6 +181,7 @@ public class Grid {
             System.out.println();  // Move to the next row
         }
     }
+
     public void printGridWeights() {
         printGrid = true;
         for (int j = 0; j < maxColumn; j++) {
@@ -196,40 +198,48 @@ public class Grid {
         }
     }
 
-    public Node getNode(int row, int column){
+    public Node getNode(int row, int column) {
         return this.grid[row * maxColumn + column];
     }
 
-    public Node getNodeFromCoords(int x, int y){
+    public Node getNodeFromCoords(int x, int y) {
         // FIX! can hit out of bounds at the highest x and y value
         int row = x / nodeSize;
         int column = y / nodeSize;
-        if (row > maxRow-1){
-            row = maxRow-1;
+        if (row > maxRow - 1) {
+            row = maxRow - 1;
         }
-        return this.grid[row * maxColumn + column];
+
+        int index = row * maxColumn + column;
+
+        if (index < this.grid.length) {
+            return this.grid[index];
+
+        } else {
+            return this.grid[this.grid.length - 1];
+        }
     }
 
-    public int[] getCoordsFromNode(Node node){
+    public int[] getCoordsFromNode(Node node) {
         int[] result = new int[2];
-        result[0] = node.getRow() * nodeSize + (nodeSize/2);
-        result[1] = node.getColumn() * nodeSize + (nodeSize/2);
+        result[0] = node.getRow() * nodeSize + (nodeSize / 2);
+        result[1] = node.getColumn() * nodeSize + (nodeSize / 2);
         return result;
     }
 
-    public Node[] getNeighbors(Node node){
+    public Node[] getNeighbors(Node node) {
         List<Node> nodes = new ArrayList<>();
         int nodeSpot = node.getRow() * maxColumn + node.getColumn();
-        if (node.getRow() != 0){
+        if (node.getRow() != 0) {
             nodes.add(grid[nodeSpot - maxColumn]);
         }
-        if (node.getRow() != maxRow-1){
+        if (node.getRow() != maxRow - 1) {
             nodes.add(grid[nodeSpot + maxColumn]);
         }
-        if (node.getColumn() != 0){
+        if (node.getColumn() != 0) {
             nodes.add(grid[nodeSpot - 1]);
         }
-        if (node.getColumn() != maxColumn-1){
+        if (node.getColumn() != maxColumn - 1) {
             nodes.add(grid[nodeSpot + 1]);
         }
         return nodes.toArray(new Node[0]);

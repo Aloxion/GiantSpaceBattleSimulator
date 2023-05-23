@@ -6,7 +6,6 @@ import gsbs.common.data.World;
 import gsbs.common.data.enums.Teams;
 import gsbs.common.entities.Carrier;
 import gsbs.common.entities.Entity;
-import gsbs.common.entities.Flagship;
 import gsbs.common.events.SpawnAttackships;
 import gsbs.common.services.IPlugin;
 import gsbs.common.services.IWeapon;
@@ -16,9 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CarrierPlugin implements IPlugin {
-    private int maxCarriersInOneTeam = 10;
-    private int maxAttackshipsPerCarrier = 30;
-    private int maxHealthForCarrier = 50;
+    private final int maxCarriersInOneTeam = 10;
+    private final int maxAttackshipsPerCarrier = 30;
+    private final int maxHealthForCarrier = 50;
     private List<Entity> playerCarriers;
     private List<Entity> enemyCarriers;
 
@@ -28,7 +27,7 @@ public class CarrierPlugin implements IPlugin {
         enemyCarriers = new ArrayList<Entity>();
 
         for (int i = 1; i < maxCarriersInOneTeam + 1; i++) {
-            float ySpawn = gameData.getDisplayHeight() / (float) (maxCarriersInOneTeam  + 1) ;
+            float ySpawn = gameData.getDisplayHeight() / (float) (maxCarriersInOneTeam + 1);
             playerCarriers.add(createCarrier(gameData, world, Teams.PLAYER, gameData.getDisplayWidth() / 12.0f, ySpawn * i, 0));
         }
 
@@ -38,7 +37,7 @@ public class CarrierPlugin implements IPlugin {
         }
 
         for (int i = 1; i < maxCarriersInOneTeam + 1; i++) {
-            float ySpawn = gameData.getDisplayHeight() / (float) (maxCarriersInOneTeam  + 1) ;
+            float ySpawn = gameData.getDisplayHeight() / (float) (maxCarriersInOneTeam + 1);
             enemyCarriers.add(createCarrier(gameData, world, Teams.ENEMY, gameData.getDisplayWidth() - gameData.getDisplayWidth() / 12.0f, ySpawn * i, (float) Math.PI));
         }
 
@@ -66,7 +65,7 @@ public class CarrierPlugin implements IPlugin {
         Ship.add(new Health(maxHealthForCarrier));
         Ship.add(new Movement(deacceleration, acceleration, maxSpeed, rotationSpeed));
         Ship.add(new Position(x, y, radians));
-        Ship.add(new Sprite(CarrierPlugin.class.getResource("/carrier.png"), 50, 50));
+        Ship.add(new Sprite(CarrierPlugin.class.getResource("/flagship.png"), 50, 50));
         Ship.add(new Hitbox(32, 32, x, y));
         Ship.add(new Team(team));
         Ship.add(new Weapon(weapons));

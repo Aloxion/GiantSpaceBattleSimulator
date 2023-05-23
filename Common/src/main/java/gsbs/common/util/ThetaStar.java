@@ -33,7 +33,7 @@ public class ThetaStar {
         // Euclidean distance heuristic
         int deltaRow = node.getRow() - goal.getRow();
         int deltaColumn = node.getColumn() - goal.getColumn();
-        return Math.sqrt(deltaRow * deltaRow + deltaColumn * deltaColumn) + node.getWeight();
+        return Math.sqrt(deltaRow * deltaRow + deltaColumn * deltaColumn) * node.getWeight();
     }
 
     public <T, E> T getKeyByValue(Map<T, E> map, E value) {
@@ -148,7 +148,8 @@ public class ThetaStar {
                 if (f != 0 && grid.getNode(x0 + ((sx - 1) / 2), y0 + ((sy - 1) / 2)).isBlocked()) {
                     return false;
                 }
-                if (dy == 0 && grid.getNode(x0 + ((sx - 1) / 2), y0).isBlocked() && grid.getNode(x0 + ((sx - 1) / 2), y0 - 1).isBlocked()) {
+                if (dy == 0 && grid.getNode(x0 + ((sx - 1) / 2), y0).isBlocked()
+                        && grid.getNode(x0 + ((sx - 1) / 2), y0 - 1).isBlocked()) {
                     return false;
                 }
                 x0 += sx;
@@ -166,7 +167,8 @@ public class ThetaStar {
                 if (f != 0 && grid.getNode(x0 + ((sx - 1) / 2), y0 + ((sy - 1) / 2)).isBlocked()) {
                     return false;
                 }
-                if (dx == 0 && grid.getNode(x0, y0 + ((sy - 1) / 2)).isBlocked() && grid.getNode(x0 - 1, y0 + ((sy - 1) / 2)).isBlocked()) {
+                if (dx == 0 && grid.getNode(x0, y0 + ((sy - 1) / 2)).isBlocked()
+                        && grid.getNode(x0 - 1, y0 + ((sy - 1) / 2)).isBlocked()) {
                     return false;
                 }
                 y0 += sy;

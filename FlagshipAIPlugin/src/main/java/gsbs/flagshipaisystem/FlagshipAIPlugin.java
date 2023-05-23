@@ -14,8 +14,8 @@ public class FlagshipAIPlugin implements IPlugin {
 
     @Override
     public void start(GameData gameData, World world) {
-        enemyFlagshipAI = createFlagshipAI(gameData, world, Teams.ENEMY);
-        world.addEntity(enemyFlagshipAI);
+        //enemyFlagshipAI = createFlagshipAI(gameData, world, Teams.ENEMY);
+        //world.addEntity(enemyFlagshipAI);
     }
 
     @Override

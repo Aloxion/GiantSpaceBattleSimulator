@@ -61,16 +61,25 @@ public class CarrierPlugin implements IPlugin {
 
         List<IWeapon> weapons = loadWeapons();
 
-        Entity Ship = new Carrier();
-        Ship.add(new Health(maxHealthForCarrier));
-        Ship.add(new Movement(deacceleration, acceleration, maxSpeed, rotationSpeed));
-        Ship.add(new Position(x, y, radians));
-        Ship.add(new Sprite(CarrierPlugin.class.getResource("/flagship.png"), 50, 50));
-        Ship.add(new Hitbox(32, 32, x, y));
-        Ship.add(new Team(team));
-        Ship.add(new Weapon(weapons));
-
-        return Ship;
+        Entity ship = new Carrier();
+        ship.add(new Health(maxHealthForCarrier));
+        ship.add(new Movement(deacceleration, acceleration, maxSpeed, rotationSpeed));
+        ship.add(new Position(x, y, radians));
+        ship.add(new Hitbox(32, 32, x, y));
+        ship.add(new Team(team));
+        ship.add(new Weapon(weapons));
+        Sprite sprite = null;
+        switch (team) {
+            case PLAYER:
+                sprite = new Sprite(getClass().getResource("/PlayerCarrier.png"), 50, 50);
+                break;
+            case ENEMY:
+                sprite = new Sprite(getClass().getResource("/EnemyCarrier.png"), 50, 50);
+                break;
+        }
+        ship.add(new Hitbox(sprite.getWidth()/2f, sprite.getHeight()/2f, x, y));
+        ship.add(sprite);
+        return ship;
     }
 
     private List<IWeapon> loadWeapons() {

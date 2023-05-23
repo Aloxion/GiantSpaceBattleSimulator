@@ -26,9 +26,9 @@ public class Laser implements IWeapon {
         Entity bullet = new Bullet();
         bullet.add(new Movement(deacceleration, acceleration, maxSpeed, rotationSpeed));
         Sprite sprite = new Sprite(Laser.class.getResource(this.laserSprite), 15, 20);
-        bullet.add(new Position(startPosition.getX() + (sprite.getWidth() / 2.f), startPosition.getY() + (sprite.getHeight() / 2.f), startPosition.getRadians()));
+        bullet.add(new Position(startPosition.getX(), startPosition.getY(), startPosition.getRadians()));
         bullet.add(sprite);
-        bullet.add(new Hitbox(sprite.getWidth(), sprite.getHeight(), startPosition.getX() + (sprite.getWidth() / 2.f), startPosition.getY() + (sprite.getHeight() / 2.f)));
+        bullet.add(new Hitbox(sprite.getWidth(), sprite.getHeight(), startPosition.getX(), startPosition.getY()));
         bullet.add(new Team(entity.getComponent(Team.class).getTeam()));
 
         bullet.add(new Health(duration));

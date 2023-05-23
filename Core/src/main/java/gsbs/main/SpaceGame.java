@@ -144,7 +144,7 @@ public class SpaceGame implements IEventListener {
             float cy = sprite.getHeight() / 2.0f;
 
             nvgSave(nvgContext);
-            nvgTranslate(nvgContext, position.getX() + cx, position.getY() + cy);
+            nvgTranslate(nvgContext, position.getX(), position.getY());
             nvgRotate(nvgContext, position.getRadians());
             nvgTranslate(nvgContext, -cx, -cy);
 

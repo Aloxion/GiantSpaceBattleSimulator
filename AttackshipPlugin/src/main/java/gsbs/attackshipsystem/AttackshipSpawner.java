@@ -41,16 +41,17 @@ public class AttackshipSpawner implements IEventListener {
 
                 Attackship attackship = new Attackship();
                 attackship.add(new Position(attackshipPosition.x, attackshipPosition.y, 0));
-                attackship.add(new Sprite(getClass().getResource("/assets2/flagship.png"), 20, 20));
                 attackship.add(new Health(1));
                 attackship.add(new Hitbox(10, 10, attackshipPosition.x, attackshipPosition.y));
                 attackship.add(new Team(leader.getComponent(Team.class).getTeam()));
                 switch (leader.getComponent(Team.class).getTeam()) {
                     case PLAYER:
                         attackship.add(new Weapon(List.of(new Laser("/player_laser.png"))));
+                        attackship.add(new Sprite(getClass().getResource("/PlayerFighterShip.png"), 15, 15));
                         break;
                     case ENEMY:
                         attackship.add(new Weapon(List.of(new Laser("/enemy_laser.png"))));
+                        attackship.add(new Sprite(getClass().getResource("/EnemyFighterShip.png"), 15, 15));
                         break;
                 }
 

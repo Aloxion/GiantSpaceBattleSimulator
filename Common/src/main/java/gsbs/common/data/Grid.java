@@ -12,8 +12,8 @@ import java.util.List;
 
 public class Grid {
     int nodeSize;
-    int maxRow;
     int maxColumn;
+    int maxRow;
     Node[] grid;
     boolean printGrid = false;
     boolean updateGridFlag = true;
@@ -23,13 +23,13 @@ public class Grid {
 
     public Grid(int nodeSize, int displayWidth, int displayHeight) {
         this.nodeSize = nodeSize;
-        this.maxRow = displayWidth / nodeSize;
-        this.maxColumn = displayHeight / nodeSize;
-        this.grid = new Node[maxRow * maxColumn];
+        this.maxColumn = displayWidth / nodeSize;
+        this.maxRow = displayHeight / nodeSize;
+        this.grid = new Node[maxColumn * maxRow];
         int index = 0;
-        for (int i = 0; i < maxRow; i++) {
-            index = i * maxColumn - 1;
-            for (int j = 0; j < maxColumn; j++) {
+        for (int i = 0; i < maxColumn; i++) {
+            index = i * maxRow - 1;
+            for (int j = 0; j < maxRow; j++) {
                 index += 1;
                 this.grid[index] = new Node(i, j, false, false);
             }
@@ -49,10 +49,10 @@ public class Grid {
             addWeightsToNodes(entitiesToBlock.toArray(new Entity[0]));
 
             // Block the rim and make it collidable
-            for (int i = 0; i < maxRow; i++) {
+            for (int i = 0; i < maxColumn; i++) {
                 for (int j = 0; j < 2; j++) {
                     Node topNode = getNode(i, j);
-                    Node bottomNode = getNode(i, maxColumn - 1 - j);
+                    Node bottomNode = getNode(i, maxRow - 1 - j);
                     topNode.setCollidable(true);
                     topNode.setBlocked(true);
                     topNode.setCollisionVector(new Vector2(0, 1f));
@@ -62,10 +62,10 @@ public class Grid {
                     bottomNode.setCollisionVector(new Vector2(0, -1f));
                 }
             }
-            for (int i = 0; i < maxColumn; i++) {
+            for (int i = 0; i < maxRow; i++) {
                 for (int j = 0; j < 2; j++) {
                     Node leftNode = getNode(j, i);
-                    Node rightNode = getNode(maxRow - 1 - j, i);
+                    Node rightNode = getNode(maxColumn - 1 - j, i);
                     leftNode.setCollidable(true);
                     leftNode.setBlocked(true);
                     leftNode.setCollisionVector(new Vector2(1, 0));
@@ -173,8 +173,8 @@ public class Grid {
 
     public void printGrid() {
         printGrid = true;
-        for (int i = 0; i < maxRow; i++) {
-            for (int j = 0; j < maxColumn; j++) {
+        for (int i = 0; i < maxColumn; i++) {
+            for (int j = 0; j < maxRow; j++) {
                 Node node = getNode(i, j);
                 if (node.isBlocked()) {
                     System.out.print("[X]");  // Blocked node marker
@@ -188,8 +188,8 @@ public class Grid {
 
     public void printGridWeights() {
         printGrid = true;
-        for (int j = 0; j < maxColumn; j++) {
-            for (int i = 0; i < maxRow; i++) {
+        for (int j = 0; j < maxRow; j++) {
+            for (int i = 0; i < maxColumn; i++) {
                 Node node = getNode(i, j);
                 if (node.isBlocked()) {
                     System.out.print("\033[31m[XXX]\033[0m");  // Blocked node marker in red
@@ -203,18 +203,18 @@ public class Grid {
     }
 
     public Node getNode(int row, int column) {
-        return this.grid[row * maxColumn + column];
+        return this.grid[row * maxRow + column];
     }
 
     public Node getNodeFromCoords(int x, int y) {
         // FIX! can hit out of bounds at the highest x and y value
         int row = x / nodeSize;
         int column = y / nodeSize;
-        if (row > maxRow - 1) {
-            row = maxRow - 1;
+        if (row > maxColumn - 1) {
+            row = maxColumn - 1;
         }
 
-        int index = row * maxColumn + column;
+        int index = row * maxRow + column;
 
         if (index < this.grid.length) {
             return this.grid[index];
@@ -233,17 +233,17 @@ public class Grid {
 
     public Node[] getNeighbors(Node node) {
         List<Node> nodes = new ArrayList<>();
-        int nodeSpot = node.getRow() * maxColumn + node.getColumn();
+        int nodeSpot = node.getRow() * maxRow + node.getColumn();
         if (node.getRow() != 0) {
-            nodes.add(grid[nodeSpot - maxColumn]);
+            nodes.add(grid[nodeSpot - maxRow]);
         }
-        if (node.getRow() != maxRow - 1) {
-            nodes.add(grid[nodeSpot + maxColumn]);
+        if (node.getRow() != maxColumn - 1) {
+            nodes.add(grid[nodeSpot + maxRow]);
         }
         if (node.getColumn() != 0) {
             nodes.add(grid[nodeSpot - 1]);
         }
-        if (node.getColumn() != maxColumn - 1) {
+        if (node.getColumn() != maxRow - 1) {
             nodes.add(grid[nodeSpot + 1]);
         }
         return nodes.toArray(new Node[0]);

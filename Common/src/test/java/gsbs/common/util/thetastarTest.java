@@ -30,7 +30,6 @@ class thetastarTest {
         int height = 800;
         gridInstance = new Grid(10, width, height);
         grid = gridInstance.getGrid();
-
         start = gridInstance.getNodeFromCoords(10, 300);
         goal = gridInstance.getNodeFromCoords(1000, 300);
         thetaStar = new ThetaStar();
@@ -47,9 +46,6 @@ class thetastarTest {
         actualShortestPath.add(gridInstance.getNode(9,41));
         actualShortestPath.add(gridInstance.getNode(4,37));
         actualShortestPath.add(gridInstance.getNode(1,30));
-
-
-        System.out.println(path);
         assertTrue(path.equals(actualShortestPath));
     }
 

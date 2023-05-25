@@ -19,7 +19,7 @@ import java.util.concurrent.Future;
 
 public class CollisionControlSystem implements IPostProcess {
 
-    private void handleCollisionEntity(Entity entity, GameData gameData, World world) {
+    public void handleCollisionEntity(Entity entity, GameData gameData, World world) {
         for (Entity collisionEntity : world.getEntities()) {
             if (entity.getComponent(Health.class) == null) {
                 continue;
@@ -118,7 +118,7 @@ public class CollisionControlSystem implements IPostProcess {
         }
     }
 
-    private Boolean isCollided(Entity entity1, Entity entity2) {
+    public Boolean isCollided(Entity entity1, Entity entity2) {
         Hitbox hitbox = entity1.getComponent(Hitbox.class);
         Hitbox hitbox2 = entity2.getComponent(Hitbox.class);
 

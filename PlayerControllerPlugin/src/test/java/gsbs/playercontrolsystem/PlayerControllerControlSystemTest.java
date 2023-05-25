@@ -3,10 +3,6 @@ package gsbs.playercontrolsystem;
 import gsbs.common.data.GameData;
 import gsbs.common.data.GameKeys;
 import gsbs.common.data.World;
-import gsbs.common.entities.Entity;
-import gsbs.common.events.EventType;
-import gsbs.common.events.PlayerControlEvent;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;

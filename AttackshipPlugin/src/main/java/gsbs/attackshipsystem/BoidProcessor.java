@@ -59,13 +59,6 @@ public class BoidProcessor implements IProcess {
             }
         }
 
-        // Fix position
-        for (var entity : world.getEntities(Attackship.class)) {
-            var hitbox = entity.getComponent(Hitbox.class);
-            var position = entity.getComponent(Position.class);
-            hitbox.set(position.getX(), position.getY());
-        }
-
         // Sync boid position
         for (var boidEntity : world.getEntitiesWithComponent(Boid.class)) {
             // Sync boid position
@@ -145,6 +138,13 @@ public class BoidProcessor implements IProcess {
                 world.removeEntity(boidEntity);
                 gameData.addEvent(new SpawnAttackships(boid.leader, world, 1));
             }
+        }
+
+        // Fix position
+        for (var entity : world.getEntities(Attackship.class)) {
+            var hitbox = entity.getComponent(Hitbox.class);
+            var position = entity.getComponent(Position.class);
+            hitbox.set(position.getX(), position.getY());
         }
 
         // Fire weapons

@@ -1,9 +1,11 @@
 plugins {
     id 'org.javamodularity.moduleplugin' version '1.8.12' apply false
+    id 'org.barfuin.gradle.jacocolog' version '3.1.0'
 }
 
 allprojects {
     apply plugin: 'java'
+    apply plugin: 'jacoco'
     apply plugin: "org.javamodularity.moduleplugin"
 
     version = "1.0"
@@ -13,6 +15,7 @@ allprojects {
         lwjglVersion = "3.3.1"
         imguiVersion = "1.86.10"
         junitVersion = "5.9.2"
+        mockitoVersion = "5.3.1"
     }
 
     repositories {
@@ -22,6 +25,7 @@ allprojects {
     dependencies {
         testImplementation(platform("org.junit:junit-bom:$junitVersion"))
         testImplementation("org.junit.jupiter:junit-jupiter")
+        testImplementation("org.mockito:mockito-core:$mockitoVersion")
     }
 
     test {

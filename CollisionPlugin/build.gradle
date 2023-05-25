@@ -3,6 +3,5 @@ plugins {
 }
 
 dependencies {
-    implementation 'org.mockito:mockito-testng:0.4.30'
     implementation project(':Common')
 }

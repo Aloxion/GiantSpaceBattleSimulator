@@ -5,8 +5,6 @@ import gsbs.common.data.*;
 import gsbs.common.data.enums.Teams;
 import gsbs.common.entities.*;
 import org.junit.jupiter.api.*;
-
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class CollisionControlSystemTest {

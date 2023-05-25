@@ -255,6 +255,7 @@ public class DebugProcessor implements ISystemPostProcess {
 
         ImGui.beginDisabled(paused);
         if (ImGui.button("## pause", 20, 20)) {
+            gameData.setGameState(GameState.PAUSED);
             paused = true;
         }
         ImGui.endDisabled();
@@ -266,6 +267,7 @@ public class DebugProcessor implements ISystemPostProcess {
         ImGui.beginDisabled(!paused);
         if (ImGui.button("## play", 20, 20)) {
             paused = false;
+            gameData.setGameState(GameState.IN_GAME);
         }
         ImGui.endDisabled();
 

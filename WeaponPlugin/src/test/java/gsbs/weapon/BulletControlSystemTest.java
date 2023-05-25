@@ -1,7 +1,9 @@
 package gsbs.weapon;
 
 import gsbs.common.components.Health;
+import gsbs.common.components.Hitbox;
 import gsbs.common.components.Movement;
+import gsbs.common.components.Position;
 import gsbs.common.data.GameData;
 import gsbs.common.data.World;
 import gsbs.common.entities.Bullet;
@@ -18,7 +20,7 @@ class BulletControlSystemTest {
     @BeforeEach
     void setUp() {
         bulletControlSystem = new BulletControlSystem();
-        gameData = new GameData();
+        gameData = new GameData(0);
         world = new World();
     }
 
@@ -56,6 +58,8 @@ class BulletControlSystemTest {
         Bullet bullet = new Bullet();
         bullet.add(new Health(10));
         bullet.add(new Movement(10, 10, 10, 10));
+        bullet.add(new Hitbox(0, 0, 0, 0));
+        bullet.add(new Position(0, 0, 0));
         return bullet;
     }
 }

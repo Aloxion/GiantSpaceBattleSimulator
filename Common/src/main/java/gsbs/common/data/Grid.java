@@ -8,6 +8,7 @@ import gsbs.common.math.Distance;
 import gsbs.common.math.Vector2;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Grid {
@@ -78,8 +79,10 @@ public class Grid {
 
 
         updateGridFlag = false;
-        if (printGrid)
+        if (printGrid) {
             printGridWeights();
+            printGrid();
+        }
     }
 
     private void addWeightsToNodes(Entity[] blockingEntities) {

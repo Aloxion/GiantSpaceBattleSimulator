@@ -10,7 +10,7 @@ public class Main {
         cfg.setWidth(1200);
         cfg.setHeight(800);
         cfg.setFullScreen(false);
-        cfg.setVsync(true);
+        cfg.setVsync(false);
         cfg.setBackgroundColor(new Color(0, 0, 0, 1));
 
         new SpaceGame(cfg).start();

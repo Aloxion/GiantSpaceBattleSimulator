@@ -43,6 +43,10 @@ public class DebugProcessor implements ISystemPostProcess {
 
     @Override
     public void process(GameData gameData, World world) {
+        if (gameData.getGameState() == GameState.IN_GAME) {
+            System.out.println(1 / gameData.getDeltaTime());
+        }
+        
         long nvgContext = gameData.getNvgContext();
 
         if (showHitbox) {
@@ -53,7 +57,7 @@ public class DebugProcessor implements ISystemPostProcess {
                 nvgSave(nvgContext);
                 nvgTranslate(nvgContext, (hitbox.getX()), (hitbox.getY()));
                 nvgRotate(nvgContext, position.getRadians());
-                nvgTranslate(nvgContext, (-hitbox.getHalfWidth()/2), (-hitbox.getHalfHeight())/2);
+                nvgTranslate(nvgContext, (-hitbox.getHalfWidth() / 2), (-hitbox.getHalfHeight()) / 2);
 
                 nvgBeginPath(nvgContext);
                 nvgRect(nvgContext, 0, 0, hitbox.getHalfWidth(), hitbox.getHalfHeight());
@@ -64,7 +68,7 @@ public class DebugProcessor implements ISystemPostProcess {
             }
         }
         //Draw Center
-        if(showCenter){
+        if (showCenter) {
             for (Entity entity : world.getEntitiesWithComponents(Position.class)) {
                 var position = entity.getComponent(Position.class);
                 nvgBeginPath(nvgContext);
@@ -77,8 +81,8 @@ public class DebugProcessor implements ISystemPostProcess {
                 for (int j = 0; j < gameData.getDisplayHeight() / gameData.getNodeSize(); j++) {
                     Node node = gameData.getGrid().getNode(i, j);
                     int nodeSize = gameData.getGrid().getNodeSize();
-                    float nodeX = gameData.getGrid().getCoordsFromNode(node)[0] - nodeSize/2;
-                    float nodeY = gameData.getGrid().getCoordsFromNode(node)[1] - nodeSize/2;
+                    float nodeX = gameData.getGrid().getCoordsFromNode(node)[0] - nodeSize / 2;
+                    float nodeY = gameData.getGrid().getCoordsFromNode(node)[1] - nodeSize / 2;
 
                     // Draw the filled rectangle with transparency
                     nvgBeginPath(nvgContext);

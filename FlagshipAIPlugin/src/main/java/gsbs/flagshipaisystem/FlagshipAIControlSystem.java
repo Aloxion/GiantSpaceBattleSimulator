@@ -83,7 +83,7 @@ public class FlagshipAIControlSystem implements IProcess {
         if (path.size() > 1) {
             int[] desiredLocation = grid.getCoordsFromNode(path.get(path.size() - 2));
             if (grid.getNodeFromCoords(desiredLocation[0], desiredLocation[1]).isBlocked()) {
-                System.out.println("THIS NODE IS BLOCKED: " + grid.getNodeFromCoords(desiredLocation[0], desiredLocation[1]));
+//                System.out.println("THIS NODE IS BLOCKED: " + grid.getNodeFromCoords(desiredLocation[0], desiredLocation[1]));
             }
             double directionDifferenceNode1 = getDirectionDifference(positionAIShip.getX(), positionAIShip.getY(), desiredLocation[0], desiredLocation[1], positionAIShip.getRadians());
 

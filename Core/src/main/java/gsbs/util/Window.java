@@ -73,13 +73,13 @@ public class Window {
             processFrame();
 
             // BGFX has a bug in metal, where if the window goes offscreen, then the vsync stops working i.e. 100% CPU usage.
-            if (config.isVsync() && ImGui.getIO().getDeltaTime() < 0.016) {
-                try {
-                    Thread.sleep((long) (16 - ImGui.getIO().getDeltaTime() * 1000));
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
+//            if (config.isVsync() && ImGui.getIO().getDeltaTime() < 0.016) {
+//                try {
+//                    Thread.sleep((long) (16 - ImGui.getIO().getDeltaTime() * 1000));
+//                } catch (InterruptedException e) {
+//                    throw new RuntimeException(e);
+//                }
+//            }
         }
         dispose();
     }
@@ -160,8 +160,8 @@ public class Window {
             bgfx_init_ctor(init);
             init.resolution(it -> it
                     .width(config.getWidth())
-                    .height(config.getHeight())
-                    .reset(BGFX_RESET_VSYNC));
+                    .height(config.getHeight()));
+//                    .reset(BGFX_RESET_VSYNC));
             switch (Platform.get()) {
                 case LINUX:
                     init.platformData()

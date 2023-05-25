@@ -248,6 +248,10 @@ public class Grid {
         }
         return nodes.toArray(new Node[0]);
     }
+
+    public Node[] getGrid(){
+        return grid;
+    }
 }
 
 

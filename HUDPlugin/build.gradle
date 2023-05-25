@@ -1,0 +1,8 @@
+plugins {
+    id 'java-library'
+}
+
+dependencies {
+    implementation project(':Common')
+    implementation "org.lwjgl:lwjgl-nanovg:$lwjglVersion"
+}

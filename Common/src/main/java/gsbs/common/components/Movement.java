@@ -29,6 +29,10 @@ public class Movement extends Component {
         this.dy = dy;
     }
 
+    public float getVelocity() {
+        return (float) Math.sqrt(dx * dx + dy * dy);
+    }
+
     public float getDeceleration() {
         return deceleration;
     }

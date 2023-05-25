@@ -9,14 +9,17 @@ import org.lwjgl.glfw.*;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.Platform;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.Objects;
 import java.util.function.Consumer;
 
 import static org.lwjgl.bgfx.BGFX.*;
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.nanovg.NanoVG.nvgBeginFrame;
-import static org.lwjgl.nanovg.NanoVG.nvgEndFrame;
+import static org.lwjgl.nanovg.NanoVG.*;
 import static org.lwjgl.nanovg.NanoVGBGFX.nvgCreate;
 import static org.lwjgl.nanovg.NanoVGBGFX.nvgDelete;
 import static org.lwjgl.system.Configuration.GLFW_LIBRARY_NAME;
@@ -28,8 +31,8 @@ public class Window {
     private final ImGuiImplBGFX imGuiBGFX = new ImGuiImplBGFX();
     private final ImGuiImplGlfw imGuiGlfw = new ImGuiImplGlfw();
     private final Consumer<Window> process;
-
     private final long nvgContext;
+    private ByteBuffer fontBuffer = null;
     private long handle;
 
     public Window(Configuration config, Consumer<Window> process) {
@@ -40,6 +43,29 @@ public class Window {
         imGuiGlfw.init(handle, true);
         imGuiBGFX.init();
         nvgContext = nvgCreate(true, 0, NULL);
+
+        // Load font
+        var fontUrl = getClass().getResource("/OpenSans-Regular.ttf");
+        assert fontUrl != null;
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        try (InputStream stream = fontUrl.openStream()) {
+            byte[] chunk = new byte[4096];
+            int bytesRead;
+
+            while ((bytesRead = stream.read(chunk)) > 0) {
+                outputStream.write(chunk, 0, bytesRead);
+            }
+
+            var fontData = outputStream.toByteArray();
+            fontBuffer = ByteBuffer.allocateDirect(fontData.length);
+            fontBuffer.put(fontData);
+            fontBuffer.flip();
+            nvgCreateFontMem(nvgContext, "sans", fontBuffer, 0);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void run() {

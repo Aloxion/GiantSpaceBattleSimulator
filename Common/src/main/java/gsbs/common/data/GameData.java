@@ -1,26 +1,59 @@
 package gsbs.common.data;
 
+import gsbs.common.entities.Entity;
 import gsbs.common.events.Event;
 import gsbs.common.events.EventManager;
 import gsbs.common.services.IPlugin;
 import imgui.ImGui;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A simple data object, containing all the game data, that doesn't fit into the World.
  */
 public class GameData {
+    private final Map<Class<?>, Long> profilingData = new HashMap<>();
     private final GameKeys keys = new GameKeys();
     private final EventManager eventManager = new EventManager();
+    private final int nodeSize = 10;
+    private final Map<Entity, List<Node>> paths = new HashMap<>();
+    private long nvgContext;
     private List<IPlugin> initializedPlugins = new ArrayList<>();
     private GameState gameState = GameState.START;
     private float deltaTime;
     private int renderCycles;
+    private Grid grid;
+
+    public GameData(long nvgContext) {
+        this.nvgContext = nvgContext;
+    }
+
+    public Grid getGrid() {
+        return grid;
+    }
+
+    public void setGrid(Grid grid) {
+        this.grid = grid;
+    }
+
+
+    public Map<Entity, List<Node>> getPaths() {
+        return paths;
+    }
+
+    public List<Node> getPath(Entity entity) {
+        return paths.get(entity);
+    }
+
+    public void setPath(Entity entity, List<Node> path) {
+        this.paths.put(entity, path);
+    }
 
     /**
-     * Get the number of milliseconds between frames.
+     * Get the number of seconds between frames.
      */
     public float getDeltaTime() {
         return deltaTime;
@@ -90,5 +123,21 @@ public class GameData {
      */
     public EventManager getEventManager() {
         return eventManager;
+    }
+
+    public long getNvgContext() {
+        return nvgContext;
+    }
+
+    public void setNvgContext(long nvgContext) {
+        this.nvgContext = nvgContext;
+    }
+
+    public int getNodeSize() {
+        return nodeSize;
+    }
+
+    public Map<Class<?>, Long> getProfilingData() {
+        return profilingData;
     }
 }

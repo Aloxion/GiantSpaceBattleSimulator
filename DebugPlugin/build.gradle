@@ -1,0 +1,10 @@
+plugins {
+    id 'java-library'
+}
+
+dependencies {
+    implementation project(':Common')
+    implementation "io.github.spair:imgui-java-binding:$imguiVersion"
+    implementation "org.lwjgl:lwjgl-nanovg:$lwjglVersion"
+    implementation "org.lwjgl:lwjgl-bgfx:$lwjglVersion"
+}

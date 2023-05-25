@@ -4,7 +4,7 @@ import gsbs.common.components.Hitbox;
 import gsbs.common.components.Position;
 import gsbs.common.components.Sprite;
 import gsbs.common.data.GameData;
-import gsbs.common.data.Node;
+import gsbs.common.data.AsteroidNode;
 import gsbs.common.data.World;
 import gsbs.common.data.enums.AsteroidSizes;
 import gsbs.common.entities.Asteroid;
@@ -14,7 +14,7 @@ import gsbs.common.services.IPlugin;
 import java.util.Random;
 
 public class AsteroidPlugin implements IPlugin {
-    private Node[][] asteroidGrid;
+    private AsteroidNode[][] asteroidGrid;
     private final static int cellSize = 128;
     private final static int MAX_ATTEMPTS = 50;
     private static final Random getRandom = new Random();
@@ -61,7 +61,7 @@ public class AsteroidPlugin implements IPlugin {
         // to look for inner nodes.
         int randRow = (int) (Math.random() * (numRows/2) + 1);
         int randCol = (int) (Math.random() * (numCols/2) + 1);
-        Node currentNode = asteroidGrid[randRow][randCol];
+        AsteroidNode currentNode = asteroidGrid[randRow][randCol];
 
         // Randomly selected a value between 0..3
         int direction = (int) (Math.random() * 4); // 0 = up, 1 = right, 2 = down, 3 = left
@@ -97,9 +97,9 @@ public class AsteroidPlugin implements IPlugin {
         return null;
     }
 
-    public Node[][] createAsteroidGrid(GameData gameData) {
+    public AsteroidNode[][] createAsteroidGrid(GameData gameData) {
         //Sets row and col for the grid, that takes account for the fact that we want a min-x column
-        int numRows = gameData.getDisplayHeight() / cellSize;
+        int numRows = gameData.getDisplayHeight() / cellSize +1;
         int numCols = ((gameData.getDisplayWidth() - (2 * (gameData.getDisplayWidth() / 4))) / cellSize);
 
         //Center (X,Y) for screen & grid
@@ -112,13 +112,13 @@ public class AsteroidPlugin implements IPlugin {
         int startY = centerScreenY - centerGridY;
         //We plus by 1, to get the start column to be a bit more towards x-positive. This way we get it into the center of the screen.
         int startCol = startX / cellSize + 1;
-        int startRow = startY / cellSize;
+        int startRow = startY / cellSize +1;
 
-        Node[][] nodes = new Node[numRows][numCols];
+        AsteroidNode[][] nodes = new AsteroidNode[numRows][numCols];
 
         for (int row = 0; row < numRows; row++) {
             for (int col = 0; col < numCols; col++) {
-                nodes[row][col] = new Node(row + startRow, col + startCol);
+                nodes[row][col] = new AsteroidNode(row + startRow, col + startCol);
             }
         }
         return nodes;

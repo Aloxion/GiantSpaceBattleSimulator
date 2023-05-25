@@ -6,15 +6,17 @@ import gsbs.common.services.IEventListener;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * The EventManagerTest class contains a set of tests to validate the functionality
  * of the EventManager and its interaction with events and event listeners.
  * The tests cover the following scenarios:
- *   - Adding events to the event queue.
- *   - Adding and removing event listeners.
- *   - Dispatching events to registered listeners.
+ * - Adding events to the event queue.
+ * - Adding and removing event listeners.
+ * - Dispatching events to registered listeners.
  */
 class EventManagerTest {
 
@@ -24,7 +26,7 @@ class EventManagerTest {
     @BeforeEach
     void setUp() {
         eventManager = new EventManager();
-        gameData = new GameData(); // Initialize gameData, or use a mock object
+        gameData = new GameData(0); // Initialize gameData, or use a mock object
     }
 
     @Test
@@ -56,24 +58,9 @@ class EventManagerTest {
         }
 
         SampleListener listener = new SampleListener();
-        eventManager.addEventListener(listener);
         eventManager.addEvent(event);
-        eventManager.dispatchEvents(gameData);
+        eventManager.dispatchEvents(gameData, List.of(listener));
         assertTrue(listener.eventReceived);
-    }
-
-    @Test
-    void testRemoveEventListener() {
-        class SampleListener implements IEventListener {
-            @Override
-            public void onEvent(Event event, GameData gameData) {
-            }
-        }
-
-        SampleListener listener = new SampleListener();
-        eventManager.addEventListener(listener);
-        eventManager.removeEventListener(listener);
-        assertTrue(eventManager.getListeners().isEmpty());
     }
 
     @Test
@@ -96,8 +83,7 @@ class EventManagerTest {
         }
 
         SampleListener listener = new SampleListener();
-        eventManager.addEventListener(listener);
-        eventManager.dispatchEvents(gameData);
+        eventManager.dispatchEvents(gameData, List.of(listener));
         assertEquals(1, listener.eventCount);
         assertTrue(eventManager.getEventQueue().isEmpty());
     }

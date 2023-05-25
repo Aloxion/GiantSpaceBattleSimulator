@@ -53,19 +53,7 @@ public class GameKeys {
         // PLAYER CONTROL KEYS
         public static final int WEAPON_CYCLE_UP = 81; //Q
         public static final int WEAPON_CYCLE_DOWN = 69; //E
-
-        public static final int RELEASE_SHIPS = 82; //R
-        public static final int SHIPS_DEFEND = 70; //F
-
-        public static final int Z = 90;
-        public static final int X = 88;
-        public static final int C = 67;
-        public static final int V = 86;
-
-        // SYSTEM KEYS
-        public static final int ENTER = 257;
-        public static final int ESCAPE = 256;
         public static final int SPACE = 32;
-        public static final int SHIFT = 340;
+
     }
 }

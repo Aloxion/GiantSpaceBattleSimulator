@@ -53,7 +53,7 @@ public class GameData {
     }
 
     /**
-     * Get the number of milliseconds between frames.
+     * Get the number of seconds between frames.
      */
     public float getDeltaTime() {
         return deltaTime;
